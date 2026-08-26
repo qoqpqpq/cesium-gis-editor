@@ -217,6 +217,50 @@ p {
   }
 }
 
+/* ====== Header 右侧操作区 ====== */
+.header-right {
+  display: flex;
+  align-items: center;
+}
+.ai-key-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--toggle-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-ease), border-color var(--theme-transition-duration) var(--theme-transition-ease), transform 80ms var(--ease, ease);
+}
+.ai-key-btn:hover {
+  background: var(--toggle-bg-hover);
+  border-color: var(--border-strong);
+}
+.ai-key-btn:active {
+  transform: scale(0.97);
+}
+.ai-key-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.ai-key-btn-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+.ai-key-btn-label {
+  font-size: 12px;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .ai-key-btn-label {
+    display: none;
+  }
+}
+
 /* ====== AI 用量面板（阶段 3A） ====== */
 .usage-panel {
   background: var(--card);

@@ -89,6 +89,13 @@ export default function GIS() {
   // 可用 AI 平台列表 + 当前选中的平台
   const [aiPlatforms, setAiPlatforms] = useState([]);
   const [keySettingsOpen, setKeySettingsOpen] = useState(false); // 🔑 Key 设置弹窗
+
+  // Header 里的 🔑 按钮通过 window 事件触发（App.jsx 里的按钮不在 GIS 组件作用域内）
+  useEffect(() => {
+    const handler = () => setKeySettingsOpen(true);
+    window.addEventListener('gis-open-key-settings', handler);
+    return () => window.removeEventListener('gis-open-key-settings', handler);
+  }, []);
   const [aiCurrentPlatform, setAiCurrentPlatform] = useState(() => {
     try { return localStorage.getItem('ai-platform') || ''; } catch (_) { return ''; }
   });

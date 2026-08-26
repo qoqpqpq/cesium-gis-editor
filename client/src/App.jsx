@@ -33,7 +33,18 @@ function Header() {
           </NavLink>
         ))}
       </nav>
-      <ThemeToggle />
+      <div className="header-right">
+        <button
+          type="button"
+          className="ai-key-btn"
+          title="配置 AI Key（仅存于本会话，刷新/关闭即清）"
+          onClick={() => window.dispatchEvent(new CustomEvent('gis-open-key-settings'))}
+        >
+          <span className="ai-key-btn-icon" aria-hidden="true">🔑</span>
+          <span className="ai-key-btn-label">AI Key</span>
+        </button>
+        <ThemeToggle />
+      </div>
     </header>
   );
 }

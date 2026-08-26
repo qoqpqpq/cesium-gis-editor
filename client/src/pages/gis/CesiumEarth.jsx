@@ -220,6 +220,11 @@ const CesiumEarth = forwardRef(function CesiumEarth(
 
     (async () => {
       try {
+        // 无 Ion token 时清空默认 token，避免 Cesium 用已失效的默认 token 访问 Ion 资产导致渲染崩溃
+        // 后续 gisApi.cesiumToken() 回调里如有真实 token 会覆盖
+        if (!Cesium.Ion.defaultAccessToken || Cesium.Ion.defaultAccessToken.length < 10) {
+          Cesium.Ion.defaultAccessToken = '';
+        }
         viewer = new Cesium.Viewer(containerRef.current, {
           // 关闭：动画/时间轴（当前用例不需要时间动态数据）
           animation: false,
