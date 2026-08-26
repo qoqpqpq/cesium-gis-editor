@@ -466,17 +466,17 @@ export default function GIS() {
     };
   }, []);
 
-  // 天地图 Token 弹窗（首次加载且未配置时弹出）
+  // 底图 Token 弹窗（首次加载时弹出，用户可跳过）
   const [showTokenDialog, setShowTokenDialog] = useState(() => {
     try {
-      const hasToken = !!localStorage.getItem('cesium_tdt_token');
       const skipped = localStorage.getItem('cesium_tdt_skipped');
-      return !hasToken && !skipped;
+      return !skipped;
     } catch (_) { return false; }
   });
 
-  // 用户在弹窗里手动输入的天地图 token（仅本会话内存，不持久化）
+  // 用户在弹窗里手动输入的 token（仅本会话内存，不持久化，刷新/关闭即清）
   const [tdtTokenOverride, setTdtTokenOverride] = useState('');
+  const [cesiumTokenOverride, setCesiumTokenOverride] = useState('');
 
   // ===== 三列宽度 & 折叠状态 =====
   // 初始默认三列各占 1/3（基于当前视口宽度），保留用户已拖拽保存的自定义宽度
@@ -947,6 +947,7 @@ export default function GIS() {
             coordFormat={coordFormat}
             onCoordFormatChange={setCoordFormat}
             tdtTokenOverride={tdtTokenOverride}
+            cesiumTokenOverride={cesiumTokenOverride}
             editorApiRef={editorRef}
             onInfo={(t) => {
               captureCtx();
@@ -970,11 +971,11 @@ export default function GIS() {
           {/* 天地图 Token 配置弹窗 */}
           {showTokenDialog && (
             <ImageryTokenDialog
-              hasOverride={!!tdtTokenOverride}
-              onSave={(token) => {
-                // 仅在内存中暂存 override token（不会写入 localStorage / sessionStorage）
-                // 服务端 token 走 /api/gis/tdt-token，本对话期内的 override 留在 React state
-                setTdtTokenOverride(token);
+              hasOverride={!!tdtTokenOverride || !!cesiumTokenOverride}
+              onSave={({ tdtToken, cesiumToken }) => {
+                // 仅在内存中暂存（不会写入 localStorage / sessionStorage），刷新/关闭即清
+                setTdtTokenOverride(tdtToken);
+                setCesiumTokenOverride(cesiumToken);
                 setShowTokenDialog(false);
                 try { cesiumRef.current?.reloadImagery?.(); } catch (_) {}
               }}

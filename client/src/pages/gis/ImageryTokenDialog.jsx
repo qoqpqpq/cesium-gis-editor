@@ -1,20 +1,16 @@
-// 天地图 Token 配置弹窗
-// 优先使用服务端配置的 TIANDITU_TOKEN（推荐，更安全）；
-// 弹窗仍允许临时覆盖（仅内存 + 父组件 React state，关闭标签页即失效），便于个人调试。
+// 底图 Token 配置弹窗
+// 服务端不存储任何地图 Token —— 用户在此弹窗自行输入，仅存于浏览器会话内存（刷新/关闭即清）
+// 不填 Token 时使用 OSM / Esri / 高德等公开底图，功能完整
 import { useEffect, useRef, useState } from 'react';
-import { gisApi } from '../../api/index.js';
 
 export default function ImageryTokenDialog({ onSave, onSkip, hasOverride = false }) {
-  const [token, setToken] = useState('');
-  const [serverEnabled, setServerEnabled] = useState(false);
-  const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState(null);
+  // tdtToken: 天地图 Token； cesiumToken: Cesium Ion Token
+  const [tdtToken, setTdtToken] = useState('');
+  const [cesiumToken, setCesiumToken] = useState('');
+  const [testing, setTesting] = useState(null); // {which: 'tdt'|'ion', state: 'ok'|'fail'}
   const dialogRef = useRef(null);
 
   useEffect(() => {
-    gisApi.config()
-      .then((cfg) => setServerEnabled(!!cfg?.tianDitu?.enabled))
-      .catch(() => {});
     setTimeout(() => {
       const input = dialogRef.current?.querySelector('input');
       input && input.focus();
@@ -22,31 +18,35 @@ export default function ImageryTokenDialog({ onSave, onSkip, hasOverride = false
   }, []);
 
   function save() {
-    const trimmed = token.trim();
-    onSave && onSave(trimmed);
-  }
-
-  function clearOverride() {
-    setToken('');
-    onSave && onSave('');
+    onSave && onSave({
+      tdtToken: tdtToken.trim(),
+      cesiumToken: cesiumToken.trim(),
+    });
   }
 
   function skip() {
     onSkip && onSkip();
   }
 
-  async function testToken() {
+  async function testToken(which, token) {
     if (!token.trim()) return;
-    setTesting(true);
-    setTestResult(null);
+    setTesting({ which, state: 'pending' });
     try {
-      const testUrl = `https://t0.tianditu.gov.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&layer=img&style=default&format=tiles&tileMatrixSet=w&tileMatrix=1&tileRow=1&tileCol=1&tk=${token.trim()}`;
-      const resp = await fetch(testUrl, { method: 'HEAD', mode: 'cors' });
-      setTestResult(resp.ok ? 'ok' : 'fail');
+      let ok = false;
+      if (which === 'tdt') {
+        const resp = await fetch(
+          `https://t0.tianditu.gov.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&layer=img&style=default&format=tiles&tileMatrixSet=w&tileMatrix=1&tileRow=1&tileCol=1&tk=${token.trim()}`,
+          { method: 'HEAD', mode: 'cors' },
+        );
+        ok = resp.ok;
+      } else if (which === 'ion') {
+        // Cesium Ion: 验证 token 能访问 ion API
+        const resp = await fetch(`https://api.cesium.com/v1/assets?access_token=${token.trim()}`, { method: 'GET' });
+        ok = resp.ok;
+      }
+      setTesting({ which, state: ok ? 'ok' : 'fail' });
     } catch {
-      setTestResult('fail');
-    } finally {
-      setTesting(false);
+      setTesting({ which, state: 'fail' });
     }
   }
 
@@ -58,54 +58,72 @@ export default function ImageryTokenDialog({ onSave, onSkip, hasOverride = false
         aria-labelledby="imagery-token-dialog-title"
       >
         <div className="ai-modal-head">
-          <span id="imagery-token-dialog-title">🗺 配置天地图 Token</span>
+          <span id="imagery-token-dialog-title">🗺 配置底图 Token</span>
           <button className="sandcastle-icon-btn" onClick={skip} aria-label="跳过 Token 设置">✕</button>
         </div>
-        <div style={{ padding: '12px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {serverEnabled ? (
-            <div className="small" style={{ color: 'var(--success)', padding: '8px 10px', background: 'rgba(74,222,128,0.08)', borderRadius: 6 }}>
-              ✓ 服务端已配置 Token，无需手动填写。点击「暂不配置」继续。
-            </div>
-          ) : (
-            <div className="muted small" style={{ padding: '8px 10px', background: 'rgba(251,191,36,0.08)', borderRadius: 6, color: 'var(--warn)' }}>
-              ⚠ 服务端未配置 Token。
-              1. 前往 <a href="https://console.tianditu.gov.cn/" target="_blank" rel="noreferrer">console.tianditu.gov.cn</a> 注册 → 创建应用 → 获取 Key
-              <br />
-              2. 告知管理员把 Key 写入服务端 <code>TIANDITU_TOKEN</code> 环境变量（更安全）
-              <br />
-              3. 或临时在下方填入（仅本次会话有效）
-            </div>
-          )}
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <label htmlFor="imagery-token-input" className="visually-hidden" style={{ position: 'absolute', left: -9999 }}>
-              天地图 Token 覆盖值
-            </label>
-            <input
-              id="imagery-token-input"
-              className="input"
-              style={{ flex: 1 }}
-              placeholder="可选：临时覆盖 Token（仅本次会话）"
-              value={token}
-              onChange={(e) => { setToken(e.target.value); setTestResult(null); }}
-              onKeyDown={(e) => { if (e.key === 'Enter') save(); }}
-            />
-            <button
-              className={'btn small' + (testResult === 'ok' ? ' primary' : testResult === 'fail' ? ' danger' : '')}
-              onClick={testToken}
-              disabled={testing || !token.trim()}
-            >
-              {testing ? '⏳' : testResult === 'ok' ? '✓' : testResult === 'fail' ? '✗' : '测试'}
-            </button>
+        <div style={{ padding: '12px 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="muted small" style={{ padding: '8px 10px', background: 'rgba(251,191,36,0.08)', borderRadius: 6, color: 'var(--warn)' }}>
+            Token 仅存于浏览器当前会话（内存），刷新/关闭即清除。<br/>
+            不填也能用——默认加载 OSM / Esri / 高德 等公开底图。
           </div>
-          {testResult === 'ok' && <div className="small" style={{ color: 'var(--success)' }}>✓ Token 有效</div>}
-          {testResult === 'fail' && <div className="small" style={{ color: 'var(--danger)' }}>✗ Token 无效</div>}
+
+          {/* 天地图 Token */}
+          <div>
+            <div style={{ marginBottom: 6, fontSize: 13, fontWeight: 600 }}>🗺 天地图 Token</div>
+            <div className="muted small" style={{ marginBottom: 6 }}>
+              前往 <a href="https://console.tianditu.gov.cn/" target="_blank" rel="noreferrer">console.tianditu.gov.cn</a> 注册获取
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                className="input"
+                style={{ flex: 1 }}
+                placeholder="天地图 Token（可选，仅本次会话）"
+                value={tdtToken}
+                onChange={(e) => { setTdtToken(e.target.value); setTesting(null); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') save(); }}
+              />
+              <button
+                className={'btn small' + (testing?.which === 'tdt' && testing?.state === 'ok' ? ' primary' : testing?.which === 'tdt' && testing?.state === 'fail' ? ' danger' : '')}
+                onClick={() => testToken('tdt', tdtToken)}
+                disabled={!tdtToken.trim() || testing?.state === 'pending'}
+              >
+                {testing?.which === 'tdt' && testing?.state === 'pending' ? '⏳' : testing?.which === 'tdt' && testing?.state === 'ok' ? '✓' : testing?.which === 'tdt' && testing?.state === 'fail' ? '✗' : '测试'}
+              </button>
+            </div>
+            {testing?.which === 'tdt' && testing?.state === 'ok' && <div className="small" style={{ color: 'var(--success)', marginTop: 4 }}>✓ Token 有效</div>}
+            {testing?.which === 'tdt' && testing?.state === 'fail' && <div className="small" style={{ color: 'var(--danger)', marginTop: 4 }}>✗ Token 无效或网络不通</div>}
+          </div>
+
+          {/* Cesium Ion Token */}
+          <div>
+            <div style={{ marginBottom: 6, fontSize: 13, fontWeight: 600 }}>🌐 Cesium Ion Token</div>
+            <div className="muted small" style={{ marginBottom: 6 }}>
+              前往 <a href="https://ion.cesium.com/tokens" target="_blank" rel="noreferrer">ion.cesium.com/tokens</a> 注册获取（用于 3D 地形、Bing 卫星等）
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                className="input"
+                style={{ flex: 1 }}
+                placeholder="Cesium Ion Token（可选，仅本次会话）"
+                value={cesiumToken}
+                onChange={(e) => { setCesiumToken(e.target.value); setTesting(null); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') save(); }}
+              />
+              <button
+                className={'btn small' + (testing?.which === 'ion' && testing?.state === 'ok' ? ' primary' : testing?.which === 'ion' && testing?.state === 'fail' ? ' danger' : '')}
+                onClick={() => testToken('ion', cesiumToken)}
+                disabled={!cesiumToken.trim() || testing?.state === 'pending'}
+              >
+                {testing?.which === 'ion' && testing?.state === 'pending' ? '⏳' : testing?.which === 'ion' && testing?.state === 'ok' ? '✓' : testing?.which === 'ion' && testing?.state === 'fail' ? '✗' : '测试'}
+              </button>
+            </div>
+            {testing?.which === 'ion' && testing?.state === 'ok' && <div className="small" style={{ color: 'var(--success)', marginTop: 4 }}>✓ Token 有效</div>}
+            {testing?.which === 'ion' && testing?.state === 'fail' && <div className="small" style={{ color: 'var(--danger)', marginTop: 4 }}>✗ Token 无效或网络不通</div>}
+          </div>
         </div>
         <div className="ai-modal-actions">
           <button className="btn small" onClick={skip}>暂不配置</button>
-          {hasOverride && (
-            <button className="btn small danger" onClick={clearOverride}>清除覆盖</button>
-          )}
-          <button className="btn small primary" onClick={save} disabled={!token.trim()}>保存覆盖</button>
+          <button className="btn small primary" onClick={save} disabled={!tdtToken.trim() && !cesiumToken.trim()}>保存</button>
         </div>
       </div>
     </div>

@@ -172,6 +172,7 @@ const CesiumEarth = forwardRef(function CesiumEarth(
     onPointClick, // (lat, lon) => void
     onInfo,        // (text) => void
     tdtTokenOverride = '', // 用户在弹窗里手动输入的天地图 token（仅会话内）
+    cesiumTokenOverride = '', // 用户在弹窗里手动输入的 Cesium Ion token（仅会话内）
     onError,       // (err) => void
     editorApiRef = null, // 阶段 2B: 把 EditorPanel 的命令式 ref 透传给内部 CursorReadout,用于显示选中数 / undo 状态
   },
@@ -195,33 +196,17 @@ const CesiumEarth = forwardRef(function CesiumEarth(
     let viewer, ro, handler;
     let cancelled = false;
 
-    // 从服务端拉取 Cesium Ion token（不再读 localStorage）
-    // 失败时回退到无 token 模式（OSM / Esri / 高德 等公开底图仍可用）
-    gisApi.cesiumToken()
-      .then((d) => {
-        if (cancelled) return;
-        if (d?.token) Cesium.Ion.defaultAccessToken = d.token;
-      })
-      .catch(() => {});
+    // Cesium Ion token：用户在弹窗里输入（纯会话），服务端不存储
+    // 有 override 则用 override；无则空 token（走 OSM/Esri/高德 公开底图）
+    Cesium.Ion.defaultAccessToken = cesiumTokenOverride || '';
 
-    // 天地图 token：先创建无 token 的 viewModels；如果服务端有 token，再异步重建注册
+    // 天地图 token：用户在弹窗里输入（纯会话），服务端不存储
     let imageryViewModels = createImageryViewModels(tdtTokenOverride || '');
-    gisApi.tdtToken()
-      .then((d) => {
-        if (cancelled || !viewer) return;
-        // 优先使用服务端 token；如果用户 override 了一个明确的 token 则用 override
-        const finalToken = tdtTokenOverride || d?.token || '';
-        if (!finalToken) return;
-        const newModels = createImageryViewModels(finalToken);
-        viewer.baseLayerPicker.viewModel.imageryProviderViewModels = newModels;
-        viewer.baseLayerPicker.viewModel.selectedImagery = newModels[0];
-      })
-      .catch(() => {});
 
     (async () => {
       try {
         // 无 Ion token 时清空默认 token，避免 Cesium 用已失效的默认 token 访问 Ion 资产导致渲染崩溃
-        // 后续 gisApi.cesiumToken() 回调里如有真实 token 会覆盖
+        // 用户在弹窗里输入的 cesiumTokenOverride 已在上面设置了
         if (!Cesium.Ion.defaultAccessToken || Cesium.Ion.defaultAccessToken.length < 10) {
           Cesium.Ion.defaultAccessToken = '';
         }
@@ -581,21 +566,11 @@ const CesiumEarth = forwardRef(function CesiumEarth(
       const viewer = viewerRef.current;
       if (!viewer) return;
       try { viewer.imageryLayers.removeAll(false); } catch (_) {}
-      // 重建时也带上 override token
-      gisApi.tdtToken()
-        .then((d) => {
-          const finalToken = tdtTokenOverride || d?.token || '';
-          const vm = createImageryViewModels(finalToken);
-          setupImageryWithFallback(viewer, vm, (name) => {
-            onInfo && onInfo('底图加载：' + name);
-          });
-        })
-        .catch(() => {
-          const vm = createImageryViewModels(tdtTokenOverride || '');
-          setupImageryWithFallback(viewer, vm, (name) => {
-            onInfo && onInfo('底图加载：' + name);
-          });
-        });
+      // 重建时也带上 override token（纯会话，服务端不存储）
+      const vm = createImageryViewModels(tdtTokenOverride || '');
+      setupImageryWithFallback(viewer, vm, (name) => {
+        onInfo && onInfo('底图加载：' + name);
+      });
     },
     /** 添加自定义底图源（用户通过 URL 模板添加） */
     addCustomImageryProvider(name, urlTemplate, credit = '自定义') {
