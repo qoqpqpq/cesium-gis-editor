@@ -1,0 +1,30 @@
+{
+  "name": "cesium-gis-editor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "独立开源 GIS 可视化编辑器（React + Vite + Cesium + Express）— 三维地球 · 代码沙箱 · AI 助手",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "client:install": "cd client && npm install",
+    "client:dev": "cd client && npm run dev",
+    "client:build": "cd client && npm run build",
+    "client:clean": "cd client && npm run clean",
+    "clean": "node -e \"const fs=require('fs');const p=require('path');['client/dist'].forEach(d=>{if(fs.existsSync(d)){fs.rmSync(d,{recursive:true,force:true});console.log('✓ 已清理 '+p.resolve(d));}});\"",
+    "build": "npm run clean && cd client && npm install && npm run build"
+  },
+  "dependencies": {
+    "@turf/turf": "^7.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^7.2.0",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

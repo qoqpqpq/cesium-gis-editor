@@ -1,0 +1,32 @@
+# 依赖
+node_modules/
+client/node_modules/
+
+# 构建产物
+client/dist/
+dist/
+
+# 环境变量（绝不提交真实 Key / Token）
+.env
+.env.local
+.env.production
+client/.env
+client/.env.local
+
+# Claude / IDE
+.claude/
+.vscode/
+.idea/
+
+# 日志
+*.log
+npm-debug.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.bak
+*.css.new

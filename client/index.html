@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Cesium GIS Editor - 三维地球可视化 · 代码沙箱 · AI 助手" />
+  <meta name="keywords" content="GIS,Cesium,三维地球,可视化,代码沙箱,AI,空间编辑器" />
+  <title>Cesium GIS Editor</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; }
+    #root { min-height: 100vh; }
+  </style>
+  <script>
+    // ===== Theme bootstrap (FOUC 防护) =====
+    // 必须在 React 加载前同步运行,给 <html> 加 data-theme,
+    // 否则用户首次进站会先看到"默认主题"再被 React 切到"真实主题" -> 闪烁
+    (function () {
+      try {
+        var STORAGE_KEY = 'theme:mode';
+        var saved = null;
+        try { saved = localStorage.getItem(STORAGE_KEY); } catch (_) {}
+        var mode = saved === 'light' || saved === 'dark' || saved === 'system'
+          ? saved
+          : 'dark'; // 默认暗主题(与现状一致,不破坏既有用户习惯)
+        var resolved = mode;
+        if (mode === 'system') {
+          var mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+          resolved = (mql && mql.matches) ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', resolved);
+        // 暂存用户偏好,供 ThemeProvider 初次 mount 读
+        window.__THEME_MODE__ = mode;
+      } catch (_) {
+        // 出错时不做任何事,fallback 到缺省暗主题
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

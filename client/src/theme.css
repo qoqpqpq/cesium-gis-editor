@@ -1,0 +1,537 @@
+/* ====== Theme System ======
+ * 双主题(design tokens),通过 :root[data-theme="light|dark"] 切换.
+ * 阶段 0 范围:仅引入语义 token 别名 + 亮主题色值,不动现有暗主题颜色.
+ * 阶段 1 会把所有 inline 颜色统一迁到这里.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ===== 语义 token 别名(语义层,组件只引用这些) ===== */
+  /* 这样组件写 background: var(--surface-1); 主题切换时自动跟随 */
+  --surface-0: var(--bg);
+  --surface-1: var(--card);
+  --surface-2: var(--surface-strong);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-soft);
+  --text-muted: var(--muted);
+  --accent-primary: var(--primary);
+  --accent-info: var(--accent);
+  --accent-success: var(--success);
+  --accent-warn: var(--warn);
+  --accent-danger: var(--danger);
+  --border-default: var(--border);
+  --border-strong: var(--border-strong);
+  --radius-base: var(--radius-md, 12px);
+  --shadow-base: var(--shadow);
+  --shadow-elevated: var(--shadow-lg, 0 14px 40px rgba(0,0,0,0.45));
+  --theme-transition-duration: 160ms;
+  --theme-transition-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 反相文字:暗主题下深底上的浅字 */
+  --on-ink: rgba(255, 255, 255, 0.92);
+  --on-primary: #ffffff;
+  /* Step C 主页/Article 通用 alpha 系列:把 rgba(255,255,255,X)、rgba(108,140,255,X)、rgba(0,0,0,X)
+   * 三组高频 alpha 颜色收敛为命名 token.组件写 var(--ink-30) 即可,亮主题会自动反色. */
+
+  /* 白色 alpha 系列(暗主题可见光晕 / 浅主题压暗) */
+  --white-04: rgba(255, 255, 255, 0.04);
+  --white-06: rgba(255, 255, 255, 0.06);
+  --white-08: rgba(255, 255, 255, 0.08);
+  --white-12: rgba(255, 255, 255, 0.12);
+  --white-15: rgba(255, 255, 255, 0.15);
+  --white-30: rgba(255, 255, 255, 0.30);
+  --white-60: rgba(255, 255, 255, 0.60);
+  --white-70: rgba(255, 255, 255, 0.70);
+
+  /* 主色 alpha 系列(蓝紫光晕) */
+  --primary-06: rgba(108, 140, 255, 0.06);
+  --primary-08: rgba(108, 140, 255, 0.08);
+  --primary-12: rgba(108, 140, 255, 0.12);
+  --primary-18: rgba(108, 140, 255, 0.18);
+  --primary-20: rgba(108, 140, 255, 0.20);
+  --primary-25: rgba(108, 140, 255, 0.25);
+  --primary-30: rgba(108, 140, 255, 0.30);
+  --primary-35: rgba(108, 140, 255, 0.35);
+  --primary-40: rgba(108, 140, 255, 0.40);
+  /* Tailwind indigo-500 (#6366f1) 系列 — 用于 AI 工具调用 chip / 高亮边框 */
+  --indigo-08: rgba(99, 102, 241, 0.08);
+  --indigo-15: rgba(99, 102, 241, 0.15);
+  --indigo-18: rgba(99, 102, 241, 0.18);
+  --indigo-20: rgba(99, 102, 241, 0.20);
+  --indigo-25: rgba(99, 102, 241, 0.25);
+  --indigo-35: rgba(99, 102, 241, 0.35);
+  --indigo-40: rgba(99, 102, 241, 0.40);
+
+  /* 主色 concrete 值,本身常用 */
+  --primary-500: #6c8cff;
+  --accent-500: #5ad1ff;
+  --accent-warm-500: #c4a3ff;
+
+  /* 黑色 alpha 系列(暗主题加深底 / 亮主题加阴影) */
+  --ink-08: rgba(0, 0, 0, 0.08);
+  --ink-15: rgba(0, 0, 0, 0.15);
+  --ink-25: rgba(0, 0, 0, 0.25);
+  --ink-30: rgba(0, 0, 0, 0.30);
+  --ink-40: rgba(0, 0, 0, 0.40);
+  --ink-45: rgba(0, 0, 0, 0.45);
+  --ink-50: rgba(0, 0, 0, 0.50);
+
+  /* ===== 阶段 1 新增 token =====
+   * 解决 styles.css 里 561 处硬编码颜色散落问题.语义按用途命名,组件写 var(--code-bg) 即可. */
+
+  /* 代码块 / kbd / pre */
+  --code-bg: rgba(255, 255, 255, 0.04);
+  --code-fg: #e6e9f4;
+  --kbd-bg: rgba(255, 255, 255, 0.08);
+  /* AIChat 代码块 / Diff 块 / 控制台（VSCode dark theme 风格, syntax-highlight 才好看） */
+  --ai-code-bg: #1e1e1e;
+  --ai-code-head-bg: #252526;
+  --ai-code-border: #2d2d2d;
+  --ai-code-fg: #d4d4d4;
+  --ai-code-tag: #9cdcfe;
+  /* 控制台级别徽章 — level-error 用 */
+  --level-error-bg: #7f1d1d;
+  --level-error-fg: #fecaca;
+
+  /* 链接 - 默认色, hover 色 */
+  --link: #6c8cff;
+  --link-hover: #4f6cff;
+
+  /* 强调色上的文字(按钮文字, 在彩色背景上)-- 以 L33 暗主题 :root 处定义为准,亮主题覆写在 :root[data-theme=light] */
+
+  /* 骨架屏 / 加载 placeholder */
+  --skeleton: rgba(255, 255, 255, 0.06);
+  --skeleton-shine: rgba(255, 255, 255, 0.12);
+
+  /* 分隔线 hr / divider */
+  --rule: rgba(255, 255, 255, 0.08);
+
+  /* 卡片 hover 抬升时使用的更重阴影 */
+  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
+
+  /* footer 单独背景, 比 page bg 略暗一点 */
+  --footer-bg: rgba(0, 0, 0, 0.25);
+  --footer-fg: rgba(255, 255, 255, 0.7);
+
+  /* 选中态高亮(文本选中) */
+  --selection-bg: rgba(108, 140, 255, 0.35);
+  --selection-fg: #ffffff;
+
+  /* ===== Step B 通用控件补充 token ===== */
+  /* .tag / 强调色软背景胶囊 */
+  --primary-soft-bg: rgba(108, 140, 255, 0.18);
+  --primary-soft-fg: #c8d3ff;
+  --primary-soft-border: rgba(108, 140, 255, 0.25);
+  /* .badge 中性软背景 */
+  --neutral-soft-bg: rgba(255, 255, 255, 0.08);
+  --neutral-soft-fg: #c8d3ff;
+  --neutral-soft-border: rgba(255, 255, 255, 0.10);
+  /* .error 危险提示面板 */
+  --danger-bg: rgba(239, 68, 68, 0.08);
+  --danger-border: rgba(239, 68, 68, 0.30);
+  /* danger 系列 alpha 变体（hover / strong / active） */
+  --danger-soft-bg: rgba(239, 68, 68, 0.14);
+  --danger-soft-border: rgba(239, 68, 68, 0.40);
+  --danger-strong-bg: rgba(239, 68, 68, 0.18);
+  --danger-strong-border: rgba(239, 68, 68, 0.50);
+  --danger-active-bg: rgba(239, 68, 68, 0.32);
+  --danger-hover-bg: rgba(239, 68, 68, 0.45);
+  /* .warn 警告面板 */
+  --warn-bg: rgba(251, 191, 36, 0.12);
+  --warn-border: rgba(251, 191, 36, 0.30);
+  /* .success 成功面板 */
+  --success-bg: rgba(34, 197, 94, 0.10);
+  --success-border: rgba(34, 197, 94, 0.30);
+  /* .info / .accent-cool 蓝色提示面板 */
+  --info-bg: rgba(34, 211, 238, 0.12);
+  --info-border: rgba(34, 211, 238, 0.30);
+  /* .accent-warm 暖色提示面板 */
+  --accent-warm-bg: rgba(196, 163, 255, 0.12);
+  --accent-warm-border: rgba(196, 163, 255, 0.30);
+  /* 黑底 alpha（遮罩 / modal backdrop） */
+  --overlay-85: rgba(11, 13, 17, 0.85);
+  --overlay-92: rgba(11, 13, 17, 0.92);
+  --overlay-95: rgba(11, 13, 17, 0.95);
+  --overlay-96: rgba(11, 13, 17, 0.96);
+  --surface-elevated: rgba(30, 35, 50, 0.92);   /* toolbar / dropdown / popover */
+  /* .input 暗主题加深底;亮主题需浅底 */
+  --input-bg: rgba(0, 0, 0, 0.25);
+
+  /* ===== Header / Brand 专用 token (phase-0 polish 合入后) ===== */
+  /* 暗主题用冷灰渐变(浅色文字在深底);亮主题用深色渐变(深色文字在浅底). */
+  --brand-title-gradient: linear-gradient(90deg, #e6e9f4, #a8b0c6);
+  --brand-mark-bg: linear-gradient(135deg, var(--primary), var(--accent));
+  --nav-active-color: #ffffff;
+  --nav-divider: rgba(255, 255, 255, 0.06);
+  --header-bg: rgba(11, 16, 32, 0.75);
+  /* ThemeToggle:暗主题用半透明白底+浅文字 */
+  --toggle-bg: rgba(255, 255, 255, 0.06);
+  --toggle-bg-hover: rgba(255, 255, 255, 0.12);
+
+
+  /* ===== 阶段 2 Step A: 残色清理派生 token (GIS 区遗留) ===== */
+  --white-2: rgba(255, 255, 255, 0.02);
+  --white-10: rgba(255, 255, 255, 0.1);
+  --white-14: rgba(255, 255, 255, 0.14);
+  --white-18: rgba(255, 255, 255, 0.18);
+  --white-20: rgba(255, 255, 255, 0.2);
+  --white-22: rgba(255, 255, 255, 0.22);
+  --white-65: rgba(255, 255, 255, 0.65);
+  --white-80: rgba(255, 255, 255, 0.8);
+  --white-85: rgba(255, 255, 255, 0.85);
+  --white-90: rgba(255, 255, 255, 0.9);
+  --primary-10: rgba(108, 140, 255, 0.1);
+  --primary-15: rgba(108, 140, 255, 0.15);
+  --primary-16: rgba(108, 140, 255, 0.16);
+  --primary-22: rgba(108, 140, 255, 0.22);
+  --primary-32: rgba(108, 140, 255, 0.32);
+  --primary-45: rgba(108, 140, 255, 0.45);
+  --primary-70: rgba(108, 140, 255, 0.7);
+  --ink-20: rgba(0, 0, 0, 0.2);
+  --ink-28: rgba(0, 0, 0, 0.28);
+  --ink-35: rgba(0, 0, 0, 0.35);
+  --ink-55: rgba(0, 0, 0, 0.55);
+  --ink-60: rgba(0, 0, 0, 0.6);
+  --ink-70: rgba(0, 0, 0, 0.7);
+}
+
+/* ===== 亮主题覆盖 =====
+ * 只在这里新增亮色,不动原 :root 的暗色.
+ * 原 styles.css 的 :root 变量仍然是"dark 默认值",
+ * 这里显式[data-theme="light"]覆写一次即可.
+ */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* --bg 系列 从深色翻成浅色,但保留整体冷色基调(不让站变暖) --*/
+  --bg: #f6f8fc;
+  --bg-soft: #eef2f9;
+  --surface: rgba(15, 23, 42, 0.03);
+  --surface-strong: rgba(15, 23, 42, 0.06);
+  --card: var(--surface);
+  --card-strong: var(--surface-strong);
+  --border: rgba(15, 23, 42, 0.10);
+  --border-strong: rgba(15, 23, 42, 0.18);
+
+  /* 文字 */
+  --text: #0f172a;          /* slate-900 */
+  --text-soft: #334155;     /* slate-700 */
+  --muted: #5d6779;         /* slate-600 (亮主题下需更深,WCAG ≥4.5:1) */
+
+  /* 主题色 - 稍微提亮一点饱和度,适配浅底 */
+  --primary: #4f6cff;
+  --primary-strong: #3b56f0;
+  --accent: #0891b2;
+  --accent-warm: #a855f7;
+  --success: #16a34a;
+  --warn: #d97706;
+  --danger: #dc2626;
+
+  /* 阴影在浅底上加深一点,层次感才出得来 */
+  --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 6px 20px rgba(15, 23, 42, 0.10);
+  --shadow-lg: 0 14px 40px rgba(15, 23, 42, 0.14);
+
+  /* body 背景去掉深色 radial-gradient,改为浅色 */
+  body {
+    background-image:
+      radial-gradient(ellipse 1200px 700px at 18% 10%, rgba(79, 108, 255, 0.06), transparent 60%),
+      radial-gradient(ellipse 900px 600px at 88% 25%, rgba(8, 145, 178, 0.05), transparent 55%),
+      radial-gradient(ellipse 1100px 800px at 50% 100%, rgba(168, 85, 247, 0.04), transparent 60%);
+  }
+
+  /* 阶段 1 新增 token 在亮主题下的覆写(都为浅底优化) */
+  --code-bg: rgba(15, 23, 42, 0.05);     /* slate ink + alpha */
+  --code-fg: #0f172a;                    /* slate-900,保证代码块文字在浅底上最深 */
+  --kbd-bg: rgba(15, 23, 42, 0.08);      /* 比 --code-bg 略重,kbd 微微凸出 */
+  /* 亮主题下 AIChat 代码块 / Diff / 控制台：GitHub light theme 风格（保证 syntax-highlight 仍可读） */
+  --ai-code-bg: #f6f8fa;
+  --ai-code-head-bg: #eef0f3;
+  --ai-code-border: #d0d7de;
+  --ai-code-fg: #24292e;
+  --ai-code-tag: #0550ae;
+  /* 控制台 level-error 亮主题覆写 */
+  --level-error-bg: #fee2e2;
+  --level-error-fg: #991b1b;
+  --link: #2563eb;                       /* blue-600 */
+  --link-hover: #1d4ed8;                 /* blue-700 */
+  --skeleton: rgba(15, 23, 42, 0.06);
+  --skeleton-shine: rgba(15, 23, 42, 0.12);
+  --rule: rgba(15, 23, 42, 0.10);        /* 跟 --border 一致等级 */
+  --shadow-card-hover: 0 12px 32px rgba(15, 23, 42, 0.18);
+  --footer-bg: rgba(15, 23, 42, 0.04);   /* 比 --bg 略深一点点 */
+  --footer-fg: rgba(15, 23, 42, 0.7);    /* slate-900 + alpha */
+  --selection-bg: rgba(79, 108, 255, 0.25);
+  --selection-fg: #0f172a;
+  --on-ink: #0f172a;  /* 亮主题:白底上的黑字 */
+
+  /* Step C alpha 系列在亮主题下的反转:白→墨,蓝紫→深蓝,墨依旧墨但加深 */
+  --white-04: rgba(15, 23, 42, 0.04);
+  --white-06: rgba(15, 23, 42, 0.06);
+  --white-08: rgba(15, 23, 42, 0.08);
+  --white-12: rgba(15, 23, 42, 0.12);
+  --white-15: rgba(15, 23, 42, 0.15);
+  --white-30: rgba(15, 23, 42, 0.30);
+  --white-60: rgba(15, 23, 42, 0.60);
+  --white-70: rgba(15, 23, 42, 0.70);
+  --primary-06: rgba(79, 108, 255, 0.06);
+  --primary-08: rgba(79, 108, 255, 0.08);
+  --primary-12: rgba(79, 108, 255, 0.12);
+  --primary-18: rgba(79, 108, 255, 0.18);
+  --primary-20: rgba(79, 108, 255, 0.20);
+  --primary-25: rgba(79, 108, 255, 0.25);
+  --primary-30: rgba(79, 108, 255, 0.30);
+  --primary-35: rgba(79, 108, 255, 0.35);
+  --primary-40: rgba(79, 108, 255, 0.40);
+  --primary-500: #4f6cff;
+  --accent-500: #0891b2;
+  --accent-warm-500: #a855f7;
+  --ink-08: rgba(15, 23, 42, 0.08);
+  --ink-15: rgba(15, 23, 42, 0.15);
+  --ink-25: rgba(15, 23, 42, 0.25);
+  --ink-30: rgba(15, 23, 42, 0.30);
+  --ink-40: rgba(15, 23, 42, 0.40);
+  --ink-45: rgba(15, 23, 42, 0.45);
+  --ink-50: rgba(15, 23, 42, 0.50);
+
+  /* Step B 亮主题覆写 */
+  --primary-soft-bg: rgba(79, 108, 255, 0.10);   /* 浅底上加 alpha 看起来更柔 */
+  --primary-soft-fg: #3b56f0;                    /* 主色 strong,直接 read */
+  --primary-soft-border: rgba(79, 108, 255, 0.20);
+  --neutral-soft-bg: rgba(15, 23, 42, 0.05);
+  --neutral-soft-fg: #334155;                    /* slate-700 */
+  --neutral-soft-border: rgba(15, 23, 42, 0.10);
+  --danger-bg: rgba(220, 38, 38, 0.06);          /* 跟 .warn 同源但更柔 */
+  --danger-border: rgba(220, 38, 38, 0.25);
+  --warn-bg: rgba(217, 119, 6, 0.08);
+  --warn-border: rgba(217, 119, 6, 0.25);
+  --success-bg: rgba(22, 163, 74, 0.08);
+  --success-border: rgba(22, 163, 74, 0.25);
+  --info-bg: rgba(8, 145, 178, 0.08);
+  --info-border: rgba(8, 145, 178, 0.25);
+  --accent-warm-bg: rgba(168, 85, 247, 0.08);
+  --accent-warm-border: rgba(168, 85, 247, 0.25);
+  --input-bg: #ffffff;
+
+  /* Header 亮色覆写(polish 合入后) */
+  --brand-title-gradient: linear-gradient(90deg, #0f172a, #4f46e5);
+  --brand-mark-bg: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  --nav-divider: rgba(15, 23, 42, 0.08);
+  --header-bg: rgba(246, 248, 252, 0.75);
+  /* ThemeToggle 在亮主题下要明确白底+深字,否则和 --surface 半透明叠加会糊 */
+  --toggle-bg: #ffffff;
+  --toggle-bg-hover: #f1f5f9;
+
+
+  /* ===== 阶段 2 Step A: 残色清理派生 token (亮主题) ===== */
+  --white-2: rgba(15, 23, 42, 0.02);
+  --white-10: rgba(15, 23, 42, 0.1);
+  --white-14: rgba(15, 23, 42, 0.14);
+  --white-18: rgba(15, 23, 42, 0.18);
+  --white-20: rgba(15, 23, 42, 0.2);
+  --white-22: rgba(15, 23, 42, 0.22);
+  --white-65: rgba(15, 23, 42, 0.65);
+  --white-80: rgba(15, 23, 42, 0.8);
+  --white-85: rgba(15, 23, 42, 0.85);
+  --white-90: rgba(15, 23, 42, 0.9);
+  --primary-10: rgba(79, 108, 255, 0.1);
+  --primary-15: rgba(79, 108, 255, 0.15);
+  --primary-16: rgba(79, 108, 255, 0.16);
+  --primary-22: rgba(79, 108, 255, 0.22);
+  --primary-32: rgba(79, 108, 255, 0.32);
+  --primary-45: rgba(79, 108, 255, 0.45);
+  --primary-70: rgba(79, 108, 255, 0.7);
+  --ink-20: rgba(15, 23, 42, 0.2);
+  --ink-28: rgba(15, 23, 42, 0.28);
+  --ink-35: rgba(15, 23, 42, 0.35);
+  --ink-55: rgba(15, 23, 42, 0.55);
+  --ink-60: rgba(15, 23, 42, 0.6);
+  --ink-70: rgba(15, 23, 42, 0.7);
+}
+
+/* ===== 暗主题显式声明(可选,等价于"无 data-theme 或 data-theme=dark") =====
+ * 这一段主要为了让 data-theme="dark" 与缺省值行为一致,
+ * 同时给未来需要"暗主题微调"留一个 hook.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  /* 现有 :root 的暗值继续保持,不在这里覆写 */
+}
+
+/* ===== 切换时的全局 transition(避免裸跳) =====
+ * 在主题切换的 160ms 内,以下属性平滑过渡:
+ * - background-color / border-color / color: 颜色系
+ * - fill / stroke: SVG 与 icon
+ * - box-shadow: 阴影变化(否则会"啪"地掉下来)
+ * - opacity: 遮罩/卡片透明
+ * - background-image: body 的 radial-gradient 渐变
+ * 没加 transform(自身带 transition 的元素需保留,不应被 !important 覆盖).
+ */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-ease),
+    border-color var(--theme-transition-duration) var(--theme-transition-ease),
+    color var(--theme-transition-duration) var(--theme-transition-ease),
+    fill var(--theme-transition-duration) var(--theme-transition-ease),
+    stroke var(--theme-transition-duration) var(--theme-transition-ease),
+    box-shadow var(--theme-transition-duration) var(--theme-transition-ease),
+    opacity var(--theme-transition-duration) var(--theme-transition-ease),
+    background-image var(--theme-transition-duration) var(--theme-transition-ease) !important;
+}
+
+/* ===== reduce-motion 防护 =====
+ * 尊重系统 prefers-reduced-motion,关闭切换动画.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transitioning,
+  html.theme-transitioning * {
+    transition: none !important;
+  }
+}
+
+/* ===== Cesium 主题深度适配 =====
+ * Cesium 的 canvas 走自己的渲染管线,不走 CSS 变量.
+ * 这里处理 Cesium 控件层(selection / infobox / toolbar / 弹窗 / status 等),
+ * 让它们在亮/暗主题下都有一致的视觉语言.
+ *
+ * 已知适配点:
+ * - cesium-viewer / cesiumContainer: 容器背景
+ * - cesium-viewer-bottom / cesium-widget-credits: 底部 credits
+ * - cesium-infoBox: 选中要素弹窗
+ * - cesium-selection-wrapper: 选中要素边框
+ * - cesium-performance-display: 性能监控框
+ * - .cesium-navigation-help-button: 导航助手按钮
+ * - .cesium-toolbar-button: 工具栏按钮
+ * - .cesium-viewer-toolbar: 工具栏容器
+ * - .cesium-viewer-fullscreenContainer / -animationContainer / -timelineContainer: 子面板容器
+ * - .cesium-viewer-geocoderContainer: 搜索框容器
+ */
+
+/* 暗主题(默认 Cesium 自带):保持原状,不强制覆盖 */
+:root[data-theme="dark"] .cesium-viewer,
+:root[data-theme="dark"] #cesiumContainer {
+  background-color: var(--bg);
+}
+:root[data-theme="dark"] .cesium-viewer-bottom,
+:root[data-theme="dark"] .cesium-widget-credits {
+  color: var(--text-soft);
+}
+
+/* 亮主题下 Cesium 控件适配 */
+:root[data-theme="light"] #cesiumContainer,
+:root[data-theme="light"] .cesium-viewer {
+  background-color: #ffffff;
+}
+:root[data-theme="light"] .cesium-viewer-bottom,
+:root[data-theme="light"] .cesium-widget-credits {
+  color: rgba(15, 23, 42, 0.7);
+}
+
+/* 选中要素信息弹窗 (cesium-infoBox) */
+:root[data-theme="light"] .cesium-infoBox {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+:root[data-theme="light"] .cesium-infoBox-title {
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  color: var(--on-primary);
+}
+:root[data-theme="light"] .cesium-infoBox iframe {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* 选中要素的高亮边框 */
+:root[data-theme="light"] .cesium-selection-wrapper {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px var(--primary-18);
+}
+
+/* 性能监控框 */
+:root[data-theme="light"] .cesium-performance-display {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* 工具栏按钮 + 工具栏容器 */
+:root[data-theme="light"] .cesium-viewer-toolbar {
+  background: transparent;
+}
+:root[data-theme="light"] .cesium-toolbar-button {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-ease),
+              border-color var(--theme-transition-duration) var(--theme-transition-ease);
+}
+:root[data-theme="light"] .cesium-toolbar-button:hover {
+  background: #ffffff;
+  border-color: var(--primary);
+}
+
+/* 时间线 + 动画 + 全屏 / 搜索框容器 */
+:root[data-theme="light"] .cesium-viewer-timelineContainer,
+:root[data-theme="light"] .cesium-viewer-animationContainer,
+:root[data-theme="light"] .cesium-viewer-fullscreenContainer,
+:root[data-theme="light"] .cesium-viewer-geocoderContainer {
+  background: transparent;
+}
+
+/* 地理编码(搜索框)输入 */
+:root[data-theme="light"] .cesium-geocoder-input {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+:root[data-theme="light"] .cesium-geocoder-input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+/* 暗主题下 toolbar 按钮也要跟 token 走 */
+:root[data-theme="dark"] .cesium-toolbar-button {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-ease),
+              border-color var(--theme-transition-duration) var(--theme-transition-ease);
+}
+:root[data-theme="dark"] .cesium-toolbar-button:hover {
+  background: rgba(0, 0, 0, 0.6);
+  border-color: var(--primary);
+}
+
+:root[data-theme="dark"] .cesium-infoBox {
+  background: rgba(11, 16, 32, 0.92);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="dark"] .cesium-performance-display {
+  background: rgba(11, 16, 32, 0.85);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+/* ===== 文本选区颜色 (::selection) =====
+ * 浏览器默认 selection 跟系统主题走,跟站点亮/暗不同步,会出现"浅底选蓝字"或"深底选白字"
+ * 等违和感.这里强制把两个主题下的 selection 颜色锁死.
+ */
+:root ::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+/* ===== img 反色策略 =====
+ * 一般建议是暗主题给某些图片加 filter:invert() 让适配,但博客里几乎全是白底图片
+ * (插画、截图、头像),invert 会破坏体验.这里选择"不强制反色",
+ * 但确保暗主题下图片容器有合适 padding 防止浅色图跟深色背景粘连.
+ * 阶段 1 范围:不主动改图片;改在 markdown 渲染层(阶段 2 之后) */
+
