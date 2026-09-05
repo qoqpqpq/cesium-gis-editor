@@ -2,6 +2,7 @@
 
 > 一个开源的三维 GIS 可视化编辑器，把「代码沙箱」「矢量编辑器」「多平台 AI 助手」装进了同一个网页。
 > 项目地址：https://github.com/qoqpqpq/cesium-gis-editor （MIT 协议）
+> 🚀 在线 Demo：https://gisai.top （打开即用，无需安装）
 
 ![Cesium GIS Editor 主界面](https://github.com/qoqpqpq/cesium-gis-editor/raw/main/docs/screenshot.png)
 
