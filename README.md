@@ -2,6 +2,8 @@
 
 独立开源的 GIS 可视化编辑器 — 三维地球 · 代码沙箱 · AI 助手
 
+![Cesium GIS Editor 主界面](docs/screenshot.png)
+
 > 一个把**代码沙箱** + **矢量编辑** + **多平台 AI 助手**装进同一个工具的开源项目。
 > 沿袭 Cesium Sandcastle 的思路：写代码、看地球、问 AI，浏览器即开即用，无需安装任何桌面软件。
 > AI API Key 只存于浏览器内存，不落地、不落盘。
