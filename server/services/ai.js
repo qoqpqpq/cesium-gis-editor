@@ -243,7 +243,10 @@ function getKey(platform, tempCreds = null) {
       _fromTemp: true,
     };
   }
-  throw new Error(`[${platform}] 未提供 AI Key，请先在浏览器里点 🔑 配置会话 Key`);
+  const e = new Error(`[${platform}] 未提供 AI Key，请先在浏览器里点 🔑 配置会话 Key`);
+  // 周期 2 P0-5: 缺 key 是客户端错，应当走 4xx 而非被路由 catch 兜底成 5xx
+  e.status = 400;
+  throw e;
 }
 
 function getPlatformConfig(platform) {
@@ -603,7 +606,12 @@ async function chat(platform, messages, options = {}, visionAttachments = [], te
  */
 async function chatStream(platform, messages, options, onChunk, signal, visionAttachments = [], tempCreds = null) {
   const cfg = PLATFORMS[platform];
-  if (!cfg) throw new Error("不支持的平台: " + platform);
+  if (!cfg) {
+    const e = new Error("不支持的平台: " + platform);
+    // 周期 2 P0-5: 同 chat() —— 未知 platform 走 4xx
+    e.status = 400;
+    throw e;
+  }
   const keyRow = getKey(platform, tempCreds);
   if (!keyRow) {
     const e = new Error("请先在「AI 对话」页设置该平台的 API Key");

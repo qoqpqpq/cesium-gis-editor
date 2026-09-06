@@ -180,7 +180,9 @@ router.post("/agent", async (req, res) => {
       const { tools: toolCalls } = parseToolTags(result.content || '');
       res.json({ success: true, data: { ...result, toolCalls, usageRecord } });
     } catch (e) {
-      res.status(500).json({ success: false, message: e.message });
+      // 周期 2 P0-5: 用 e.status 分类（4xx 客户端错 / 5xx 兜底），
+      //   否则前端 alert 会把"未知 platform"显示成"服务器内部错误"
+      res.status(e.status || 500).json({ success: false, message: e.message });
     }
     return;
   }

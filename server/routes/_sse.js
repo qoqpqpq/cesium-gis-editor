@@ -123,7 +123,9 @@ async function sseStreamHandler(req, res, opts) {
     }
     try { res.end(); } catch (_) { /* ignore */ }
   } catch (e) {
-    if (!isClosed()) writeSse(res, 'error', { message: e.message });
+    // 周期 2 P0-5: 把 e.status 透传给客户端（默认 500），便于前端 alert 区分
+    //   客户端错（如未知 platform 4xx）也走 error 事件，UI 自行决定提示级别
+    if (!isClosed()) writeSse(res, 'error', { message: e.message, status: e.status || 500 });
     try { res.end(); } catch (_) { /* ignore */ }
   } finally {
     release();
