@@ -10,6 +10,8 @@
 // - 流式未闭合时返回 pending（让 caller 决定要不要等）
 // - 流式已完成部分也可能含 pending + 已完成 tools 的混合
 
+const { randomUUID } = require('crypto');
+
 const TOOL_RE = /<tool>([a-z_][a-z0-9_]*)\(([^)]*)\)<\/tool>/gi;
 
 /**
@@ -22,10 +24,10 @@ function parseToolTags(text) {
   let m;
   TOOL_RE.lastIndex = 0;
   while ((m = TOOL_RE.exec(text)) !== null) {
-    // 阶段 11：输出 MCP/OpenAI 兼容结构（id + type + function.name/arguments）
-    // 保留 raw / index 给客户端 fallback
+    // 周期 1 P1-4: 用 crypto.randomUUID() 替代 Date.now() 拼接的 id，
+    //   避免同一毫秒多个 tool 时 id 冲突
     tools.push({
-      id: `tool_${m.index}_${Date.now()}`,
+      id: `tool_${randomUUID()}`,
       type: 'function',
       function: {
         name: m[1],
