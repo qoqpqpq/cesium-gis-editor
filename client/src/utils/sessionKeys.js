@@ -7,30 +7,38 @@
 //
 // 数据结构：{ [platform]: { apiKey, baseUrl, modelName, remark, savedAt } }，每平台单 key
 //
-// 变更广播：
-//   - window 'ai-keys-changed'（同标签，Home 已监听）
-//   - localStorage 'ai-keys-changed-at'（跨标签；其他标签读到的是各自的空 store，行为正确）
+// 周期 2 P1-7: 变更广播权威化为「同标签 dispatchEvent」
+//   - 之前还往 localStorage 写 'ai-keys-changed-at' 让跨标签也能拿到，但
+//     sessionKeys 是「标签内会话」语义——其他标签的 store 跟本标签是隔离的，
+//     写 localStorage 既帮不上忙（跨标签 store 不共享），又会让其他标签
+//     监听 storage 事件时误以为本标签状态有变。
+//   - 现在：只在当前标签 dispatchEvent('ai-keys-changed')，依赖浏览器的
+//     storage 默认隔离语义；跨标签就是独立的会话。
 
 const store = {};
 
 function notify() {
+  // 周期 2 P1-7: 移除 localStorage 跨标签广播；只在当前标签 dispatchEvent
   try {
     window.dispatchEvent(new CustomEvent("ai-keys-changed"));
   } catch (_) {}
-  try {
-    localStorage.setItem("ai-keys-changed-at", String(Date.now()));
-  } catch (_) {}
 }
 
-export function getAll() {
-  return Object.entries(store).map(([platform, creds]) => ({
-    platform,
-    apiKey: creds.apiKey,
-    baseUrl: creds.baseUrl,
-    modelName: creds.modelName,
-    remark: creds.remark,
-    savedAt: creds.savedAt,
-  }));
+export function getAll(opts = {}) {
+  const { withRemark = false } = opts;
+  return Object.entries(store).map(([platform, creds]) => {
+    const out = {
+      platform,
+      apiKey: creds.apiKey,
+      baseUrl: creds.baseUrl,
+      modelName: creds.modelName,
+      savedAt: creds.savedAt,
+    };
+    // 周期 2 P2-7: remark 体积可能不小（用户笔记），默认不返；
+    //   需要展示 remark 的调用方显式 withRemark: true
+    if (withRemark) out.remark = creds.remark;
+    return out;
+  });
 }
 
 export function get(platform) {

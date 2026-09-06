@@ -16,7 +16,7 @@ export default function AiKeySettings({ open, onClose }) {
   const [showApiKey, setShowApiKey] = useState(false);
   const [error, setError] = useState("");
 
-  const refreshKeys = () => setKeys(sessionKeys.getAll());
+  const refreshKeys = () => setKeys(sessionKeys.getAll({ withRemark: true }));
 
   useEffect(() => {
     if (!open) return;
