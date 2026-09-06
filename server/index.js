@@ -54,6 +54,13 @@ app.use(
             imgSrc: ["'self'", "data:", "blob:", "https:"],
             connectSrc: [
               "'self'",
+              // 周期 2 P1-6: 本地开发服务器与回环地址（不影响生产）
+              "http://localhost:3001",
+              "http://127.0.0.1:3001",
+              "http://localhost:8080",
+              "http://127.0.0.1:8080",
+              "ws://localhost:8080",
+              "ws://127.0.0.1:8080",
               "https://*.tianditu.gov.cn",
               "https://*.tianditu.com",
               "https://*.cesium.com",
