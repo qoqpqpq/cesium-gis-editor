@@ -265,7 +265,8 @@ function listPlatforms() {
  */
 // SSRF 防护：baseUrl 必须走 https 且 host 在白名单内
 // 防止用户把请求指向内网 / 云元数据 / 任意第三方 server
-// 生产模式下从白名单移除 localhost/127.0.0.1/::1，避免 SSRF 探测本地服务
+// 周期 1 P0-3：所有白名单主机强制 https；Ollama 兼容走 AI_ALLOW_HTTP=1 显式开关
+// Ollama 主机在 dev/prod 都允许 http（前提 ALLOW_HTTP 开启），避免破坏本地开发
 const ALLOWED_BASE_HOSTS = new Set([
   'api.openai.com',
   'api.anthropic.com',
@@ -275,25 +276,49 @@ const ALLOWED_BASE_HOSTS = new Set([
   'api.moonshot.cn',
   'open.bigmodel.cn',
   'dashscope.aliyuncs.com',
-  ...(process.env.NODE_ENV === 'production' ? [] : ['localhost', '127.0.0.1', '::1']),
 ]);
+// Ollama 兼容：固定本机端口（11434/11435）允许 http，但需显式 AI_ALLOW_HTTP=1
+const OLLAMA_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+const ALLOW_HTTP = process.env.AI_ALLOW_HTTP === '1';
 
 function validateBaseUrl(rawUrl) {
-  if (!rawUrl || typeof rawUrl !== 'string') throw new Error('baseUrl 不能为空');
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    throw new Error('baseUrl 不能为空');
+  }
   let u;
   try {
     u = new URL(rawUrl);
   } catch (_) {
     throw new Error('baseUrl 不是合法 URL');
   }
-  if (u.protocol !== 'https:' && u.protocol !== 'http:') {
+  const host = u.hostname.toLowerCase();
+  const isHttps = u.protocol === 'https:';
+  const isOllama = OLLAMA_HOSTS.has(host);
+
+  // 1) 通用白名单：必须 https
+  if (ALLOWED_BASE_HOSTS.has(host)) {
+    if (!isHttps) {
+      throw new Error('baseUrl 必须是 https 协议');
+    }
+    return rawUrl;
+  }
+
+  // 2) Ollama 本机：默认仍按 https 优先；http 需 AI_ALLOW_HTTP=1 显式开启
+  if (isOllama) {
+    if (u.protocol === 'http:' && ALLOW_HTTP) return rawUrl;
+    if (u.protocol === 'http:') {
+      throw new Error(
+        'baseUrl 为 http 协议，需设置环境变量 AI_ALLOW_HTTP=1（仅推荐本地 Ollama）',
+      );
+    }
+    if (isHttps) return rawUrl;
     throw new Error('baseUrl 必须是 http(s) 协议');
   }
-  const host = u.hostname.toLowerCase();
-  if (!ALLOWED_BASE_HOSTS.has(host)) {
-    throw new Error('baseUrl 主机不在白名单（' + host + '）。如需新厂商请改 ALLOWED_BASE_HOSTS');
-  }
-  return rawUrl;
+
+  // 3) 其它一律拒绝（无论协议）
+  throw new Error(
+    'baseUrl 主机不在白名单（' + host + '）。如需新厂商请改 ALLOWED_BASE_HOSTS',
+  );
 }
 
 // 独立开源版：Key 管理为 no-op（AI Key 纯会话，由浏览器 sessionKeys 管理，不落盘）
@@ -852,5 +877,5 @@ module.exports = {
   getUsageSummary,
   getUsageByRound,
   // 暴露内部工具函数（tests 用）
-  _internal: { normalizeUsage, calcCostUsd, resolvePricing },
+  _internal: { normalizeUsage, calcCostUsd, resolvePricing, validateBaseUrl },
 };
