@@ -5,38 +5,33 @@
 
 ## P0（必须本周期完成）
 
-- [ ] **P0-1** `server/routes/spatial.js` `dissolve` 端点签名不一致：当前要求 `{layerA, layerB, groupBy}`，但 client 端 `spatialApi.dissolve(layerA, layerB, groupBy)` 实际语义是"把 A+B 合到一个 fc 后按 groupBy 字段做 dissolve"，且 single-layer `dissolve` 是常见用法。需求：允许只传 `layerA`（或加 `groupBy`）即可，layerB 可选。
-- [ ] **P0-2** `server/middleware/rateLimit.js` 把 `172.16.0.0/12` 全部识别为 local，整个 172 网段常用于云上内网（AWS VPC 等），任何非 loopback 的内网请求都跳过限流。需求：把 RFC1918 三个网段从 skip 列表剔除，仅保留 `127.0.0.1` / `::1`。
-- [ ] **P0-3** `server/services/ai.js` `validateBaseUrl` 白名单在开发态下放行 `localhost/127.0.0.1/::1`，但用户可借此把请求指向本地任意端口（含 :3001 / :8080 自家服务）做内网探测/SSRF；生产态虽收紧但 `http:` 协议仍然允许。需求：开发态也走 https-only（仅 Ollama 例外，需显式声明 `AI_ALLOW_HTTP=1`）。
+- [ ] **P0-1** SSRF 防御补齐（OWASP 6 步未齐）。当前仅"URL 解析 + DNS + IP 分类"三步；周期 3 补"禁重定向（`redirect:'manual'`） + 链路重校验（每 hop 重新跑 validate）" + 引入 `ipaddr.js` 替代正则覆盖 IPv6 / CGNAT 100.64/10 / 25 段特殊地址。文件：`server/services/ai.js`。验收：新增 `tests/specs/ssrf-redirect-no-follow.cjs` + `tests/specs/ssrf-ipaddr-ipv6.cjs` PASS。
+- [ ] **P2-2** sliding window 分布式化（周期 1/2 P1-9 已有进程内 slidingWindow；周期 3 引入 `rate-limit-redis` + ZADD 实现真正分布式限流 + 集群级 reset）。文件：`server/middleware/rateLimit.js`。验收：本地 docker-compose 跑 Redis 后，跨进程计数共享。
 
 ## P1（高优先级，至少完成 4 项）
 
-- [ ] **P1-1** `client/src/utils/viewState.js` `base64UrlEncode` 在中文长字符串（>100KB 场景 AI 描述）下会因 `btoa(unescape(encodeURIComponent(str)))` 双倍膨胀，URL 长度超限。前端 `buildShareUrl` 失败时只回退到 `null`，无 UI 提示。需求：超出 ~8KB 时降级为只保留 camera 字段，并补一行 console.warn。
-- [ ] **P1-2** `client/src/api/index.js` `http` 实例无请求重试、无超时分级（AI 60s 适合 stream，但 spatial 30s 内短查询被 60s 拖死）。需求：spatial 端点单独走 15s 超时。
-- [ ] **P1-3** `server/routes/ai.js` `/api/ai/chat/stream` 与 `/api/ai/agent?stream=1` 都有相同的"queue full"处理、心跳、abort 逻辑，存在 ~80 行重复代码；任一处修改容易漏改另一处。需求：抽出 `sseStreamHandler(platform, runFn)` 公共封装。
-- [ ] **P1-4** `server/agent/protocol/parse.js` `parseToolTags` 输出的 `id` 形如 `tool_42_1762435200000`（用 `Date.now()` 拼），并发场景下两个 tool 同毫秒会 id 冲突。需求：换成 `crypto.randomUUID()`（Node 18+）。
-- [ ] **P1-5** `client/src/components/EditorErrorFallback.jsx` 的 `defaultClearEditorState` 用硬编码 key 列表，与新加的视图状态 key（如 `gis:editor:theme`、`gis:editor:ai-side-width`）会失同步。需求：改成 `localStorage` 前缀匹配（`gis:editor:`）一次清空。
-- [ ] **P1-6** `server/index.js` CSP 的 `connectSrc` 缺少对本地开发服务器（vite :8080）→ 上游 AI 域名的允许规则，开发态 CSP 被设为 `false` 关闭，安全收益打折。需求：把生产态 CSP 也补上 `localhost:*` / `127.0.0.1:*` 显式条目（不影响生产）。
-- [ ] **P1-7** `client/src/utils/sessionKeys.js` `notify()` 写 `localStorage` 跨标签广播，但同标签的 listener 不会收到"已写"事件（自己 dispatchEvent 之前 setItem 会触发 storage 事件——只在其他标签触发）。需求：把 `ai-keys-changed` 自定义事件作为权威信号，跨标签不强行同步（独立标签独立会话是设计预期）。
+- [ ] **P1-1** CSP 全面审计（OWASP 7 项 + Permissions-Policy）。当前只补了 `connect-src` localhost；周期 3 对照 OWASP HTTP Headers Cheat Sheet 逐项打分 + 引入 Permissions-Policy（camera/mic/geolocation 限制）+ COOP/CORP。文件：`server/index.js`。验收：新增 `tests/specs/csp-permissions-policy.cjs` PASS。
+- [ ] **P1-2** AI Code 沙箱重构（废弃 VM2）。VM2 多次 escape + 已停止维护；周期 3 改用 `node:vm` `Script` + 显式 context + Resource limits + 白名单 require。文件：`server/agent/sandbox.js`（或类似）。验收：新增 `tests/specs/sandbox-no-vm2.cjs` PASS。
+- [ ] **P1-3** 可观察性（pino + redact + requestId）。当前无统一日志；API Key 在日志中可能明文。周期 3 引入 pino + pino-http（AsyncLocalStorage 串联 requestId）+ redact `apiKey` / `baseUrl` 字段。文件：`server/index.js`。验收：新增 `tests/specs/logger-redact.cjs` PASS。
+- [ ] **P1-4** `client/src/utils/viewState.js` `base64UrlEncode` 在中文长字符串（>100KB 场景 AI 描述）下会因 `btoa(unescape(encodeURIComponent(str)))` 双倍膨胀，URL 长度超限。前端 `buildShareUrl` 失败时只回退到 `null`，无 UI 提示。需求：超出 ~8KB 时降级为只保留 camera 字段，并补一行 console.warn。
 
 ## P2（中低优先级，按预算与时间允许）
 
 - [ ] **P2-1** `server/services/ai.js` `PLATFORMS` 表内 10 个平台的 `defaultModel` 与定价表 `PRICING` 手工对齐，新增模型易漂移。需求：改为 `PLATFORMS[].pricing` 字段内联，或写个启动时自检脚本。
-- [ ] **P2-2** `client/src/components/ThemeProvider.jsx` 与 `ThemeToggle.jsx` 未读（待 P1 阶段通读）；若主题切换触发整页重渲染，会丢 editor 内部状态。
 - [ ] **P2-3** `client/src/pages/gis/editor/utils/*.js` 中 9 个工具类文件（`coords / measure / picking / snap / analysis / ...`）有 3-4 处与 turf 互操作缺乏单元测试。
-- [ ] **P2-4** `server/services/spatial.js` 的 `MAX_FEATURES_PER_LAYER=1000` 与 `MAX_TOTAL_VERTICES=100000` 是硬编码，外部无法调节。需求：读 env `SPATIAL_MAX_FEATURES` / `SPATIAL_MAX_VERTICES`。
 - [ ] **P2-5** `client/src/pages/gis/sandbox.js` 与 `server/agent/protocol/parse.js` 协议字符串 `<tool>name(args)</tool>` 重复实现，注释里也提示"修改时务必同步"。需求：把"协议字面 + 解析"统一从 `client/src/pages/gis/protocol.js` 导出，server 用 ESM 风格 require 该模块（或保留双份但加 npm script 同步检查）。
 - [ ] **P2-6** `client/src/pages/gis/aiAgent.js` 体积大且无注释（待通读），P2 阶段拆分候选。
-- [ ] **P2-7** `client/src/components/AiKeySettings.jsx` 列表项 `k.remark` 显示在浮层，但 export 旧 key 列表（`getAll()`）会顺带返出 remark——可后续做"导出清理"。
+- [ ] **P2-8** AI Agent 工具协议统一。引入 OpenAI 风格 `tool_calls[]`（与本地 `<tool>` 协议共存），便于 Claude / Ollama 接入；前端 UI 折叠工具过程。文件：`server/agent/protocol/parse.js`。验收：与原 P2-5 合并实施。
+- [ ] **P2-9** SSE `Last-Event-ID` buffer 续传。当前 `_sse.js` 仅生成 `id` 不维护 buffer；上层业务需要自己做续传。需求：在 `sseStreamHandler` 接受可选 `bufferProvider`，按 lastEventId 续传；周期 4+ 实施（与"AI 上下文续传"绑一起做）。
 
-## 调研 Top5（由周期 1 调研产出，落到 P1/P2）
+## 调研 Top5（由周期 2 调研产出，落到 P0/P1/P2，覆盖周期 1 Top5）
 
-> 调研全文见 `docs/cycles/cycle-01-research.md`（12 主题 × 5 链接 = 60 链接）。
+> 调研全文见 `docs/cycles/cycle-02-research.md`（12 主题 × 5 链接 = 60 链接）。
 
 | 排名 | 主题 | 行动 | 落点 |
 | --- | ---- | ---- | ---- |
-| 1 | SSRF 防护 / URL 白名单 | `validateBaseUrl` 加"DNS 解析后 IP 二次校验"防 DNS rebinding；引入 `ipaddr.js`；按 OWASP SSRF Cheat Sheet 实施 | 新增 P1-8 |
-| 2 | CSP + Vite 升级 | 升级 Vite ≥ 6.0.9 / 5.4.12 / 4.5.6（修 CVE-2025-24010 dev server CORS/Host 漏洞）；生产态 CSP `connect-src` 补 `localhost:*` / `127.0.0.1:*`；dev 加 `ws://localhost:8080` | 升级原 P1-6 → 周期 2 升 P0 |
-| 3 | 速率限制升级 | 把当前 Fixed Window 升级为 Sliding Window Counter + Redis（多实例共享）；加 user-id 优先的二级限流 | 替换 P0-2 思路；新增 P1-9 |
-| 4 | SSE 协议补 retry / 重试 | `_sse.js` 输出 `retry: 3000` 字段；客户端 EventSource 收到 error 后 3s 自动重连；服务端补 Last-Event-ID 支持 | 增量 P1-3 |
-| 5 | AI Agent 工具协议统一 | 引入 OpenAI 风格 `tool_calls[]`（与本地 `<tool>` 协议共存），便于 Claude / Ollama 接入；前端 UI 折叠工具过程 | 与原 P2-5 合并 |
+| 1 | SSRF 防护升级（OWASP 全套） | 当前 `validateBaseUrlWithDns` 只做"URL 解析 + DNS + IP 分类"三步；周期 3 补"禁重定向（`redirect:'manual'`） + 链路重校验" + 引入 `ipaddr.js` 替代正则 | 新增 P0-1 |
+| 2 | 速率限制分布式化（Redis Sliding Window） | 当前 `slidingWindow` 仅进程内；周期 3 引入 `rate-limit-redis` + `ZADD` 实现真正分布式限流 + 集群级 reset | 升级 P2-2 |
+| 3 | CSP 全面审计（OWASP 7 项 + Permissions-Policy） | 当前只补了 connect-src；周期 3 对照 OWASP HTTP Headers Cheat Sheet 逐项打分 + 引入 Permissions-Policy | 新增 P1-1 |
+| 4 | AI Code 沙箱重构（废弃 VM2） | VM2 多次 escape + 已停止维护；周期 3 改用 `node:vm` `Script` + 显式 context + Resource limits + 白名单 require | 新增 P1-2 |
+| 5 | 可观察性（pino + redact + requestId） | 当前无统一日志；周期 3 引入 pino + pino-http（AsyncLocalStorage 串联 requestId）+ redact API Key | 新增 P1-3 |

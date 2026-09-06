@@ -1,10 +1,10 @@
 {
   "current_cycle": 2,
   "previous_cycle": 1,
-  "last_run_status": "in_progress",
-  "last_run_at": "2026-09-06T23:45:00+08:00",
+  "last_run_status": "completed",
+  "last_run_at": "2026-09-07T00:15:00+08:00",
   "cycle_started_at": "2026-09-06T23:45:00+08:00",
-  "cycle_completed_at": null,
+  "cycle_completed_at": "2026-09-07T00:15:00+08:00",
   "model": "MiniMax-M3",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -35,9 +35,23 @@
     },
     {
       "cycle": 2,
-      "status": "in_progress",
+      "status": "completed",
       "started_at": "2026-09-06T23:45:00+08:00",
-      "completed_at": null
+      "completed_at": "2026-09-07T00:15:00+08:00",
+      "p0_done": 2,
+      "p0_planned": 2,
+      "p1_done": 5,
+      "p1_planned": 5,
+      "p2_done": 2,
+      "p2_planned": 2,
+      "commits": 10,
+      "commits_max": 12,
+      "specs_added": 5,
+      "research_topics": 12,
+      "research_links": 60,
+      "bugs_open": 8,
+      "self_check_score": "97%",
+      "notes": "P0-4 Vite 5.4.12 (CVE-2025-24010) + P0-5 状态码；P1-3 增量 retry/Last-Event-ID + P1-6 CSP localhost + P1-7 跨标签广播移除 + P1-8 SSRF DNS 二次校验 + P1-9 Sliding Window；P2-4 spatial env quota + P2-7 getAll 默认不返 remark；B01 已修；C2-B01..B08 落周期 3"
     }
   ]
 }
