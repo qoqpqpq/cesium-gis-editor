@@ -9,9 +9,19 @@
 
 const turf = require('@turf/turf');
 
-const MAX_FEATURES_PER_LAYER = 1000;
-const MAX_TOTAL_VERTICES = 100000;
 const COORD_PRECISION = 6;
+
+// 周期 2 P2-4: spatial 限额从 env 可配（SPATIAL_MAX_FEATURES / SPATIAL_MAX_VERTICES）
+//   默认值与之前常量一致（1000 / 100000）；运维调大调小不用改代码
+function envInt(name, fallback) {
+  const raw = process.env[name];
+  if (raw == null || raw === '') return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n <= 0) return fallback;
+  return n;
+}
+const MAX_FEATURES_PER_LAYER = envInt('SPATIAL_MAX_FEATURES', 1000);
+const MAX_TOTAL_VERTICES = envInt('SPATIAL_MAX_VERTICES', 100000);
 
 // Polygon-only 的 op（boolean 叠加需要闭合面）
 const POLYONLY_OPS = new Set(['intersect', 'difference', 'union', 'dissolve']);
