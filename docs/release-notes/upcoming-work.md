@@ -31,4 +31,12 @@
 
 ## 调研 Top5（由周期 1 调研产出，落到 P1/P2）
 
-> 调研全文见 `docs/cycles/cycle-01-research.md`。
+> 调研全文见 `docs/cycles/cycle-01-research.md`（12 主题 × 5 链接 = 60 链接）。
+
+| 排名 | 主题 | 行动 | 落点 |
+| --- | ---- | ---- | ---- |
+| 1 | SSRF 防护 / URL 白名单 | `validateBaseUrl` 加"DNS 解析后 IP 二次校验"防 DNS rebinding；引入 `ipaddr.js`；按 OWASP SSRF Cheat Sheet 实施 | 新增 P1-8 |
+| 2 | CSP + Vite 升级 | 升级 Vite ≥ 6.0.9 / 5.4.12 / 4.5.6（修 CVE-2025-24010 dev server CORS/Host 漏洞）；生产态 CSP `connect-src` 补 `localhost:*` / `127.0.0.1:*`；dev 加 `ws://localhost:8080` | 升级原 P1-6 → 周期 2 升 P0 |
+| 3 | 速率限制升级 | 把当前 Fixed Window 升级为 Sliding Window Counter + Redis（多实例共享）；加 user-id 优先的二级限流 | 替换 P0-2 思路；新增 P1-9 |
+| 4 | SSE 协议补 retry / 重试 | `_sse.js` 输出 `retry: 3000` 字段；客户端 EventSource 收到 error 后 3s 自动重连；服务端补 Last-Event-ID 支持 | 增量 P1-3 |
+| 5 | AI Agent 工具协议统一 | 引入 OpenAI 风格 `tool_calls[]`（与本地 `<tool>` 协议共存），便于 Claude / Ollama 接入；前端 UI 折叠工具过程 | 与原 P2-5 合并 |
