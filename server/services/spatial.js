@@ -240,12 +240,19 @@ function union(layerA, layerB) {
 }
 
 // dissolve:
+//   - 兼容三层调用契约：
+//     (1) dissolve(layerA)                  → 仅对 A 做 dissolve（若 groupBy 缺失则等价 union）
+//     (2) dissolve(layerA, layerB)          → A + B 合并后 dissolve（独立开源版默认行为）
+//     (3) dissolve(layerA, layerB, groupBy) → A + B 合并后按 groupBy 属性字段做 dissolve
 //   - 不传 groupBy → 与客户端一致 = union（避免额外 schema/属性类型假设）
 //   - 传 groupBy   → turf.dissolve(fc, { groupBy })，按属性值分组
 function dissolve(layerA, layerB, options = {}) {
   const a = validate(layerA, 'layerA', 'dissolve');
-  const b = validate(layerB, 'layerB', 'dissolve');
-  const fc = turf.featureCollection([...a.features, ...b.features]);
+  // 周期 1 P0-1: 允许只传 layerA（单层 dissolve）
+  const b = layerB != null ? validate(layerB, 'layerB', 'dissolve') : null;
+  const fc = turf.featureCollection(
+    b ? [...a.features, ...b.features] : a.features,
+  );
 
   if (!options.groupBy) {
     return _runBooleanOp('union', fc);

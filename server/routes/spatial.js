@@ -69,12 +69,13 @@ function makeHandler(op) {
         }
         result = spatial[op](layerA, layerB);
       } else if (op === DISSOLVE_OP) {
-        // 双 layer 入口 + 可选 groupBy
+        // 周期 1 P0-1: layerB 可选（仅 dissolve 单层用法）
+        // groupBy 仍按现有契约从 body 顶层读
         const { layerA, layerB, groupBy } = body;
-        if (!layerA || !layerB) {
+        if (!layerA) {
           return res.status(400).json({
             success: false,
-            message: '请求体需要 layerA 和 layerB 两个 GeoJSON 输入',
+            message: '请求体至少需要 layerA GeoJSON 输入',
           });
         }
         result = spatial.dissolve(layerA, layerB, { groupBy });
