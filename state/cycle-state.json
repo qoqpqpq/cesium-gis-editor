@@ -1,0 +1,17 @@
+{
+  "current_cycle": 1,
+  "previous_cycle": 0,
+  "last_run_status": "in_progress",
+  "last_run_at": "2026-09-06T21:05:00+08:00",
+  "cycle_started_at": "2026-09-06T21:05:00+08:00",
+  "cycle_completed_at": null,
+  "model": "MiniMax-M3",
+  "branch": "feat/auto-cycle",
+  "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
+  "budgets": {
+    "max_m3_calls": 150,
+    "max_M3_calls": 450,
+    "max_commits": 12
+  },
+  "history": []
+}
