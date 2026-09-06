@@ -2,6 +2,7 @@
 // 支持：OpenAI、Anthropic Claude、Google Gemini、DeepSeek、Minimax、Moonshot、智谱、通义千问
 // 独立开源版：无数据库，AI Key 纯会话（tempCreds），不落盘
 const fetch = require("node-fetch");
+const dns = require("node:dns").promises;
 
 // ---- 用量计费（USD per 1M tokens） ----
 // 数据来源：各家厂商公开页面（2026-08 报价；如官价改了更新这里即可，前端按 cost_usd 直接显示）
@@ -324,6 +325,48 @@ function validateBaseUrl(rawUrl) {
   );
 }
 
+// 周期 2 P1-8: SSRF DNS 二次校验 —— 防止 DNS rebinding 把白名单域名解析到内网 IP
+function isPrivateIp(ip) {
+  if (!ip || typeof ip !== 'string') return true;
+  if (ip === '::1' || ip === '::ffff:127.0.0.1') return true;
+  if (ip === '127.0.0.1' || ip.startsWith('127.')) return true;
+  if (/^10\./.test(ip)) return true;
+  if (/^172\.(1[6-9]|2[0-9]|3[01])\./.test(ip)) return true;
+  if (/^192\.168\./.test(ip)) return true;
+  if (/^169\.254\./.test(ip)) return true;
+  if (/^0\./.test(ip)) return true;
+  const lower = ip.toLowerCase();
+  if (lower === '::') return true;
+  if (lower.startsWith('fc') || lower.startsWith('fd')) return true;
+  if (lower.startsWith('fe80:')) return true;
+  return false;
+}
+
+async function validateBaseUrlWithDns(rawUrl) {
+  validateBaseUrl(rawUrl);
+  let u;
+  try { u = new URL(rawUrl); } catch (_) { throw new Error('baseUrl 不是合法 URL'); }
+  const host = u.hostname.toLowerCase();
+  if (OLLAMA_HOSTS.has(host) && u.protocol === 'http:' && ALLOW_HTTP) {
+    return rawUrl;
+  }
+  let resolved;
+  try {
+    resolved = await dns.lookup(host);
+  } catch (e) {
+    throw new Error('baseUrl 主机无法解析（' + host + '）：' + e.message);
+  }
+  const ip = resolved.address;
+  if (isPrivateIp(ip)) {
+    const e = new Error(
+      'baseUrl 主机解析到内网 / 保留 IP（' + host + ' → ' + ip + '），拒绝请求以防 SSRF'
+    );
+    e.status = 400;
+    throw e;
+  }
+  return rawUrl;
+}
+
 // 独立开源版：Key 管理为 no-op（AI Key 纯会话，由浏览器 sessionKeys 管理，不落盘）
 function saveKey() { throw new Error('独立版不支持服务端存 Key，请在浏览器里点 🔑 配置会话 Key'); }
 function listKeys() { return []; }
@@ -450,7 +493,10 @@ async function chat(platform, messages, options = {}, visionAttachments = [], te
     throw e;
   }
 
-  const baseUrl = (keyRow.base_url || cfg.baseUrl).replace(/\/+$/, "");
+  // 周期 2 P1-8: 自定义 baseUrl 必须经过 DNS 二次校验（防 SSRF rebinding）
+  //   默认 baseUrl 来自 cfg.baseUrl（白名单内的厂商域名），IP 也已固定为公网，跳过
+  const baseUrl = await resolveBaseUrl(keyRow.base_url || cfg.baseUrl, cfg.baseUrl);
+
   const model = options.model || keyRow.model_name || cfg.defaultModel;
   const temperature = options.temperature ?? 0.7;
   const max_tokens = options.max_tokens ?? 2048;
@@ -600,6 +646,17 @@ async function chat(platform, messages, options = {}, visionAttachments = [], te
 }
 
 /**
+ * 解析用户/默认 baseUrl：先去掉尾部斜杠，再走 DNS 二次校验
+ */
+async function resolveBaseUrl(userBaseUrl, defaultBaseUrl) {
+  const cleaned = (userBaseUrl || defaultBaseUrl || '').replace(/\/+$/, '');
+  if (!cleaned) throw new Error('baseUrl 为空');
+  // 周期 2 P1-8: DNS 二次校验（防 SSRF rebinding）
+  await validateBaseUrlWithDns(cleaned);
+  return cleaned;
+}
+
+/**
  * 流式 chat（SSE）
  * - onChunk(text) 每收到一段增量文本就回调
  * 返回最终聚合 content
@@ -619,7 +676,10 @@ async function chatStream(platform, messages, options, onChunk, signal, visionAt
     throw e;
   }
 
-  const baseUrl = (keyRow.base_url || cfg.baseUrl).replace(/\/+$/, "");
+  // 周期 2 P1-8: 自定义 baseUrl 必须经过 DNS 二次校验（防 SSRF rebinding）
+  //   默认 baseUrl 来自 cfg.baseUrl（白名单内的厂商域名），IP 也已固定为公网，跳过
+  const baseUrl = await resolveBaseUrl(keyRow.base_url || cfg.baseUrl, cfg.baseUrl);
+
   const model = options.model || keyRow.model_name || cfg.defaultModel;
   const temperature = options.temperature ?? 0.7;
   const max_tokens = options.max_tokens ?? 2048;
@@ -885,5 +945,5 @@ module.exports = {
   getUsageSummary,
   getUsageByRound,
   // 暴露内部工具函数（tests 用）
-  _internal: { normalizeUsage, calcCostUsd, resolvePricing, validateBaseUrl },
+  _internal: { normalizeUsage, calcCostUsd, resolvePricing, validateBaseUrl, validateBaseUrlWithDns, isPrivateIp, resolveBaseUrl },
 };
