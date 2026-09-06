@@ -54,20 +54,20 @@ export const gisApi = {
 // 单 layer：buffer（带 distance）/ centroid / convexHull
 export const spatialApi = {
   intersect: (layerA, layerB) =>
-    http.post("/spatial/intersect", { layerA, layerB }).then((r) => r.data),
+    spatialHttp.post("/spatial/intersect", { layerA, layerB }).then((r) => r.data),
   difference: (layerA, layerB) =>
-    http.post("/spatial/difference", { layerA, layerB }).then((r) => r.data),
+    spatialHttp.post("/spatial/difference", { layerA, layerB }).then((r) => r.data),
   union: (layerA, layerB) =>
-    http.post("/spatial/union", { layerA, layerB }).then((r) => r.data),
-  // groupBy 可选；不传时服务端走 union 等价
+    spatialHttp.post("/spatial/union", { layerA, layerB }).then((r) => r.data),
+  // groupBy 可选；不传时服务端走 union 等价；周期 1 P0-1 起 layerB 也可选
   dissolve: (layerA, layerB, groupBy) =>
-    http.post("/spatial/dissolve", { layerA, layerB, groupBy }).then((r) => r.data),
+    spatialHttp.post("/spatial/dissolve", { layerA, layerB, groupBy }).then((r) => r.data),
   buffer: (layer, distance) =>
-    http.post("/spatial/buffer", { layer, distance }).then((r) => r.data),
+    spatialHttp.post("/spatial/buffer", { layer, distance }).then((r) => r.data),
   centroid: (layer) =>
-    http.post("/spatial/centroid", { layer }).then((r) => r.data),
+    spatialHttp.post("/spatial/centroid", { layer }).then((r) => r.data),
   convexHull: (layer) =>
-    http.post("/spatial/convexHull", { layer }).then((r) => r.data),
+    spatialHttp.post("/spatial/convexHull", { layer }).then((r) => r.data),
 };
 
 export default http;
