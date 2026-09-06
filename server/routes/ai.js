@@ -7,6 +7,7 @@ const aiService = require("../services/ai");
 const aiPrompts = require("../services/ai-prompts");
 const aiConcurrency = require("../middleware/aiConcurrency");
 const { parseToolTags } = require("../agent/protocol/parse");
+const { sseStreamHandler } = require("./_sse");
 
 const router = express.Router();
 
@@ -97,76 +98,32 @@ router.post("/chat/stream", async (req, res) => {
     }
   }
 
-  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
-  res.setHeader("Cache-Control", "no-cache, no-transform");
-  res.setHeader("Connection", "keep-alive");
-  res.setHeader("X-Accel-Buffering", "no");
-  res.flushHeaders && res.flushHeaders();
-
-  const sendEvent = (event, data) => {
-    if (res.writableEnded || res.destroyed) return;
-    try { res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`); } catch (_) {}
-  };
-
-  const ac = new AbortController();
-  let clientClosed = false;
-  req.on("close", () => { clientClosed = true; try { ac.abort(); } catch (_) {} });
-
-  const heartbeat = setInterval(() => {
-    if (clientClosed || res.writableEnded || res.destroyed) return;
-    try { res.write(":keepalive\n\n"); } catch (_) {}
-  }, 15000);
-
-  let permit = null;
-  try {
-    permit = await aiConcurrency.acquire(platform, { signal: ac.signal });
-  } catch (e) {
-    clearInterval(heartbeat);
-    if (!res.writableEnded && !res.destroyed) {
-      try {
-        res.write(`event: error\ndata: ${JSON.stringify({
-          success: false, status: 429,
-          message: e.message === "queue_full" ? "AI 服务繁忙，请稍后再试" : "请求已取消",
-        })}\n\n`);
-        res.end();
-      } catch (_) {}
-    }
-    return;
+  // 注入系统提示词
+  const enhanced = messages;
+  if (enhanced.length > 0 && enhanced[0].role === "system") {
+    enhanced[0].content = BUILTIN_TOOLS_PROMPT + "\n\n" + enhanced[0].content;
+  } else {
+    enhanced.unshift({ role: "system", content: BUILTIN_TOOLS_PROMPT });
   }
-  sendEvent("queue_status", {
-    inflight: aiConcurrency.getStats()[platform]?.inflight ?? null,
-    waiting: aiConcurrency.getStats()[platform]?.waiting ?? null,
-  });
 
-  const cleanup = () => { clearInterval(heartbeat); if (permit) { permit.release(); permit = null; } };
-
-  try {
-    // 注入系统提示词
-    const enhanced = messages;
-    if (enhanced.length > 0 && enhanced[0].role === "system") {
-      enhanced[0].content = BUILTIN_TOOLS_PROMPT + "\n\n" + enhanced[0].content;
-    } else {
-      enhanced.unshift({ role: "system", content: BUILTIN_TOOLS_PROMPT });
-    }
-
-    const result = await aiService.chatStream(
-      platform, enhanced, options || {},
-      (delta) => sendEvent("delta", { content: delta }),
-      ac.signal, visionAttachments,
-      tempApiKey ? { api_key: tempApiKey, base_url: tempBaseUrl, model_name: tempModel } : null,
-    );
-    sendEvent("done", { platform: result.platform, model: result.model });
-    const usageRecord = aiService.recordUsage({
-      sessionId: req.body?.sessionId || null, roundId: roundId || null,
+  // 周期 1 P1-3: 抽到 _sse.js 公共封装
+  const sessionId = req.body?.sessionId || null;
+  await sseStreamHandler(req, res, {
+    platform,
+    source: 'stream',
+    sessionId,
+    roundId: roundId || null,
+    run: ({ signal, onDelta }) =>
+      aiService.chatStream(
+        platform, enhanced, options || {},
+        onDelta, signal, visionAttachments,
+        tempApiKey ? { api_key: tempApiKey, base_url: tempBaseUrl, model_name: tempModel } : null,
+      ),
+    onUsage: (result) => aiService.recordUsage({
+      sessionId, roundId: roundId || null,
       platform, model: result.model, usage: result.usage, source: 'stream',
-    });
-    if (usageRecord) sendEvent("usage", { ...usageRecord, sessionId: req.body?.sessionId || null, roundId: roundId || null });
-    res.end();
-  } catch (e) {
-    if (!clientClosed) sendEvent("error", { message: e.message });
-  } finally {
-    cleanup();
-  }
+    }),
+  });
 });
 
 /**
@@ -229,70 +186,28 @@ router.post("/agent", async (req, res) => {
   }
 
   // ============ Agent 流式分支 ============
-  res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
-  res.setHeader("Cache-Control", "no-cache, no-transform");
-  res.setHeader("Connection", "keep-alive");
-  res.setHeader("X-Accel-Buffering", "no");
-  res.flushHeaders && res.flushHeaders();
-
-  const sendEvent = (event, data) => {
-    if (res.writableEnded || res.destroyed) return;
-    try { res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`); } catch (_) {}
-  };
-
-  const ac = new AbortController();
-  let clientClosed = false;
-  req.on("close", () => { clientClosed = true; try { ac.abort(); } catch (_) {} });
-
-  const heartbeat = setInterval(() => {
-    if (clientClosed || res.writableEnded || res.destroyed) return;
-    try { res.write(":keepalive\n\n"); } catch (_) {}
-  }, 15000);
-
-  let permit = null;
-  try {
-    permit = await aiConcurrency.acquire(platform, { signal: ac.signal });
-  } catch (e) {
-    clearInterval(heartbeat);
-    if (!res.writableEnded && !res.destroyed) {
-      try {
-        res.write(`event: error\ndata: ${JSON.stringify({
-          success: false, status: 429,
-          message: e.message === "queue_full" ? "AI 服务繁忙，请稍后再试" : "请求已取消",
-        })}\n\n`);
-        res.end();
-      } catch (_) {}
-    }
-    return;
-  }
-  sendEvent("queue_status", {
-    inflight: aiConcurrency.getStats()[platform]?.inflight ?? null,
-    waiting: aiConcurrency.getStats()[platform]?.waiting ?? null,
-  });
-
-  const cleanup = () => { clearInterval(heartbeat); if (permit) { permit.release(); permit = null; } };
-
-  try {
-    const result = await aiService.chatStream(
-      platform, enhanced, options || {},
-      (delta) => sendEvent("delta", { content: delta }),
-      ac.signal, visionAttachments,
-      tempApiKey ? { api_key: tempApiKey, base_url: tempBaseUrl, model_name: tempModel } : null,
-    );
-    sendEvent("done", { platform: result.platform, model: result.model });
-    const usageRecord = aiService.recordUsage({
-      sessionId: req.body?.sessionId || null, roundId: roundId || null,
+  // 周期 1 P1-3: 抽到 _sse.js 公共封装（与 /chat/stream 共用 acquire/heartbeat/abort/usage）
+  const sessionId = req.body?.sessionId || null;
+  await sseStreamHandler(req, res, {
+    platform,
+    source: 'agent-stream',
+    sessionId,
+    roundId: roundId || null,
+    run: ({ signal, onDelta }) =>
+      aiService.chatStream(
+        platform, enhanced, options || {},
+        onDelta, signal, visionAttachments,
+        tempApiKey ? { api_key: tempApiKey, base_url: tempBaseUrl, model_name: tempModel } : null,
+      ),
+    onUsage: (result) => aiService.recordUsage({
+      sessionId, roundId: roundId || null,
       platform, model: result.model, usage: result.usage, source: 'agent-stream',
-    });
-    const { tools: toolCalls } = parseToolTags(result.content || '');
-    if (usageRecord) sendEvent("usage", { ...usageRecord, sessionId: req.body?.sessionId || null, roundId: roundId || null });
-    if (toolCalls && toolCalls.length > 0) sendEvent("tool_calls", { toolCalls });
-    res.end();
-  } catch (e) {
-    if (!clientClosed) sendEvent("error", { message: e.message });
-  } finally {
-    cleanup();
-  }
+    }),
+    onFinalContent: (fullText) => {
+      const { tools: toolCalls } = parseToolTags(fullText || '');
+      return { toolCalls };
+    },
+  });
 });
 
 // ============ 场景 AI 说明生成（URL 分享时附 markdown）============
