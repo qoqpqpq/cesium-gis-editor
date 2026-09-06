@@ -1,17 +1,20 @@
 import { Component } from 'react';
 
+const EDITOR_LS_PREFIX = 'gis:editor:';
+
 function defaultClearEditorState() {
   try {
-    if (typeof window !== 'undefined') {
-      const keys = [
-        'gis:editor:selection',
-        'gis:editor:layers',
-        'gis:editor:undo',
-        'gis:editor:view',
-      ];
-      for (const k of keys) {
-        try { window.localStorage.removeItem(k); } catch (_) { /* ignore */ }
-      }
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    // 周期 1 P1-5: 用前缀匹配清空 'gis:editor:*'，避免硬编码 key 列表
+    //   后续新加视图 / 主题 / 侧栏宽度等状态都自动跟随清理
+    // 先收集再删除（正向遍历 + removeItem 会导致 length 缩减，索引漂移）
+    const toRemove = [];
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith(EDITOR_LS_PREFIX)) toRemove.push(k);
+    }
+    for (const k of toRemove) {
+      try { window.localStorage.removeItem(k); } catch (_) { /* ignore */ }
     }
   } catch (_) { /* ignore */ }
 }
