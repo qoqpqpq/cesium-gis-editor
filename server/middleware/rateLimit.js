@@ -5,6 +5,10 @@
 //   之前把 10/192.168/172.16 三个 RFC1918 段都当 local 跳过限流，但这些段在
 //   云上 VPC（AWS / GCP / 阿里云）和企业内网中常被外部服务共用，把它们从
 //   skip 列表里剔出会显著缩小攻击面。仅本机开发仍可完全放行。
+// - 周期 2 P1-9: 增加 slidingWindow() 自研实现（Sliding Window Log 算法）
+//   express-rate-limit 7.x 默认是 Fixed Window，窗口边界处会突发 2×limit；
+//   sliding 方式按时间戳滑动计数更平滑。
+//   多实例 / Redis 共享待周期 3+ 再做。
 const rateLimit = require('express-rate-limit');
 
 function isLocal(req) {
@@ -18,6 +22,76 @@ function isLocal(req) {
 
 function skipLocal(handler) {
   return (req) => !isLocal(req) && handler(req);
+}
+
+/**
+ * 周期 2 P1-9: Sliding Window Log 限流
+ * - 每个 IP 在 hits 数组里记录请求时间戳
+ * - 每次请求：清理 < now - windowMs 的旧时间戳；剩余 ≥ limit → 429
+ * - 内存成本 O(limit) per IP；每窗口清理避免泄漏
+ * - 替代 express-rate-limit 默认 Fixed Window；周期 1 P0-2 仍放行 loopback
+ */
+function slidingWindow(opts) {
+  const {
+    windowMs,
+    limit,
+    message = '请求过于频繁，请稍后重试',
+    keyBy = (req) => req.ip || (req.socket && req.socket.remoteAddress) || 'unknown',
+    skip,
+  } = opts;
+  if (typeof windowMs !== 'number' || windowMs <= 0) {
+    throw new Error('slidingWindow: windowMs 必须是正数');
+  }
+  if (typeof limit !== 'number' || limit <= 0) {
+    throw new Error('slidingWindow: limit 必须是正数');
+  }
+  const hits = new Map();
+  const SWEEP_INTERVAL_MS = Math.max(windowMs * 4, 60000);
+  let lastSweep = Date.now();
+
+  function sweep() {
+    const now = Date.now();
+    if (now - lastSweep < SWEEP_INTERVAL_MS) return;
+    lastSweep = now;
+    const cutoff = now - windowMs;
+    for (const [key, arr] of hits.entries()) {
+      let i = 0;
+      while (i < arr.length && arr[i] < cutoff) i += 1;
+      if (i > 0) arr.splice(0, i);
+      if (arr.length === 0) hits.delete(key);
+    }
+  }
+
+  return function slidingWindowMiddleware(req, res, next) {
+    if (typeof skip === 'function' && skip(req)) return next();
+    sweep();
+
+    const key = keyBy(req);
+    const now = Date.now();
+    const cutoff = now - windowMs;
+    let arr = hits.get(key);
+    if (!arr) {
+      arr = [];
+      hits.set(key, arr);
+    }
+    let i = 0;
+    while (i < arr.length && arr[i] < cutoff) i += 1;
+    if (i > 0) arr.splice(0, i);
+
+    if (arr.length >= limit) {
+      const retryAfterSec = Math.max(1, Math.ceil((arr[0] + windowMs - now) / 1000));
+      res.setHeader('Retry-After', String(retryAfterSec));
+      res.setHeader('X-RateLimit-Limit', String(limit));
+      res.setHeader('X-RateLimit-Remaining', '0');
+      res.setHeader('X-RateLimit-Reset', String(Math.ceil((arr[0] + windowMs) / 1000)));
+      return res.status(429).json({ success: false, message });
+    }
+
+    arr.push(now);
+    res.setHeader('X-RateLimit-Limit', String(limit));
+    res.setHeader('X-RateLimit-Remaining', String(limit - arr.length));
+    next();
+  };
 }
 
 /**
@@ -95,4 +169,5 @@ const aiDailyLimiter = rateLimit({
 
 module.exports = {
   apiLimiter, aiLimiter, recommendLimiter, spatialLimiter, aiDailyLimiter, isLocal,
+  slidingWindow,
 };
