@@ -1,7 +1,10 @@
 // 限流配置
 // - 全局 API 限流：宽松（防止全站被打挂）
 // - AI 路由限流：更严（防止 LLM / 联网搜索配额被烧光）
-// - 本地/loopback 默认不计入
+// - 周期 1 P0-2: 仅放行 loopback（127.0.0.1 / ::1）。
+//   之前把 10/192.168/172.16 三个 RFC1918 段都当 local 跳过限流，但这些段在
+//   云上 VPC（AWS / GCP / 阿里云）和企业内网中常被外部服务共用，把它们从
+//   skip 列表里剔出会显著缩小攻击面。仅本机开发仍可完全放行。
 const rateLimit = require('express-rate-limit');
 
 function isLocal(req) {
@@ -9,10 +12,7 @@ function isLocal(req) {
   return (
     ip === '::1' ||
     ip === '127.0.0.1' ||
-    ip === '::ffff:127.0.0.1' ||
-    ip.startsWith('10.') ||
-    ip.startsWith('192.168.') ||
-    ip.startsWith('172.16.')
+    ip === '::ffff:127.0.0.1'
   );
 }
 
