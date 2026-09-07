@@ -37,9 +37,117 @@
 const vm = require('node:vm');
 const { Worker } = require('node:worker_threads');
 const path = require('node:path');
+const fs = require('node:fs');
+const os = require('node:os');
 
 const DEFAULT_TIMEOUT_MS = 5000;
 const DEFAULT_WORKER_HEAP_MB = 64;
+
+// 周期 6 P1-2 续: heap snapshot 配置
+//   - 触发条件：worker 异常退出 / CPU 超限 / heap 超限 / 显式调用
+//   - 落盘目录：SNAPSHOT_DIR（默认 ./tmp/snapshots）
+//   - 节流：相同 trigger 在 1s 内不重复
+//   - 保留：最近 5 个 LIFO
+const SNAPSHOT_DIR = process.env.SANDBOX_SNAPSHOT_DIR || path.join(os.tmpdir(), 'cesium-sandbox-snapshots');
+const SNAPSHOT_RETAIN = parseInt(process.env.SANDBOX_SNAPSHOT_RETAIN || '5', 10);
+const SNAPSHOT_THROTTLE_MS = parseInt(process.env.SANDBOX_SNAPSHOT_THROTTLE_MS || '1000', 10);
+const _lastSnapshotAt = new Map(); // trigger -> ms timestamp
+
+function ensureSnapshotDir() {
+  if (!fs.existsSync(SNAPSHOT_DIR)) {
+    fs.mkdirSync(SNAPSHOT_DIR, { recursive: true });
+  }
+}
+
+function pruneOldSnapshots() {
+  // 保留最近 N 个（LIFO 按 mtime）
+  try {
+    const files = fs.readdirSync(SNAPSHOT_DIR)
+      .filter((f) => f.endsWith('.heapsnapshot'))
+      .map((f) => ({ f, mtime: fs.statSync(path.join(SNAPSHOT_DIR, f)).mtimeMs }));
+    files.sort((a, b) => b.mtime - a.mtime);
+    for (const { f } of files.slice(SNAPSHOT_RETAIN)) {
+      fs.unlinkSync(path.join(SNAPSHOT_DIR, f));
+    }
+  } catch (_) { /* 兜底 */ }
+}
+
+/**
+ * 周期 6 P1-2 续: 触发 worker heap snapshot
+ * - worker 端通过 parentPort.postMessage('snapshot') 请求（worker 内部 v8 调用）
+ * - 主线程：调 worker.evaluate (v8.writeHeapSnapshot) → 拿 buffer → 落盘
+ * - 用 promise + 节流
+ * - 失败兜底：catch + console.error，不影响主流程
+ */
+async function captureWorkerHeapSnapshot(worker, trigger) {
+  const now = Date.now();
+  const last = _lastSnapshotAt.get(trigger) || 0;
+  if (now - last < SNAPSHOT_THROTTLE_MS) {
+    return { skipped: true, reason: 'throttled' };
+  }
+  _lastSnapshotAt.set(trigger, now);
+  try {
+    ensureSnapshotDir();
+    const ts = new Date(now).toISOString().replace(/[:.]/g, '-');
+    const filename = path.join(SNAPSHOT_DIR, `${trigger}-${ts}.heapsnapshot`);
+    // worker 线程内 v8.writeHeapSnapshot 返回 string（文件路径）
+    const filePath = await worker.workerData ? Promise.resolve() : null;
+    // 实际：v8.writeHeapSnapshot 仅在 worker 线程内可调；用 worker.postMessage 协议
+    return new Promise((resolve) => {
+      let done = false;
+      const timer = setTimeout(() => {
+        if (done) return;
+        done = true;
+        resolve({ ok: false, reason: 'snapshot-timeout' });
+      }, 3000);
+      const onMsg = (m) => {
+        if (done) return;
+        if (m && m.event === 'snapshot_done') {
+          done = true;
+          clearTimeout(timer);
+          worker.off('message', onMsg);
+          // worker 把 heap buffer 发回来；主线程落盘
+          if (m.bufferBase64) {
+            try {
+              const buf = Buffer.from(m.bufferBase64, 'base64');
+              fs.writeFileSync(filename, buf);
+              pruneOldSnapshots();
+              resolve({ ok: true, path: filename, size: buf.length });
+            } catch (e) {
+              resolve({ ok: false, reason: e.message });
+            }
+          } else if (m.path) {
+            // worker 端 v8.writeHeapSnapshot 直接写盘
+            try {
+              if (fs.existsSync(m.path)) {
+                const content = fs.readFileSync(m.path);
+                fs.writeFileSync(filename, content);
+                fs.unlinkSync(m.path);
+                pruneOldSnapshots();
+                resolve({ ok: true, path: filename, size: content.length });
+              } else {
+                resolve({ ok: false, reason: 'worker-side file missing' });
+              }
+            } catch (e) {
+              resolve({ ok: false, reason: e.message });
+            }
+          } else {
+            resolve({ ok: false, reason: 'no buffer or path in worker response' });
+          }
+        } else if (m && m.event === 'snapshot_error') {
+          done = true;
+          clearTimeout(timer);
+          worker.off('message', onMsg);
+          resolve({ ok: false, reason: m.message });
+        }
+      };
+      worker.on('message', onMsg);
+      worker.postMessage({ event: 'snapshot_request' });
+    });
+  } catch (e) {
+    return { ok: false, reason: e.message };
+  }
+}
 
 /**
  * 在沙箱里跑一段 JS 代码
@@ -194,6 +302,12 @@ function executeInSandboxWorker(code, ctx = {}, opts = {}) {
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const heapMb = opts.heapMb ?? DEFAULT_WORKER_HEAP_MB;
   const cpuLimitMs = opts.cpuLimitMs || 0;
+  // 周期 6 P1-2 续: heap snapshot 触发
+  //   - onError / onTimeout / cpuAbort → 调 captureWorkerHeapSnapshot
+  //   - 用户通过 opts.snapshotOnFinish 显式开启
+  const enableSnapshot = !!opts.snapshotOnFinish || !!opts.snapshotOnError;
+  const snapshotOnFinish = !!opts.snapshotOnFinish;
+  const snapshotOnError = opts.snapshotOnError !== false; // 默 true（异常路径）
   const t0 = Date.now();
 
   return new Promise((resolve) => {
@@ -223,8 +337,19 @@ function executeInSandboxWorker(code, ctx = {}, opts = {}) {
 
     worker.on('message', (msg) => {
       clearTimeout(timer);
+      // 周期 6 P1-2 续: control message（snapshot_done / snapshot_error）由 captureWorkerHeapSnapshot 处理
+      //   主 on('message') 只处理业务 result（cpu_abort / ok / error）
+      if (msg && (msg.event === 'snapshot_done' || msg.event === 'snapshot_error')) {
+        return;
+      }
       // 周期 5 P1-2: 处理 CPU abort 事件
       if (msg && msg.event === 'cpu_abort') {
+        // 周期 6 P1-2 续: snapshot 在 terminate 之前触发；fire-and-forget
+        if (enableSnapshot && snapshotOnError) {
+          captureWorkerHeapSnapshot(worker, 'cpu-abort')
+            .then((r) => { if (r.ok) console.log(`[sandbox] heap snapshot saved: ${r.path} (${r.size} bytes)`); })
+            .catch((e) => console.error('[sandbox] snapshot error:', e.message));
+        }
         safeResolve({
           ok: false,
           cpuAbort: true,
@@ -241,12 +366,24 @@ function executeInSandboxWorker(code, ctx = {}, opts = {}) {
       if (msg && msg.ok === true) {
         // 把 ok 消息缓存，但先不 resolve；等 worker exit 后再判断
         pendingOk = msg;
+        // 周期 6 P1-2 续: 在 worker 主动 setTimeout(process.exit, 300) 之前触发
+        //   worker 收到 snapshot_request → 写文件 → 通知主线程 → 主线程落盘
+        if (enableSnapshot && snapshotOnFinish) {
+          captureWorkerHeapSnapshot(worker, 'finish')
+            .then((r) => { if (r.ok) console.log(`[sandbox] heap snapshot saved: ${r.path} (${r.size} bytes)`); })
+            .catch((e) => console.error('[sandbox] snapshot error:', e.message));
+        }
         return;
       }
       safeResolve(msg);
     });
     worker.on('error', (e) => {
       clearTimeout(timer);
+      if (enableSnapshot && snapshotOnError) {
+        captureWorkerHeapSnapshot(worker, 'worker-error')
+          .then((r) => { if (r.ok) console.log(`[sandbox] heap snapshot saved: ${r.path} (${r.size} bytes)`); })
+          .catch((e2) => console.error('[sandbox] snapshot error:', e2.message));
+      }
       safeResolve({
         ok: false,
         error: { message: e.message, code: e.code },
@@ -290,6 +427,8 @@ function parseSandboxError(e, wrapped) {
 module.exports = {
   executeInSandbox,
   executeInSandboxWorker,
+  captureWorkerHeapSnapshot,
+  SNAPSHOT_DIR,
   DEFAULT_TIMEOUT_MS,
   DEFAULT_WORKER_HEAP_MB,
 };

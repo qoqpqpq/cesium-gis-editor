@@ -12,6 +12,9 @@
 
 const { parentPort, workerData } = require('node:worker_threads');
 const vm = require('node:vm');
+const v8 = require('node:v8');
+const path = require('node:path');
+const os = require('node:os');
 
 function run() {
   const { code, ctx = {}, timeoutMs = 5000, cpuLimitMs = 0 } = workerData;
@@ -135,4 +138,20 @@ try {
     error: { message: e.message, code: e.code || 'WORKER_BOOT_ERROR' },
   });
   setImmediate(() => process.exit(0));
+}
+
+// 周期 6 P1-2 续: 监听 snapshot_request
+//   - 父线程请求时 v8.writeHeapSnapshot(path) → 写临时文件 → 通知主线程
+if (parentPort) {
+  parentPort.on('message', (m) => {
+    if (m && m.event === 'snapshot_request') {
+      try {
+        const tmpPath = path.join(os.tmpdir(), `sandbox-snap-${process.pid}-${Date.now()}.heapsnapshot`);
+        const written = v8.writeHeapSnapshot(tmpPath);
+        parentPort.postMessage({ event: 'snapshot_done', path: written });
+      } catch (e) {
+        parentPort.postMessage({ event: 'snapshot_error', message: e.message });
+      }
+    }
+  });
 }
