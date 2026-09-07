@@ -8,8 +8,10 @@
 // - 周期 2 P1-9: 增加 slidingWindow() 自研实现（Sliding Window Log 算法）
 //   express-rate-limit 7.x 默认是 Fixed Window，窗口边界处会突发 2×limit；
 //   sliding 方式按时间戳滑动计数更平滑。
-//   多实例 / Redis 共享待周期 3+ 再做。
+// - 周期 3 P2-2: 抽 RateLimiterStore 接口 + InMemoryStore（默认）+ RedisStore stub
+//   多实例 / Redis 共享待周期 4+ 实施（iouredis + ZADD）
 const rateLimit = require('express-rate-limit');
+const { createStore, InMemoryStore, RedisStore } = require('./rateLimitStore');
 
 function isLocal(req) {
   const ip = (req.ip || req.socket.remoteAddress || '').toString();
@@ -30,6 +32,11 @@ function skipLocal(handler) {
  * - 每次请求：清理 < now - windowMs 的旧时间戳；剩余 ≥ limit → 429
  * - 内存成本 O(limit) per IP；每窗口清理避免泄漏
  * - 替代 express-rate-limit 默认 Fixed Window；周期 1 P0-2 仍放行 loopback
+ *
+ * 周期 3 P2-2 增量：接受 opts.store 参数
+ *   - 缺省 → 进程内 InMemoryStore（行为与周期 2 完全一致）
+ *   - opts.store = 'redis' 或 env REDIS_STORE=1 → 切 RedisStore stub
+ *   - opts.store 传实例 → 复用外部 store
  */
 function slidingWindow(opts) {
   const {
@@ -38,6 +45,7 @@ function slidingWindow(opts) {
     message = '请求过于频繁，请稍后重试',
     keyBy = (req) => req.ip || (req.socket && req.socket.remoteAddress) || 'unknown',
     skip,
+    store, // 周期 3 P2-2 新增
   } = opts;
   if (typeof windowMs !== 'number' || windowMs <= 0) {
     throw new Error('slidingWindow: windowMs 必须是正数');
@@ -45,51 +53,34 @@ function slidingWindow(opts) {
   if (typeof limit !== 'number' || limit <= 0) {
     throw new Error('slidingWindow: limit 必须是正数');
   }
-  const hits = new Map();
-  const SWEEP_INTERVAL_MS = Math.max(windowMs * 4, 60000);
-  let lastSweep = Date.now();
+  // 周期 3 P2-2: 解析 store（字符串 → 实例）
+  const resolvedStore = !store
+    ? new InMemoryStore()
+    : store === 'redis'
+    ? new RedisStore()
+    : store;
 
-  function sweep() {
-    const now = Date.now();
-    if (now - lastSweep < SWEEP_INTERVAL_MS) return;
-    lastSweep = now;
-    const cutoff = now - windowMs;
-    for (const [key, arr] of hits.entries()) {
-      let i = 0;
-      while (i < arr.length && arr[i] < cutoff) i += 1;
-      if (i > 0) arr.splice(0, i);
-      if (arr.length === 0) hits.delete(key);
-    }
-  }
-
-  return function slidingWindowMiddleware(req, res, next) {
+  return async function slidingWindowMiddleware(req, res, next) {
     if (typeof skip === 'function' && skip(req)) return next();
-    sweep();
-
     const key = keyBy(req);
-    const now = Date.now();
-    const cutoff = now - windowMs;
-    let arr = hits.get(key);
-    if (!arr) {
-      arr = [];
-      hits.set(key, arr);
+    let result;
+    try {
+      result = await resolvedStore.hit(key, windowMs, limit);
+    } catch (e) {
+      // 周期 3 P2-2: store 失败 → 保守放行 + console.error
+      console.error('[slidingWindow] store.hit 失败:', e.message);
+      return next();
     }
-    let i = 0;
-    while (i < arr.length && arr[i] < cutoff) i += 1;
-    if (i > 0) arr.splice(0, i);
-
-    if (arr.length >= limit) {
-      const retryAfterSec = Math.max(1, Math.ceil((arr[0] + windowMs - now) / 1000));
+    if (!result.allowed) {
+      const retryAfterSec = Math.max(1, Math.ceil(result.retryAfterMs / 1000));
       res.setHeader('Retry-After', String(retryAfterSec));
       res.setHeader('X-RateLimit-Limit', String(limit));
       res.setHeader('X-RateLimit-Remaining', '0');
-      res.setHeader('X-RateLimit-Reset', String(Math.ceil((arr[0] + windowMs) / 1000)));
+      res.setHeader('X-RateLimit-Reset', String(Math.ceil((Date.now() + result.retryAfterMs) / 1000)));
       return res.status(429).json({ success: false, message });
     }
-
-    arr.push(now);
     res.setHeader('X-RateLimit-Limit', String(limit));
-    res.setHeader('X-RateLimit-Remaining', String(limit - arr.length));
+    res.setHeader('X-RateLimit-Remaining', String(Math.max(0, limit - result.count)));
     next();
   };
 }
@@ -170,4 +161,6 @@ const aiDailyLimiter = rateLimit({
 module.exports = {
   apiLimiter, aiLimiter, recommendLimiter, spatialLimiter, aiDailyLimiter, isLocal,
   slidingWindow,
+  // 周期 3 P2-2: 暴露 store 抽象
+  createStore, InMemoryStore, RedisStore,
 };
