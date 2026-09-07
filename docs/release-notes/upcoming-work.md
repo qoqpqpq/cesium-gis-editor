@@ -23,14 +23,12 @@
 - [ ] **P2-5** `client/src/pages/gis/aiAgent.js` 体积大且无注释（待通读），P2 阶段拆分候选。
 - [ ] **P2-6** AI Agent 工具协议统一。引入 OpenAI 风格 `tool_calls[]`（与本地 `<tool>` 协议共存），便于 Claude / Ollama 接入；前端 UI 折叠工具过程。文件：`server/agent/protocol/parse.js`。验收：与原 P2-4 合并实施。
 
-## 调研 Top5（由周期 5 调研产出，落到 P0/P1/P2，覆盖周期 4 Top5）
+## 调研 Top5（由周期 6 调研产出，落到 P0/P1/P2，覆盖周期 5 Top5）
 
-> 调研全文见 `docs/cycles/cycle-05-research.md`（12 主题 × 5 链接 = 60 链接）。
+> 调研全文见 `docs/cycles/cycle-06-research.md`（12 主题 × 5 链接 = 60 链接）。
 
 | 排名 | 主题 | 行动 | 落点 |
 | --- | ---- | ---- | ---- |
-| 1 | SSRF metadata IP 同步 + IANA 季度维护 | 周期 5 P0-1 已建维护文档 + cron spec；周期 6 写"自动从 cloud-metadata.com 拉取新 IP"脚本 | 升级 P0-1 |
-| 2 | 限流算法 + 标准 header | 周期 5 P0-2 完成 Lua atomic + multi-level；周期 6 评估 Token Bucket（AI 端点）+ IETF draft 标准 header（去 X 前缀）+ SCRIPT LOAD EVALSHA 缓存 | 升级 P0-2 |
-| 3 | 可观察性升级（Otel SDK + Metrics） | 周期 4 P1-1 实施自研 W3C traceparent；周期 6 评估全 Otel SDK（auto-instrumentation）+ Metrics（Prometheus）+ Logs Bridge | 升级 P1-1 |
-| 4 | 沙箱深度隔离（CPU watchdog + isolated-vm） | 周期 5 P1-2 完成 worker CPU watchdog；周期 6 评估 isolated-vm（高安全要求）+ v8 heapSnapshot | 升级 P1-2 |
-| 5 | CompressionStream 客户端 polyfill | 周期 4 P1-3 实施 zlib Node 端压缩；周期 6 浏览器侧引入 pako / fflate 做 DecompressionStream polyfill | 升级 P1-3 |
+| 1 | **Cesium MCP / WebMCP**（4 种接入：browser-agent / WebMCP / function calling / runtime） | 周期 7+ 评估 `cesium-mcp-bridge` 嵌入 Viewer（**优先 browser-agent 模式** — 零后端、3 分钟跑起来） | 升级 P1-1 / P2-3 续 |
+| 2 | **OTel 完整接入** | 周期 5 P1-1 已自研 MetricsRegistry + /api/metrics；周期 7+ 评估 OTLP HTTP exporter → 接 Jaeger / Tempo（**与"商业化"绑一起做**） | 升级 P1-1 |
+| 3 | **沙箱 isolated
