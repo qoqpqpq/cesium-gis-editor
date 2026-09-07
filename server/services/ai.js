@@ -1,8 +1,12 @@
 // 多平台大模型统一转发服务
 // 支持：OpenAI、Anthropic Claude、Google Gemini、DeepSeek、Minimax、Moonshot、智谱、通义千问
 // 独立开源版：无数据库，AI Key 纯会话（tempCreds），不落盘
+// 周期 3 P0-1: SSRF 防护升级 —— IP 分类逻辑下沉到 ssrf-guard.js
+//   仍保持本文件内 validateBaseUrl / validateBaseUrlWithDns / isPrivateIp / resolveBaseUrl 公共 API
+//   （向后兼容）；实现改为 re-export 自 ssrf-guard
 const fetch = require("node-fetch");
 const dns = require("node:dns").promises;
+const ssrfGuard = require("./ssrf-guard");
 
 // ---- 用量计费（USD per 1M tokens） ----
 // 数据来源：各家厂商公开页面（2026-08 报价；如官价改了更新这里即可，前端按 cost_usd 直接显示）
@@ -325,47 +329,12 @@ function validateBaseUrl(rawUrl) {
   );
 }
 
-// 周期 2 P1-8: SSRF DNS 二次校验 —— 防止 DNS rebinding 把白名单域名解析到内网 IP
-function isPrivateIp(ip) {
-  if (!ip || typeof ip !== 'string') return true;
-  if (ip === '::1' || ip === '::ffff:127.0.0.1') return true;
-  if (ip === '127.0.0.1' || ip.startsWith('127.')) return true;
-  if (/^10\./.test(ip)) return true;
-  if (/^172\.(1[6-9]|2[0-9]|3[01])\./.test(ip)) return true;
-  if (/^192\.168\./.test(ip)) return true;
-  if (/^169\.254\./.test(ip)) return true;
-  if (/^0\./.test(ip)) return true;
-  const lower = ip.toLowerCase();
-  if (lower === '::') return true;
-  if (lower.startsWith('fc') || lower.startsWith('fd')) return true;
-  if (lower.startsWith('fe80:')) return true;
-  return false;
-}
-
-async function validateBaseUrlWithDns(rawUrl) {
-  validateBaseUrl(rawUrl);
-  let u;
-  try { u = new URL(rawUrl); } catch (_) { throw new Error('baseUrl 不是合法 URL'); }
-  const host = u.hostname.toLowerCase();
-  if (OLLAMA_HOSTS.has(host) && u.protocol === 'http:' && ALLOW_HTTP) {
-    return rawUrl;
-  }
-  let resolved;
-  try {
-    resolved = await dns.lookup(host);
-  } catch (e) {
-    throw new Error('baseUrl 主机无法解析（' + host + '）：' + e.message);
-  }
-  const ip = resolved.address;
-  if (isPrivateIp(ip)) {
-    const e = new Error(
-      'baseUrl 主机解析到内网 / 保留 IP（' + host + ' → ' + ip + '），拒绝请求以防 SSRF'
-    );
-    e.status = 400;
-    throw e;
-  }
-  return rawUrl;
-}
+// 周期 3 P0-1: IP 分类 / DNS 校验 / safeFetch 全部下沉到 ssrf-guard.js
+//   保持 ai.js 内以下公共 API 兼容：validateBaseUrl / validateBaseUrlWithDns / isPrivateIp
+//   旧实现（周期 2 P1-8 正则）已被 ssrf-guard 的 classifyIp 覆盖更精确分类
+const isPrivateIp = ssrfGuard.isPrivateIp;
+const validateBaseUrlWithDns = ssrfGuard.validateBaseUrlWithDns;
+const { safeFetch } = ssrfGuard;
 
 // 独立开源版：Key 管理为 no-op（AI Key 纯会话，由浏览器 sessionKeys 管理，不落盘）
 function saveKey() { throw new Error('独立版不支持服务端存 Key，请在浏览器里点 🔑 配置会话 Key'); }
