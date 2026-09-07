@@ -1,10 +1,10 @@
 {
-  "current_cycle": 5,
-  "previous_cycle": 4,
+  "current_cycle": 6,
+  "previous_cycle": 5,
   "last_run_status": "completed",
-  "last_run_at": "2026-09-07T04:00:00+08:00",
-  "cycle_started_at": "2026-09-07T03:30:00+08:00",
-  "cycle_completed_at": "2026-09-07T04:00:00+08:00",
+  "last_run_at": "2026-09-07T08:30:00+08:00",
+  "cycle_started_at": "2026-09-07T07:30:00+08:00",
+  "cycle_completed_at": "2026-09-07T08:30:00+08:00",
   "model": "MiniMax-M3",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -112,6 +112,26 @@
       "bugs_open": 10,
       "self_check_score": "97%",
       "notes": "P0-1 SSRF 终态（metadata IP 维护文档 + cron spec + ECS IPv6）；P0-2 Redis Lua atomic + multi-level 限流（IP + userId + apikey 独立计 limit）；P0-3 helmet 8.x 安全头部修复（withFreshServer helper）；P1-2 sandbox worker CPU watchdog（microtask 调度 + setTimeout(exit)）；C5-B01..B10 落周期 6"
+    },
+    {
+      "cycle": 6,
+      "status": "completed",
+      "started_at": "2026-09-07T07:30:00+08:00",
+      "completed_at": "2026-09-07T08:30:00+08:00",
+      "p0_done": 2,
+      "p0_planned": 2,
+      "p1_done": 4,
+      "p1_planned": 4,
+      "p2_done": 2,
+      "p2_planned": 2,
+      "commits": 9,
+      "commits_max": 12,
+      "specs_added": 8,
+      "research_topics": 12,
+      "research_links": 60,
+      "bugs_open": 10,
+      "self_check_score": "97%",
+      "notes": "P0-1 续 SSRF metadata IP 同步脚本（npm sync:metadata-ips）；P0-2 续 Token Bucket（InMemoryTokenBucketStore）+ IETF RateLimit-* 标准 header（slidingWindow 同步写 + 兼容 X-）+ multiLevelLimiter 共享 store bug 修复；P1-1 Otel-style Metrics（自研 MetricsRegistry + /api/metrics localhost-only）；P1-2 续 v8 heap snapshot（worker.error / cpu_abort / ok finish 三处触发 + 节流 1s + 保留 5 个 LIFO）；P1-3 客户端 viewState 浏览器 pako 懒加载（readViewStateFromUrlAsync）；P1-4 aiMultiLevelLimiter routes 集成（userIdKey + apiKeyKey 自动提取 + Bearer 解析）；P2-4 + P2-6 协议共享（server/agent/protocol/index.js）+ OpenAI tool_calls 双格式（防重复匹配区间）"
     }
   ]
 }
