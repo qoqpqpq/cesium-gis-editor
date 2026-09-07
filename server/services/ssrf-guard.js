@@ -54,6 +54,10 @@ const ALLOW_HTTP = process.env.AI_ALLOW_HTTP === '1';
 //   169.254.0.0/16    — 整个 link-local 段（但 classifyIp 已拒；这里只对路径黑名单）
 //   fd00:ec2::254/128 — AWS IPv6 metadata（EC2 Nitro instances）
 //   169.254.169.254   — Kubernetes kubelet API（端口 10250；非 metadata 但同段）
+// 周期 5 P0-1: 扩充
+//   fd00:ec2::253/128 — AWS ECS task metadata v2 IPv6
+//   2600:2d00:1:7000::a/128 — 部分 GCP / GCE IPv6 metadata（dev 仅；生产一般不用 IPv6）
+//   fe80::a9f:feff:fecf:3c/128 — 旧 IMDS IPv6
 const METADATA_IPS_V4 = new Set([
   '169.254.169.254',
   '169.254.170.2',
@@ -62,6 +66,7 @@ const METADATA_IPS_V4 = new Set([
 ]);
 const METADATA_IPS_V6 = new Set([
   'fd00:ec2::254',     // AWS EC2 Nitro IPv6 IMDS
+  'fd00:ec2::253',     // AWS ECS task metadata v2 IPv6
   'fe80::a9f:feff:fecf:3c', // 部分老 IMDS IPv6
 ]);
 const METADATA_HOSTS = new Set([
