@@ -10,9 +10,15 @@
  *  - camera: { lng, lat, height, heading, pitch }
  *  - layer:  选中 active layer id (用于深链到已有图层)
  *  - coordFormat: dec/dms/utm/mgrs
+ *
+ * 周期 3 P1-4: URL 长度降级 —— base64UrlEncode 后超 8KB 自动只保留 camera
+ *   原因：浏览器 URL 上限 ~8KB-32KB 不等；超 8KB 时降级为最小集并 console.warn
+ *   周期 1 调研遗留 B / 周期 2 P1-1 调研落点
  */
 
 const HASH_KEY = 'view';
+// 周期 3 P1-4: URL 长度阈值；超此值触发降级
+const URL_LENGTH_LIMIT = 8192;
 
 // base64url: 标准 base64 + URL-safe + 去掉 padding
 function base64UrlEncode(str) {
@@ -34,6 +40,17 @@ function base64UrlDecode(s) {
     return decodeURIComponent(escape(atob(padded)));
   }
   return Buffer.from(padded, 'base64').toString('utf8');
+}
+
+// 周期 3 P1-4: 估算 URL 长度（用 base64 编码后的字符串长度近似）
+function estimateUrlLength(state) {
+  if (!state) return 0;
+  try {
+    const json = JSON.stringify(state);
+    return base64UrlEncode(json).length;
+  } catch (_) {
+    return Infinity;
+  }
 }
 
 /**
@@ -62,16 +79,56 @@ export function readViewStateFromUrl() {
  *   aiDescription (可选) — 阶段 3B：场景 AI 化生成的 markdown 说明
  *   aiModel        (可选) — 生成该说明的模型名（仅用于显示 / 调试）
  * @returns {string} "#view=..." 形式(空字符串表示失败)
+ *
+ * 周期 3 P1-4 降级策略（按 URL 长度自动剥离非必要字段）：
+ *   1. 全字段 → 超 8KB
+ *   2. 去 aiDescription / aiModel → 再超
+ *   3. 去 layer / coordFormat → 只剩 camera → 还不超？极端情况 camera 也被截
+ *   4. 每级降级 console.warn 留痕
  */
 export function buildViewStateHash(state) {
   if (!state || !state.camera) return '';
+  // 周期 3 P1-4: 降级阶梯 —— 逐级剥离非核心字段
+  const tiers = [
+    // tier 0: 完整 payload（去掉空 aiDescription/aiModel）
+    () => {
+      const p = { ...state };
+      if (!p.aiDescription) delete p.aiDescription;
+      if (!p.aiModel) delete p.aiModel;
+      return p;
+    },
+    // tier 1: 去掉 aiDescription
+    () => {
+      const p = { ...state };
+      delete p.aiDescription;
+      delete p.aiModel;
+      return p;
+    },
+    // tier 2: 只剩 camera
+    () => ({ camera: state.camera }),
+  ];
+  for (let i = 0; i < tiers.length; i += 1) {
+    const payload = tiers[i]();
+    if (estimateUrlLength(payload) <= URL_LENGTH_LIMIT) {
+      if (i > 0) {
+        const dropped = i === 1 ? 'aiDescription' : 'aiDescription+layer+coordFormat';
+        console.warn(
+          `[viewState] URL 长度超 ${URL_LENGTH_LIMIT}B，降级到 tier ${i}（丢弃 ${dropped}）`
+        );
+      }
+      try {
+        const json = JSON.stringify(payload);
+        return `#${HASH_KEY}=${base64UrlEncode(json)}`;
+      } catch (_) {
+        return '';
+      }
+    }
+  }
+  // 极端：只剩 camera 仍超 —— camera 本身 > 8KB 几乎不可能（lng/lat/height 各 8B），
+  // 但 aiDescription 在 state 之外就别无他法，console.warn 后尝试 tier 2
+  console.warn('[viewState] 即使只剩 camera 仍超 8KB，强制降级');
   try {
-    // aiDescription 可能比较长；空字符串就丢掉
-    const payload = { ...state };
-    if (!payload.aiDescription) delete payload.aiDescription;
-    if (!payload.aiModel) delete payload.aiModel;
-    const json = JSON.stringify(payload);
-    return `#${HASH_KEY}=${base64UrlEncode(json)}`;
+    return `#${HASH_KEY}=${base64UrlEncode(JSON.stringify({ camera: state.camera }))}`;
   } catch (_) {
     return '';
   }
