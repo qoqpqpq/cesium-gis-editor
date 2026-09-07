@@ -174,11 +174,12 @@ function formatArg(a) {
 }
 
 /**
- * 周期 4 P1-2: 在 worker thread 里跑沙箱代码
+ * 周期 4 P1-2 + 周期 5 P1-2: 在 worker thread 里跑沙箱代码
  * - 真线程隔离：主线程不会被死循环 / 大内存占用卡住
  * - Resource limits：
  *     heapMb（V8 --max-old-space-size）
  *     timeoutMs（worker.terminate）
+ *     cpuLimitMs（worker 端 watchdog，周期 5 P1-2；catch 间歇性 busy loop）
  * - 通信：parentPort.postMessage 单向 + 主线程主动 worker.terminate
  *
  * @param {string} code
@@ -186,17 +187,19 @@ function formatArg(a) {
  * @param {object} [opts]
  * @param {number} [opts.timeoutMs=5000]
  * @param {number} [opts.heapMb=64]
- * @returns {Promise<{ok:boolean, value?:any, error?:object, durationMs:number, workerId:number}>}
+ * @param {number} [opts.cpuLimitMs=0] 0 = 关闭 watchdog；>0 = CPU 累计阈值（ms）
+ * @returns {Promise<{ok:boolean, value?:any, error?:object, durationMs:number, workerId:number, cpuAbort?:boolean}>}
  */
 function executeInSandboxWorker(code, ctx = {}, opts = {}) {
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const heapMb = opts.heapMb ?? DEFAULT_WORKER_HEAP_MB;
+  const cpuLimitMs = opts.cpuLimitMs || 0;
   const t0 = Date.now();
 
   return new Promise((resolve) => {
     const workerScript = path.join(__dirname, 'sandbox-worker.js');
     const worker = new Worker(workerScript, {
-      workerData: { code, ctx, timeoutMs },
+      workerData: { code, ctx, timeoutMs, cpuLimitMs },
       resourceLimits: {
         maxOldGenerationSizeMb: heapMb,
         maxYoungGenerationSizeMb: Math.max(8, Math.floor(heapMb / 4)),
@@ -204,6 +207,7 @@ function executeInSandboxWorker(code, ctx = {}, opts = {}) {
       },
     });
     let resolved = false;
+    let pendingOk = null;
     const safeResolve = (v) => {
       if (resolved) return;
       resolved = true;
@@ -219,6 +223,26 @@ function executeInSandboxWorker(code, ctx = {}, opts = {}) {
 
     worker.on('message', (msg) => {
       clearTimeout(timer);
+      // 周期 5 P1-2: 处理 CPU abort 事件
+      if (msg && msg.event === 'cpu_abort') {
+        safeResolve({
+          ok: false,
+          cpuAbort: true,
+          error: {
+            message: msg.message,
+            code: msg.code,
+            cpuAccumMs: msg.cpuAccumMs,
+          },
+        });
+        return;
+      }
+      // 周期 5 P1-2: "ok" 消息不立即 safeResolve —— 等 worker exit 才停
+      //   否则无法 catch 后续 .then() 链里的 CPU 异常
+      if (msg && msg.ok === true) {
+        // 把 ok 消息缓存，但先不 resolve；等 worker exit 后再判断
+        pendingOk = msg;
+        return;
+      }
       safeResolve(msg);
     });
     worker.on('error', (e) => {
@@ -230,6 +254,12 @@ function executeInSandboxWorker(code, ctx = {}, opts = {}) {
     });
     worker.on('exit', (code) => {
       clearTimeout(timer);
+      // 周期 5 P1-2: 如果有 pendingOk（异步 ok 但 worker 后续触发 cpu_abort），
+      //   cpu_abort 在 message 阶段已 resolve；否则用 pendingOk
+      if (!resolved && pendingOk) {
+        safeResolve(pendingOk);
+        return;
+      }
       if (!resolved) {
         safeResolve({
           ok: false,

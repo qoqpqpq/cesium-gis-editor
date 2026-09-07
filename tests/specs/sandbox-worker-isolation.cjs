@@ -35,7 +35,9 @@ function test(name, fn) {
     const r = await executeInSandboxWorker('return 1 + 2;', {}, { timeoutMs: 1000 });
     assert.strictEqual(r.ok, true);
     assert.strictEqual(r.value, 3);
-    assert.ok(r.workerId > 0);
+    // workerId 在 exit 后是 -1；周期 5 P1-2 改为 worker.on('exit') 才 resolve
+    //   所以现在 workerId === -1 是正常的（"worker 已正常结束"）
+    assert.ok(r.workerId === -1 || r.workerId > 0, `workerId 应该是 -1 或 > 0, 实际 ${r.workerId}`);
     assert.ok(r.durationMs >= 0);
   });
 

@@ -14,7 +14,7 @@ const { parentPort, workerData } = require('node:worker_threads');
 const vm = require('node:vm');
 
 function run() {
-  const { code, ctx = {}, timeoutMs = 5000 } = workerData;
+  const { code, ctx = {}, timeoutMs = 5000, cpuLimitMs = 0 } = workerData;
   // 与 sandbox.js 周期 3 镜像：显式屏蔽 require/process/global/Buffer
   const logs = [];
   const wrapConsole = () => {
@@ -45,6 +45,40 @@ function run() {
     return undefined;
   };
 
+  // 周期 5 P1-2: CPU watchdog —— 累计 process.cpuUsage() delta
+  //   - 同步阻塞代码（纯 while(true)）仍依赖 vm.runInContext timeout（周期 4 P1-2）
+  //   - 间歇性 busy loop（while (Date.now() - start < 5000) { ... }）可被本 watchdog catch
+  //   - 默认 50ms 采样一次；累计 > cpuLimitMs 触发 abort
+  let cpuAccum = 0; // 微秒
+  let lastCpu = process.cpuUsage();
+  let cpuWatchdog = null;
+  function startCpuWatchdog(limitMs) {
+    if (typeof limitMs !== 'number' || limitMs <= 0) return;
+    const sampleMs = 50;
+    const limitUs = limitMs * 1000;
+    cpuWatchdog = setInterval(() => {
+      const cur = process.cpuUsage(lastCpu);
+      cpuAccum += cur.user + cur.system;
+      lastCpu = process.cpuUsage();
+      if (cpuAccum > limitUs) {
+        if (cpuWatchdog) clearInterval(cpuWatchdog);
+        cpuWatchdog = null;
+        parentPort.postMessage({
+          event: 'cpu_abort',
+          message: `CPU 超阈值（累计 ${(cpuAccum / 1000).toFixed(0)}ms > ${limitMs}ms）`,
+          code: 'SANDBOX_CPU_LIMIT',
+          cpuAccumMs: Math.round(cpuAccum / 1000),
+        });
+      }
+    }, sampleMs);
+  }
+  function stopCpuWatchdog() {
+    if (cpuWatchdog) {
+      clearInterval(cpuWatchdog);
+      cpuWatchdog = null;
+    }
+  }
+
   const sandbox = {
     ...ctx,
     console: wrapConsole(),
@@ -64,26 +98,32 @@ function run() {
     const script = new vm.Script(wrapped, { filename: 'sandbox-worker.js' });
     sandbox.__ctx = Object.fromEntries(Object.keys(ctx).map((k) => [k, sandbox[k]]));
     let timer;
+    startCpuWatchdog(cpuLimitMs);
     const value = script.runInContext(sandbox, { displayErrors: true, timeout: timeoutMs });
     Promise.resolve(value)
       .then((v) => {
         clearTimeout(timer);
+        // 周期 5 P1-2: postMessage 后延迟退出（100ms 给 cpu watchdog 至少 2 个 sample 机会）
+        //   主线程 message handler 缓存 ok 到 pendingOk，exit 触发再 resolve
         parentPort.postMessage({ ok: true, value: v, logs });
-      })
-      .catch((e) => {
-        clearTimeout(timer);
-        parentPort.postMessage({
-          ok: false,
-          error: { message: e.message, code: e.code },
-          logs,
+          setTimeout(() => process.exit(0), 300);
+        })
+        .catch((e) => {
+          clearTimeout(timer);
+          parentPort.postMessage({
+            ok: false,
+            error: { message: e.message, code: e.code },
+            logs,
+          });
+          setTimeout(() => process.exit(0), 300);
         });
-      });
   } catch (e) {
     parentPort.postMessage({
       ok: false,
       error: { message: e.message, code: e.code },
       logs,
     });
+    setTimeout(() => process.exit(0), 300);
   }
 }
 
@@ -94,4 +134,5 @@ try {
     ok: false,
     error: { message: e.message, code: e.code || 'WORKER_BOOT_ERROR' },
   });
+  setImmediate(() => process.exit(0));
 }
