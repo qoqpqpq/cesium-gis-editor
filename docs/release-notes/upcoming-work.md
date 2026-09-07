@@ -26,11 +26,12 @@
 ## 调研 Top5（由周期 4 调研产出，落到 P0/P1/P2，覆盖周期 3 Top5）
 
 > 调研全文见 `docs/cycles/cycle-04-research.md`（12 主题 × 5 链接 = 60 链接）。
+> 周期 3 调研 Top5 全已落代码：SSRF 6 步全齐（OWASP） / Redis ZADD 限流 / W3C trace + 性能 / worker_threads + Resource limits / viewState zlib 压缩。
 
 | 排名 | 主题 | 行动 | 落点 |
 | --- | ---- | ---- | ---- |
-| 1 | SSRF 终态 + 全 metadata IP 维护 | 周期 4 P0-1 已加 host allowlist + 全 metadata IP 黑名单（含 IPv6） + pin IP；周期 5 维护 metadata IP 表（与 IANA 同步） + ECS IPv6 | 升级 P0-1 |
-| 2 | 限流分布式 + 多级限流 | 周期 4 P0-2 实施 Redis ZADD Sliding Window；周期 5 加 Token Bucket（AI 端点）+ 多级限流（IP + userId + API key） | 升级 P0-2 |
-| 3 | 可观察性升级（Otel SDK + 三支柱） | 周期 4 P1-1 实施自研 W3C traceparent；周期 5 评估全 Otel SDK（auto-instrumentation）+ Metrics（Prometheus）+ Logs Bridge + Faro 前端 RUM | 升级 P1-1 |
-| 4 | 沙箱深度隔离（CPU watchdog + isolated-vm） | 周期 4 P1-2 实施 worker_threads + heapMb；周期 5 加 CPU watchdog + isolated-vm 备选（高安全要求） | 升级 P1-2 |
-| 5 | 压缩统一（zlib 客户端 polyfill） | 周期 4 P1-3 实施 zlib 压缩（中文 73x 压缩比）；周期 5 浏览器侧引入 pako / fflate 做 DecompressionStream polyfill | 升级 P1-3 |
+| 1 | **AI Agent 长期记忆（Mem0/Zep/EverOS）** | 周期 5+ 评估集成 Mem0（与"商业化"绑一起做，需 SQLite/Postgres 后端） | 升级 C3-B09 审计日志 → 长期记忆层 |
+| 2 | **CesiumJS MCP 桥接** | 周期 5+ 评估把现有 `<tool>` 协议包装为 MCP Server + WebMCP browser bridge | 与 P2-6 AI Agent 工具协议统一（合并实施） |
+| 3 | **Helmet 8.x Permissions-Policy 原生支持** | helmet 8.3 仍未原生支持；继续手写 20 项即可；周期 5+ 关注 helmet 9.x | 周期 4 P2-1 已升级 8.x |
+| 4 | **OpenTelemetry Node SDK 完整接入** | 周期 5+ 安装 `@opentelemetry/sdk-node` + `@opentelemetry/auto-instrumentations-node` + OTLP exporter 上报 Jaeger/Tempo | 升级 P1-1 W3C traceparent 部分 → 完整 trace |
+| 5 | **PR Review 自动化（CodeRabbit / Claude Code /review）** | 周期 5+ 在 PR 流程接 CodeRabbit 或 Claude Code `/review`（周期结束前自动评审本周期 commit） | 与自动周期绑一起做 |

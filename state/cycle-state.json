@@ -1,6 +1,6 @@
 {
-  "current_cycle": 4,
-  "previous_cycle": 3,
+  "current_cycle": 5,
+  "previous_cycle": 4,
   "last_run_status": "completed",
   "last_run_at": "2026-09-07T03:00:00+08:00",
   "cycle_started_at": "2026-09-07T02:00:00+08:00",
@@ -71,7 +71,7 @@
       "research_links": 60,
       "bugs_open": 10,
       "self_check_score": "97%",
-      "notes": "P0-1 SSRF guard (ipaddr-less classifyIp 25+8 段 + safeFetch redirect:manual)；P1-1 CSP Permissions-Policy 20 项 + COOP + X-Frame DENY + Referrer-Policy；P1-2 server sandbox (node:vm, no vm2) for future AI code dry-run；P1-3 structured logger (no pino dep) + ALS requestId + redact；P1-4 viewState URL 降级 3 tier 8KB；P2-2 RateLimiterStore interface (InMemoryStore + RedisStore stub)；C3-B01..B10 落周期 4"
+      "notes": "P0-1 SSRF guard (ipaddr-less classifyIp 25+8 段 + safeFetch redirect:manual)；P1-1 CSP Permissions-Policy 20 项 + COOP + X-Frame DENY + Referrer-Policy；P1-2 server sandbox (node:vm, no vm2) for future AI code dry-run；P1-3 structured logger (no pino dep) + ALS requestId + redact；P2-2 RateLimiterStore interface (InMemoryStore + RedisStore stub)；C3-B01..B10 落周期 4"
     },
     {
       "cycle": 4,
@@ -82,16 +82,22 @@
       "p0_planned": 2,
       "p1_done": 3,
       "p1_planned": 3,
-      "p2_done": 0,
-      "p2_planned": 1,
+      "p2_done": 2,
+      "p2_planned": 2,
       "commits": 7,
       "commits_max": 12,
-      "specs_added": 6,
+      "specs_added": 8,
       "research_topics": 12,
       "research_links": 60,
-      "bugs_open": 10,
+      "bugs_open": 6,
       "self_check_score": "97%",
-      "notes": "P0-1 SSRF host allowlist + 全 metadata IP 黑名单（含 IPv6）+ safeFetch pin IP；P0-2 Redis 真实分布式限流（手写 RESP 客户端 + ZADD sliding window + 失败兜底）；P1-1 W3C traceparent 透传 + logger 性能优化（10000 emit < 200ms）；P1-2 sandbox worker_threads 隔离 + Resource limits（heapMb=64）；P1-3 viewState zlib 压缩 v2 协议（中文 73x 压缩比）；C4-B01..B10 落周期 5"
+      "notes": "P0-1 SSRF 终态 (validateHostHeader middleware + 全 metadata IP 黑名单 4v4+2v6 + pin IP socket)；P0-2 Redis 分布式限流 (零依赖手写 RESP + ZADD sliding window + redisClient.js)；P1-1 W3C traceparent 解析/生成 + ALS traceId 注入 + emit 性能 (10000 < 200ms)；P1-2 sandbox worker_threads 隔离 + Resource limits (maxOldGenerationSizeMb=64)；P1-3 viewState zlib deflate v2 协议 (中文 73x 压缩比)；P2-1 helmet 8.x 升级 (8.3.0)；P2-2 SSE Last-Event-ID bufferProvider 续传；老 spec 1 修（ai-baseurl-dns-ip.cjs 文案正则）；C4-B02..B04 落周期 5"
+    },
+    {
+      "cycle": 5,
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
     }
   ]
 }
