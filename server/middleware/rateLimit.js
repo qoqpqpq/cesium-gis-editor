@@ -74,15 +74,138 @@ function slidingWindow(opts) {
     if (!result.allowed) {
       const retryAfterSec = Math.max(1, Math.ceil(result.retryAfterMs / 1000));
       res.setHeader('Retry-After', String(retryAfterSec));
+      // 周期 6 P0-2 续: IETF draft-ietf-httpapi-ratelimit-headers 标准 header
+      //   RateLimit-Limit / RateLimit-Remaining / RateLimit-Reset
+      //   保留 X-RateLimit-* 兼容老 client
+      const resetSec = Math.ceil((Date.now() + result.retryAfterMs) / 1000);
+      res.setHeader('RateLimit-Limit', String(limit));
+      res.setHeader('RateLimit-Remaining', '0');
+      res.setHeader('RateLimit-Reset', String(resetSec));
       res.setHeader('X-RateLimit-Limit', String(limit));
       res.setHeader('X-RateLimit-Remaining', '0');
-      res.setHeader('X-RateLimit-Reset', String(Math.ceil((Date.now() + result.retryAfterMs) / 1000)));
+      res.setHeader('X-RateLimit-Reset', String(resetSec));
       return res.status(429).json({ success: false, message });
     }
+    res.setHeader('RateLimit-Limit', String(limit));
+    res.setHeader('RateLimit-Remaining', String(Math.max(0, limit - result.count)));
     res.setHeader('X-RateLimit-Limit', String(limit));
     res.setHeader('X-RateLimit-Remaining', String(Math.max(0, limit - result.count)));
     next();
   };
+}
+
+/**
+ * 周期 6 P0-2 续: Token Bucket 限流（AI 端点用）
+ * - 与 Sliding Window Log 不同：Token Bucket 允许"burst"
+ *   - capacity = 桶容量（默认 limit）
+ *   - refillPerSec = 1 token / (windowMs / limit) ms
+ *   - 每次请求：消耗 1 token；不足 → 拒
+ * - 内存成本 O(1) per key（仅 lastRefillAt + tokens）
+ * - 适合 AI 端点（用户可能瞬时发 3 个对话，Token Bucket 放行；slidingWindow 也放行；
+ *   但 Token Bucket 在 burst 5-10 时仍放行，slidingWindow 不会）
+ * - 同样输出 IETF RateLimit-* header（周期 6 P0-2 续统一）
+ */
+function tokenBucket(opts) {
+  const {
+    windowMs,
+    limit,
+    capacity = limit,
+    refillPerSec = limit / (windowMs / 1000),
+    message = '请求过于频繁，请稍后重试',
+    keyBy = (req) => req.ip || (req.socket && req.socket.remoteAddress) || 'unknown',
+    skip,
+    store,
+  } = opts;
+  if (typeof windowMs !== 'number' || windowMs <= 0) {
+    throw new Error('tokenBucket: windowMs 必须是正数');
+  }
+  if (typeof limit !== 'number' || limit <= 0) {
+    throw new Error('tokenBucket: limit 必须是正数');
+  }
+  const resolvedStore = !store
+    ? new InMemoryTokenBucketStore()
+    : store === 'redis'
+    ? new RedisTokenBucketStore()
+    : store;
+
+  return async function tokenBucketMiddleware(req, res, next) {
+    if (typeof skip === 'function' && skip(req)) return next();
+    const key = keyBy(req);
+    let result;
+    try {
+      result = await resolvedStore.hit(key, { capacity, refillPerSec });
+    } catch (e) {
+      console.error('[tokenBucket] store.hit 失败:', e.message);
+      return next();
+    }
+    if (!result.allowed) {
+      const retryAfterSec = Math.max(1, Math.ceil(result.retryAfterMs / 1000));
+      res.setHeader('Retry-After', String(retryAfterSec));
+      const resetSec = Math.ceil((Date.now() + result.retryAfterMs) / 1000);
+      res.setHeader('RateLimit-Limit', String(limit));
+      res.setHeader('RateLimit-Remaining', '0');
+      res.setHeader('RateLimit-Reset', String(resetSec));
+      res.setHeader('X-RateLimit-Limit', String(limit));
+      res.setHeader('X-RateLimit-Remaining', '0');
+      res.setHeader('X-RateLimit-Reset', String(resetSec));
+      return res.status(429).json({ success: false, message });
+    }
+    res.setHeader('RateLimit-Limit', String(limit));
+    res.setHeader('RateLimit-Remaining', String(Math.max(0, Math.floor(result.tokens))));
+    res.setHeader('X-RateLimit-Limit', String(limit));
+    res.setHeader('X-RateLimit-Remaining', String(Math.max(0, Math.floor(result.tokens))));
+    next();
+  };
+}
+
+/**
+ * 周期 6 P0-2 续: InMemory Token Bucket store
+ * - 进程内；多实例不共享
+ * - buckets: Map<key, { tokens, lastRefillAt }>
+ */
+class InMemoryTokenBucketStore {
+  constructor() {
+    this.buckets = new Map();
+  }
+  async hit(key, { capacity, refillPerSec }) {
+    const now = Date.now();
+    let b = this.buckets.get(key);
+    if (!b) {
+      b = { tokens: capacity, lastRefillAt: now };
+      this.buckets.set(key, b);
+    }
+    const elapsed = (now - b.lastRefillAt) / 1000;
+    const refilled = elapsed * refillPerSec;
+    b.tokens = Math.min(capacity, b.tokens + refilled);
+    b.lastRefillAt = now;
+    if (b.tokens >= 1) {
+      b.tokens -= 1;
+      return { allowed: true, tokens: b.tokens, retryAfterMs: 0 };
+    }
+    const needTokens = 1 - b.tokens;
+    return {
+      allowed: false,
+      tokens: b.tokens,
+      retryAfterMs: Math.ceil((needTokens / refillPerSec) * 1000),
+    };
+  }
+  async reset(key) { this.buckets.delete(key); }
+  async shutdown() { this.buckets.clear(); }
+}
+
+/**
+ * 周期 6 P0-2 续: Redis Token Bucket store（stub 阶段）
+ * - 当前实现降级到 InMemoryTokenBucketStore（Redis Lua 周期 7+ 实施）
+ */
+class RedisTokenBucketStore {
+  constructor() {
+    this.fallback = new InMemoryTokenBucketStore();
+  }
+  async hit(key, opts) {
+    return this.fallback.hit(key, opts);
+  }
+  async reset(key) { return this.fallback.reset(key); }
+  async shutdown() { return this.fallback.shutdown(); }
 }
 
 /**
@@ -232,6 +355,8 @@ function multiLevelLimiter(opts) {
 module.exports = {
   apiLimiter, aiLimiter, recommendLimiter, spatialLimiter, aiDailyLimiter, isLocal,
   slidingWindow,
+  // 周期 6 P0-2 续: Token Bucket
+  tokenBucket, InMemoryTokenBucketStore, RedisTokenBucketStore,
   // 周期 3 P2-2: 暴露 store 抽象
   createStore, InMemoryStore, RedisStore,
   // 周期 5 P0-2: 暴露多级限流
