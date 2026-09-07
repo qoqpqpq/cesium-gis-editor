@@ -107,23 +107,53 @@ class RedisStore {
     return `${this.keyPrefix}${this.storeName}:${key}`;
   }
 
+  // ---- 周期 5 P0-2: Lua atomic sliding window ----
+  // 一段 Lua 脚本一次性完成 ZADD + ZREMRANGEBYSCORE + ZCARD + EXPIRE；
+  // 避免 4 命令 RTT 内的 race window（多个 worker 同时 hit 时 count 计算可能漏算）
+  // ARGV: nowMs, cutoffMs, limit, windowSec, member
+  // 返回: { count, allowed (0/1) }
+  static LUA_SLIDING_WINDOW = `
+    local key = KEYS[1]
+    local now = tonumber(ARGV[1])
+    local cutoff = tonumber(ARGV[2])
+    local limit = tonumber(ARGV[3])
+    local windowSec = tonumber(ARGV[4])
+    local member = ARGV[5]
+    redis.call('ZREMRANGEBYSCORE', key, '-inf', '(' .. cutoff)
+    redis.call('ZADD', key, now, member)
+    local count = redis.call('ZCARD', key)
+    redis.call('EXPIRE', key, windowSec + 1)
+    if count > limit then
+      return {count, 0}
+    end
+    return {count, 1}
+  `;
+
   async hit(key, windowMs, limit) {
     const fullKey = this._fullKey(key);
     const now = Date.now();
     const cutoff = now - windowMs;
     const member = `${now}-${randomUUID()}`;
+    const windowSec = Math.ceil(windowMs / 1000) + 1;
 
     try {
-      // 1. 加这次 hit
-      await this.client.zadd(fullKey, now, member);
-      // 2. 清过期
-      await this.client.zremrangebyscore(fullKey, '-inf', `(${cutoff}`);
-      // 3. 取 count
-      const count = await this.client.zcard(fullKey);
-      // 4. 设置 TTL（毫秒转秒 +1 缓冲）
-      await this.client.expire(fullKey, Math.ceil(windowMs / 1000) + 1);
-
-      if (count > limit) {
+      // 周期 5 P0-2: 用 Lua EVAL atomic 替代 4 命令
+      //   优点：atomic（race-free）+ 1 RTT
+      //   缺点：Lua 调试略难；Redis 7.0+ 才稳定（周期 4 假设 Redis 7）
+      const r = await this.client.eval(
+        RedisStore.LUA_SLIDING_WINDOW,
+        1, // 1 key
+        fullKey,
+        String(now),
+        String(cutoff),
+        String(limit),
+        String(windowSec),
+        member,
+      );
+      // Redis Lua return: { count (integer), allowed (integer 0/1) }
+      const count = Number(r[0]);
+      const allowed = Number(r[1]) === 1;
+      if (!allowed) {
         return { count, allowed: false, retryAfterMs: windowMs };
       }
       return { count, allowed: true, retryAfterMs: 0 };

@@ -185,6 +185,39 @@ class RedisClient extends EventEmitter {
   async del(key) {
     return this._rawCommand(['DEL', key]);
   }
+
+  // ---- 周期 5 P0-2: Lua 脚本（atomic）----
+
+  /**
+   * EVAL 一次性执行 Lua 脚本
+   * @param {string} script
+   * @param {number} numkeys
+   * @param {...string} args — keys + argv
+   * @returns {Promise<any>}
+   */
+  async eval(script, numkeys, ...args) {
+    return this._rawCommand(['EVAL', script, String(numkeys), ...args]);
+  }
+
+  /**
+   * EVALSHA 通过 SHA1 缓存执行 Lua 脚本（更省带宽）
+   * @param {string} sha1 — 40 字符 hex
+   * @param {number} numkeys
+   * @param {...string} args
+   * @returns {Promise<any>}
+   */
+  async evalsha(sha1, numkeys, ...args) {
+    return this._rawCommand(['EVALSHA', sha1, String(numkeys), ...args]);
+  }
+
+  /**
+   * SCRIPT LOAD 加载脚本到 Redis 缓存，返回 SHA1
+   * @param {string} script
+   * @returns {Promise<string>} SHA1 hex
+   */
+  async scriptLoad(script) {
+    return this._rawCommand(['SCRIPT', 'LOAD', script]);
+  }
 }
 
 // ---- RESP 编解码 ----

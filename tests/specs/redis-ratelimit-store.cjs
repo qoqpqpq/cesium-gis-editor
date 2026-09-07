@@ -54,9 +54,10 @@ function test(name, fn) {
     assert.ok(!/require\(['"]ioredis['"]\)/.test(redisClientSrc));
   });
   await test('rateLimitStore.js 使用 ZADD/ZREMRANGEBYSCORE', () => {
-    assert.match(rateLimitStoreSrc, /zadd/);
-    assert.match(rateLimitStoreSrc, /zremrangebyscore/);
-    assert.match(rateLimitStoreSrc, /zcard/);
+    // 周期 5 P0-2: 改用 Lua 脚本（大写命令），但测试仍应识别
+    assert.match(rateLimitStoreSrc, /zadd/i);
+    assert.match(rateLimitStoreSrc, /zremrangebyscore/i);
+    assert.match(rateLimitStoreSrc, /zcard/i);
   });
 
   // ---- 2. encodeCommand RESP 编码 ----

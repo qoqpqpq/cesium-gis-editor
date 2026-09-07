@@ -158,9 +158,82 @@ const aiDailyLimiter = rateLimit({
   },
 });
 
+/**
+ * 周期 5 P0-2: 多级限流（IP + userId + API key 独立计数）
+ * - 同一请求按 N 个维度独立计 limit，任一超限即拒
+ * - 每个维度用各自的 slidingWindow 串行：先 IP 超限直接 429；否则 userId；否则 API key
+ * - keyBy 各自独立：`<维度>:<ip>` / `<维度>:<userId>` / `<维度>:<apiKey>`
+ * - 实际 store 与 slidingWindow 共享
+ *
+ * 典型应用：AI 端点同时按"每 IP 60/min" + "每 userId 200/min" + "每 API key 300/min" 限流
+ *
+ * @param {object} opts
+ * @param {number} opts.windowMs
+ * @param {number} opts.limit — IP 维度默认 limit
+ * @param {object} [opts.store] — 共享 store
+ * @param {function(req):string} [opts.userIdKey] — 从 req 提取 userId（默认 undefined）
+ * @param {function(req):string} [opts.apiKeyKey] — 从 req 提取 apiKey（默认 undefined）
+ * @param {number} [opts.userLimit] — userId 维度 limit
+ * @param {number} [opts.apiKeyLimit] — API key 维度 limit
+ */
+function multiLevelLimiter(opts) {
+  const dimensions = [
+    {
+      name: 'ip',
+      limit: opts.limit,
+      keyBy: (req) => 'ip:' + (req.ip || (req.socket && req.socket.remoteAddress) || 'unknown'),
+    },
+  ];
+  if (opts.userIdKey) {
+    dimensions.push({
+      name: 'user',
+      limit: opts.userLimit || opts.limit * 3,
+      keyBy: (req) => {
+        const uid = opts.userIdKey(req);
+        return uid ? 'user:' + uid : null;
+      },
+    });
+  }
+  if (opts.apiKeyKey) {
+    dimensions.push({
+      name: 'apikey',
+      limit: opts.apiKeyLimit || opts.limit * 5,
+      keyBy: (req) => {
+        const ak = opts.apiKeyKey(req);
+        return ak ? 'apikey:' + ak.slice(0, 8) : null; // 截短 + 不存原始 key
+      },
+    });
+  }
+  return async function multiLevelMiddleware(req, res, next) {
+    for (const dim of dimensions) {
+      const key = dim.keyBy(req);
+      if (!key) continue;
+      // 单个维度调 slidingWindow；slidingWindow 在超限时直接 res.status(429).json(...)
+      // 我们通过观察 res.statusCode 判断是否被拒
+      const beforeStatus = res.statusCode;
+      await new Promise((resolve) => {
+        slidingWindow({
+          windowMs: opts.windowMs,
+          limit: dim.limit,
+          store: opts.store,
+          message: `多级限流超限（${dim.name}）`,
+          keyBy: () => key,
+        })(req, res, () => resolve());
+      });
+      if (res.statusCode === 429) {
+        // slidingWindow 已写 429 响应；不再继续后续维度
+        return;
+      }
+    }
+    next();
+  };
+}
+
 module.exports = {
   apiLimiter, aiLimiter, recommendLimiter, spatialLimiter, aiDailyLimiter, isLocal,
   slidingWindow,
   // 周期 3 P2-2: 暴露 store 抽象
   createStore, InMemoryStore, RedisStore,
+  // 周期 5 P0-2: 暴露多级限流
+  multiLevelLimiter,
 };
