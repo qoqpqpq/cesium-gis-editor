@@ -327,6 +327,8 @@ function multiLevelLimiter(opts) {
       },
     });
   }
+  // 周期 6 P1-4 修复: 共享 store（之前每次调 slidingWindow 都 new InMemoryStore，导致 limit 不生效）
+  const sharedStore = opts.store || new InMemoryStore();
   return async function multiLevelMiddleware(req, res, next) {
     for (const dim of dimensions) {
       const key = dim.keyBy(req);
@@ -338,7 +340,7 @@ function multiLevelLimiter(opts) {
         slidingWindow({
           windowMs: opts.windowMs,
           limit: dim.limit,
-          store: opts.store,
+          store: sharedStore,
           message: `多级限流超限（${dim.name}）`,
           keyBy: () => key,
         })(req, res, () => resolve());
@@ -361,4 +363,40 @@ module.exports = {
   createStore, InMemoryStore, RedisStore,
   // 周期 5 P0-2: 暴露多级限流
   multiLevelLimiter,
+  // 周期 6 P1-4: AI 端点专用多级限流（提取 userId / apikey）
+  aiMultiLevelLimiter,
 };
+
+/**
+ * 周期 6 P1-4: AI 端点专用多级限流
+ * - 默认 IP 60/min + userId 200/min + apikey 300/min
+ * - userId 从 req.body.userId / req.body.sessionId / req.headers['x-user-id'] 提取
+ * - apikey 从 req.body.apiKey / req.headers.authorization Bearer 提取（截短 8 字符）
+ * - 失败兜底：store 异常 → 放行（不变）
+ * - 用于 /api/ai 路由（在 aiDailyLimiter 之后，aiLimiter 之前或之后均可）
+ */
+function aiMultiLevelLimiter(opts = {}) {
+  const base = {
+    windowMs: 60 * 1000,
+    limit: 60,
+    userLimit: 200,
+    apiKeyLimit: 300,
+    ...opts,
+  };
+  return multiLevelLimiter({
+    ...base,
+    userIdKey: (req) => {
+      if (req.body && typeof req.body === 'object') {
+        return req.body.userId || req.body.sessionId || null;
+      }
+      return req.headers['x-user-id'] || null;
+    },
+    apiKeyKey: (req) => {
+      // 1) body.apiKey 2) Authorization: Bearer xxx
+      if (req.body && req.body.apiKey) return req.body.apiKey;
+      const auth = (req.headers && req.headers.authorization) || '';
+      const m = /^Bearer\s+(\S+)/.exec(auth);
+      return m ? m[1] : null;
+    },
+  });
+}
