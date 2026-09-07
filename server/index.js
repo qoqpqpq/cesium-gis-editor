@@ -36,9 +36,25 @@ const app = express();
 app.set("trust proxy", 1);
 
 // 安全响应头（helmet）— Cesium 需要 eval + wasm + 多域名 connect
+// 周期 3 P1-1: CSP 全面审计 —— 增加 Permissions-Policy / Cross-Origin-Opener-Policy /
+//   Cross-Origin-Resource-Policy / Referrer-Policy / X-Frame-Options DENY
+//   对照 OWASP HTTP Headers Cheat Sheet：7 项硬性 + 3 项可选
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    // 周期 3 P1-1: COOP same-origin（防 window.opener 侧信道）
+    crossOriginOpenerPolicy: { policy: "same-origin" },
+    // 周期 3 P1-1: X-Frame-Options DENY（防 clickjacking，与 CSP frameAncestors 互补）
+    xFrameOptions: { action: "deny" },
+    // 周期 3 P1-1: Referrer-Policy strict-origin-when-cross-origin
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    // 周期 3 P1-1: 关闭 COEP = credentialless（Cesium 瓦片来自第三方 CDN，cross-origin-isolate 会破坏）
+    crossOriginEmbedderPolicy: false,
+    // 周期 3 P1-1: Permissions-Policy —— 关掉所有不需要的浏览器 API
+    //   camera/microphone/geolocation/payment/USB/bluetooth/serial/midi/encrypted-media 全 none
+    //   accelerometer/gyroscope/magnetometer 全 none（Cesium 用不上）
+    //   fullscreen=self（用户主动允许时仍可全屏）
+    //   注：helmet 7.x 不直接支持 Permissions-Policy，需手写 header
     contentSecurityPolicy: isProd
       ? {
           directives: {
@@ -88,6 +104,36 @@ app.use(
       : false,
   }),
 );
+// 周期 3 P1-1: Permissions-Policy（helmet 7.x 不支持，需手写 header）
+//   关闭所有浏览器敏感 API；Cesium 只需要 WebGL/IndexedDB/SharedArrayBuffer
+app.use((req, res, next) => {
+  res.setHeader(
+    "Permissions-Policy",
+    [
+      "accelerometer=()",
+      "autoplay=(self)",
+      "camera=()",
+      "cross-origin-isolated=()",
+      "display-capture=()",
+      "encrypted-media=()",
+      "fullscreen=(self)",
+      "geolocation=()",
+      "gyroscope=()",
+      "keyboard-map=()",
+      "magnetometer=()",
+      "microphone=()",
+      "midi=()",
+      "payment=()",
+      "picture-in-picture=()",
+      "publickey-credentials-get=(self)",
+      "screen-wake-lock=(self)",
+      "sync-xhr=()",
+      "usb=()",
+      "xr-spatial-tracking=()",
+    ].join(", "),
+  );
+  next();
+});
 app.use(express.json({ limit: "2mb" }));
 app.use(morgan("tiny"));
 
