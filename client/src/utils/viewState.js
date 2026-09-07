@@ -60,9 +60,12 @@ function estimateUrlLength(state) {
 
 /**
  * 从当前 URL 读 view state (hash 里 #view=...)
+ * 同步版本：仅支持 v1（无压缩）
+ * 异步版本（readViewStateFromUrlAsync）：支持 v1 + v2
  * @returns {object|null} 解析失败返回 null
  *
  * 周期 4 P1-3: 自动检测压缩版本（v1 = base64url / v2 = deflate + base64url）
+ * 周期 6 P1-3: 浏览器 v2 用 pako 异步解压（pako 懒加载）
  */
 export function readViewStateFromUrl() {
   if (typeof window === 'undefined') return null;
@@ -76,7 +79,7 @@ export function readViewStateFromUrl() {
   try {
     let json;
     if (isV2) {
-      // 解压 v2: base64url decode → inflate → utf8
+      // 同步路径仅 Node 端有效；浏览器同步路径会抛错（decompressFromBase64 内部 zlib 不可用）
       const bin = base64UrlDecodeBinary(payload);
       json = decompressFromBase64(bin);
     } else {
@@ -86,6 +89,41 @@ export function readViewStateFromUrl() {
     if (obj && typeof obj === 'object' && obj.camera) return obj;
     return null;
   } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * 周期 6 P1-3: 异步读 view state（浏览器 + Node 都支持 v1 + v2）
+ * 浏览器：v2 用 pako 异步解压
+ * Node：v2 用 zlib 同步解压
+ */
+export async function readViewStateFromUrlAsync() {
+  if (typeof window === 'undefined') return readViewStateFromUrl();
+  const hash = window.location.hash || '';
+  const params = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash);
+  const view = params.get(HASH_KEY);
+  if (!view) return null;
+  const isV2 = view.startsWith(COMPRESS_PREFIX);
+  const payload = isV2 ? view.slice(COMPRESS_PREFIX.length) : view;
+  try {
+    let json;
+    if (isV2) {
+      const bin = base64UrlDecodeBinary(payload);
+      // 浏览器异步 / Node 同步
+      if (typeof window !== 'undefined') {
+        json = await decompressFromBase64Async(bin);
+      } else {
+        json = decompressFromBase64(bin);
+      }
+    } else {
+      json = base64UrlDecode(payload);
+    }
+    const obj = JSON.parse(json);
+    if (obj && typeof obj === 'object' && obj.camera) return obj;
+    return null;
+  } catch (e) {
+    console.warn('[viewState] readViewStateFromUrlAsync failed:', e && e.message);
     return null;
   }
 }
@@ -233,14 +271,31 @@ export function applyCameraSnapshot(viewer, Cesium, camera) {
 // ---- 周期 4 P1-3: zlib 压缩辅助（兼容浏览器 + Node）----
 // 浏览器有 zlib + DecompressionStream（async）
 // Node 18+ 有 zlib（sync）
-// 本工具用 sync 模式（Node 优先），浏览器侧由调用方 polyfill
+// 周期 6 P1-3: 浏览器侧用 pako 懒加载（按需 import）— 不在 v2 解压路径
+//   增加 pako 作为 devDependency；运行时按需 import（pako 是 MIT 许可）
+//   之前的周期 4 浏览器侧 fallback 到"无压缩"会丢 v2 链接
+//   现在：浏览器侧能解压 v2 链接（生产）— 首次解压动态 import pako
+
+let _pakoInflate = null;
+async function loadPakoInflate() {
+  if (_pakoInflate) return _pakoInflate;
+  try {
+    const mod = await import('pako');
+    _pakoInflate = mod.inflate;
+    return _pakoInflate;
+  } catch (e) {
+    console.warn('[viewState] pako 加载失败:', e && e.message);
+    return null;
+  }
+}
 
 function getZlib() {
   // 浏览器 Vite 打包会用 import {deflate, inflate} from 'pako'
-  // 这里不引入 pako 避免新依赖；改为平台分支
+  // 周期 6 P1-3: 浏览器侧不再 fallback 到 null；改为按需动态 import pako
+  //   Node 优先（同步）
+  //   浏览器懒加载 pako（异步）
   if (typeof window !== 'undefined' && typeof DecompressionStream !== 'undefined') {
-    // 浏览器：用 pako 或 inline zlib
-    // 暂 fallback 到 "无压缩"（浏览器侧不实现 v2 压缩）
+    // 浏览器异步解压：返回 null 但提供 async decompress 路径
     return null;
   }
   try {
@@ -252,7 +307,7 @@ function getZlib() {
 
 function compressToBase64(str) {
   const zlib = getZlib();
-  if (!zlib) throw new Error('zlib 不可用');
+  if (!zlib) throw new Error('zlib 不可用（仅在 Node 端支持 v2 压缩）');
   const buf = Buffer.from(str, 'utf8');
   const compressed = zlib.deflateSync(buf, { level: 9 });
   return compressed; // Buffer
@@ -260,9 +315,20 @@ function compressToBase64(str) {
 
 function decompressFromBase64(binBuf) {
   const zlib = getZlib();
-  if (!zlib) throw new Error('zlib 不可用');
+  if (!zlib) throw new Error('zlib 不可用（浏览器请用 decompressFromBase64Async）');
   const decompressed = zlib.inflateSync(binBuf);
   return decompressed.toString('utf8');
+}
+
+// 周期 6 P1-3: 浏览器异步解压（pako 懒加载）
+async function decompressFromBase64Async(binBuf) {
+  const inflate = await loadPakoInflate();
+  if (!inflate) throw new Error('pako inflate 不可用');
+  // binBuf: Uint8Array or Buffer
+  const arr = binBuf instanceof Uint8Array ? binBuf : new Uint8Array(binBuf);
+  const out = inflate(arr);
+  // pako 返回 Uint8Array → 转 string
+  return new TextDecoder('utf-8').decode(out);
 }
 
 function base64UrlEncodeBytes(buf) {
