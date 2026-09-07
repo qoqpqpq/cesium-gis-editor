@@ -19,6 +19,8 @@ const {
   spatialLimiter,
   aiDailyLimiter,
 } = require("./middleware/rateLimit");
+// 周期 6 P1-1: Otel-style Metrics（http_requests_total + http_request_duration_seconds）
+const { httpMetricsMiddleware, metricsHandler, processMetricsCollector } = require("./middleware/metrics");
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
 const NODE_ENV = process.env.NODE_ENV || "development";
@@ -40,6 +42,10 @@ app.set("trust proxy", 1);
 //   跳过 /assets 静态资源（生产部署用 Nginx 时 Nginx 会重写 host）
 const { validateHostHeader } = require("./services/ssrf-guard");
 app.use("/api", validateHostHeader);
+
+// 周期 6 P1-1: HTTP metrics 计数 + 耗时直方图（Otel 风格；自研轻量；零依赖）
+app.use(httpMetricsMiddleware());
+processMetricsCollector();
 
 // 安全响应头（helmet）— Cesium 需要 eval + wasm + 多域名 connect
 // 周期 3 P1-1: CSP 全面审计 —— 增加 Permissions-Policy / Cross-Origin-Opener-Policy /
@@ -167,6 +173,9 @@ const corsMiddleware = cors({
 app.get("/api/health", (req, res) => {
   res.json({ success: true, data: { status: "ok", env: NODE_ENV, ts: new Date().toISOString() } });
 });
+
+// 周期 6 P1-1: /api/metrics 端点（Prometheus 文本；localhost-only）
+app.get("/api/metrics", metricsHandler);
 
 // 业务路由
 app.use("/api", corsMiddleware);
