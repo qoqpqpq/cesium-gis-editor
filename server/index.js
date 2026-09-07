@@ -35,6 +35,12 @@ const ALLOWED = (
 const app = express();
 app.set("trust proxy", 1);
 
+// 周期 4 P0-1: Host header allowlist（防 DNS rebinding 通过 Host 头绕过）
+//   仅作用于 /api/* 路径（静态资源 SPA 仍可用任意 Host 防 404）
+//   跳过 /assets 静态资源（生产部署用 Nginx 时 Nginx 会重写 host）
+const { validateHostHeader } = require("./services/ssrf-guard");
+app.use("/api", validateHostHeader);
+
 // 安全响应头（helmet）— Cesium 需要 eval + wasm + 多域名 connect
 // 周期 3 P1-1: CSP 全面审计 —— 增加 Permissions-Policy / Cross-Origin-Opener-Policy /
 //   Cross-Origin-Resource-Policy / Referrer-Policy / X-Frame-Options DENY
