@@ -43,7 +43,7 @@ function httpGet(pathname, host) {
   return new Promise((resolve, reject) => {
     const req = http.request(
       {
-        hostname: 'localhost',
+        hostname: '127.0.0.1',
         port: 3001,
         path: pathname,
         method: 'GET',
@@ -99,16 +99,36 @@ function httpGet(pathname, host) {
     assert.ok(directives && directives.length >= 12, `CSP directives 应 ≥12 项，实际 ${directives && directives.length}`);
   });
 
-  // ---- 3. 运行时（依赖 server 启动）----
+  // ---- 3. 运行时（自动起 server 子进程）----
+  // 周期 5 P0-3: 改为 withFreshServer 自动起 server（避免与用户 dev server 冲突 / 旧版本未重启）
+  const { withFreshServer } = require('../helpers/with-server.cjs');
   let serverUp = false;
+  let r;
   try {
-    const r = await httpGet('/api/health', 'localhost');
-    serverUp = r.status === 200;
-  } catch (_) { serverUp = false; }
+    await withFreshServer(async ({ port }) => {
+      const get2 = (pathname) => new Promise((resolve, reject) => {
+        const req = http.request(
+          { hostname: '127.0.0.1', port, path: pathname, method: 'GET', headers: { Host: 'localhost' }, timeout: 5000 },
+          (res) => {
+            let b = '';
+            res.on('data', (c) => { b += c; });
+            res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body: b }));
+          },
+        );
+        req.on('error', reject);
+        req.on('timeout', () => req.destroy(new Error('timeout')));
+        req.end();
+      });
+      const r0 = await get2('/api/health');
+      serverUp = r0.status === 200;
+      if (serverUp) r = r0;
+    }, { port: 3201 });
+  } catch (e) {
+    console.log('  [INFO] withFreshServer 失败: ' + e.message);
+    serverUp = false;
+  }
 
   if (serverUp) {
-    console.log('  [INFO] server 可达，测运行时头部');
-    const r = await httpGet('/api/health', 'localhost');
 
     await test('GET /api/health → 200', () => {
       assert.strictEqual(r.status, 200);
@@ -118,7 +138,7 @@ function httpGet(pathname, host) {
     });
     await test('Strict-Transport-Security: max-age 存在（helmet 8 默认）', () => {
       const h = r.headers['strict-transport-security'];
-      assert.ok.ok(h, 'helmet 8 默认开启 HSTS');
+      assert.ok(h, 'helmet 8 默认开启 HSTS');
       assert.match(h, /max-age=\d+/);
     });
     await test('X-Frame-Options: DENY（周期 3 设定）', () => {
