@@ -112,21 +112,12 @@ function call(mw, ip) {
     assert.strictEqual(r.count, 1);
   });
 
-  // ---- 2. RedisStore stub 行为 ----
-  await test('RedisStore stub 永远 allowed', async () => {
-    const store = new RedisStoreDirect();
-    for (let i = 0; i < 100; i++) {
-      const r = await store.hit('7.1.1.1', 1000, 3);
-      assert.strictEqual(r.allowed, true);
-    }
-  });
-
-  await test('RedisStore stub count 单调增', async () => {
-    const store = new RedisStoreDirect();
-    await store.hit('8.1.1.1', 1000, 3);
-    await store.hit('8.1.1.1', 1000, 3);
-    const r = await store.hit('8.1.1.1', 1000, 3);
-    assert.strictEqual(r.count, 3);
+  // ---- 2. RedisStore 真实实现行为（不可达 → degraded） ----
+  await test('RedisStore 不可达 → degraded allowed', async () => {
+    const store = new RedisStoreDirect({ host: '127.0.0.1', port: 1 });
+    const r = await store.hit('7.1.1.1', 1000, 3);
+    assert.strictEqual(r.allowed, true);
+    assert.strictEqual(r.degraded, true);
   });
 
   // ---- 3. createStore 工厂 ----
@@ -153,12 +144,12 @@ function call(mw, ip) {
     assert.strictEqual(r.status, 429);
   });
 
-  await test('slidingWindow + RedisStore stub：100 次都放行', async () => {
-    const store = new RedisStoreDirect();
+  await test('slidingWindow + 不可达 Redis：100 次都放行（degraded 兜底）', async () => {
+    const store = new RedisStoreDirect({ host: '127.0.0.1', port: 1 });
     const mw = slidingWindow({ windowMs: 1000, limit: 3, store });
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 10; i++) {
       const r = await call(mw, '11.0.0.1');
-      assert.strictEqual(r.nextCalled, true, `第 ${i + 1} 次应放行`);
+      assert.strictEqual(r.nextCalled, true, `第 ${i + 1} 次应放行（degraded 兜底）`);
     }
   });
 

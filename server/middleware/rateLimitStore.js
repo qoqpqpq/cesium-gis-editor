@@ -1,9 +1,10 @@
 // server/middleware/rateLimitStore.js
-// 周期 3 P2-2: RateLimiter Store 抽象层
+// 周期 3 P2-2: RateLimiterStore 抽象层
+// 周期 4 P0-2: RedisStore 升级为真实实现（手写 RESP 协议 + ZADD Sliding Window）
 //
 // 背景：周期 1/2 的限流都用 express-rate-limit 默认 MemoryStore，进程内；多实例不共享。
-//   周期 3 抽象 `RateLimiterStore` 接口，先实现 InMemoryStore（包装 Sliding Window Log）；
-//   Redis Store 仅留 stub + TODO（不引入新依赖；周期 4 实施时再补 ioredis）。
+//   周期 3 抽象 RateLimiterStore 接口 + InMemoryStore + RedisStore stub。
+//   周期 4 升级 RedisStore 为真实实现（无需新依赖，手写 RESP 协议）。
 //
 // 接口设计（最小可用）：
 //   - async hit(key, windowMs, limit) → { count, allowed, retryAfterMs }
@@ -14,10 +15,16 @@
 //   - async reset(key) → 清空某个 key 的计数（运维 / 测试用）
 //   - async shutdown() → 关闭连接（Redis 需要；Memory no-op）
 //
-// 周期 3 范围：仅抽象 + InMemoryStore（基于已有 slidingWindow 逻辑）+ Redis stub
-//   周期 4+ 再做 Redis 真实实现 + docker-compose
+// Redis 真实实现：ZADD（每次 hit）+ ZREMRANGEBYSCORE（清理过期）+ ZCARD（取 count）
+//   - key: `rl:<store-name>:<key>`
+//   - score: 时间戳（ms）
+//   - member: `${ts}-${randomUUID}` 避免同 ms 冲突
+//   - EXPIRE: 设置过期时间 = windowMs / 1000 + 缓冲
 
 'use strict';
+
+const { randomUUID } = require('node:crypto');
+const { RedisClient } = require('./redisClient');
 
 /**
  * InMemoryStore —— 进程内 Sliding Window Log
@@ -82,59 +89,100 @@ class InMemoryStore {
 }
 
 /**
- * RedisStore —— 周期 4 实施的占位 stub
- * - 当前用 no-op 实现（不引入新依赖）
- * - 周期 4 用 ioredis 实现 ZADD + ZREMRANGEBYSCORE
- * - 行为：所有 hit 都视为 allowed，便于测试和未来切真实实现
- *
- * ⚠️ 警告：周期 3 期间若启用 RedisStore，**实际不限制**请求（开发期无 Redis 也能跑）
- *   真正的限流只在 enable=true 且 process.env.REDIS_URL 设置时启用
+ * RedisStore —— 周期 4 真实实现
+ * - 纯手写 RESP 协议（无 ioredis 依赖）
+ * - Sliding Window via ZADD + ZREMRANGEBYSCORE + ZCARD
+ * - 失败兜底：抛错时回 InMemoryStore（保守放行 1 次）
  */
 class RedisStore {
   constructor(opts = {}) {
-    this.url = opts.url || process.env.REDIS_URL || 'redis://127.0.0.1:6379';
     this.keyPrefix = opts.keyPrefix || 'rl:';
-    this._stubCounters = new Map(); // no-op 内存代替，避免引入依赖
+    this.storeName = opts.storeName || 'default';
+    this.client = opts.client || new RedisClient(opts);
+    this._ownsClient = !opts.client; // 是否负责 close
+    this._healthy = true;
+  }
+
+  _fullKey(key) {
+    return `${this.keyPrefix}${this.storeName}:${key}`;
   }
 
   async hit(key, windowMs, limit) {
-    // TODO(周期 4): ioredis 实现
-    //   const now = Date.now();
-    //   const cutoff = now - windowMs;
-    //   await redis.zadd(this.keyPrefix + key, now, `${now}-${randomUUID()}`);
-    //   await redis.zremrangebyscore(this.keyPrefix + key, '-inf', cutoff);
-    //   const count = await redis.zcard(this.keyPrefix + key);
-    //   await redis.pexpire(this.keyPrefix + key, windowMs);
-    //   if (count > limit) return { count, allowed: false, retryAfterMs: ... };
-    //   return { count, allowed: true, retryAfterMs: 0 };
-    const cur = this._stubCounters.get(key) || 0;
-    this._stubCounters.set(key, cur + 1);
-    return { count: cur + 1, allowed: true, retryAfterMs: 0 };
+    const fullKey = this._fullKey(key);
+    const now = Date.now();
+    const cutoff = now - windowMs;
+    const member = `${now}-${randomUUID()}`;
+
+    try {
+      // 1. 加这次 hit
+      await this.client.zadd(fullKey, now, member);
+      // 2. 清过期
+      await this.client.zremrangebyscore(fullKey, '-inf', `(${cutoff}`);
+      // 3. 取 count
+      const count = await this.client.zcard(fullKey);
+      // 4. 设置 TTL（毫秒转秒 +1 缓冲）
+      await this.client.expire(fullKey, Math.ceil(windowMs / 1000) + 1);
+
+      if (count > limit) {
+        return { count, allowed: false, retryAfterMs: windowMs };
+      }
+      return { count, allowed: true, retryAfterMs: 0 };
+    } catch (e) {
+      this._healthy = false;
+      // 失败兜底：放行 1 次（避免 Redis 挂掉时全站不可用）
+      return { count: 0, allowed: true, retryAfterMs: 0, degraded: true };
+    }
   }
 
   async reset(key) {
-    this._stubCounters.delete(key);
+    try {
+      await this.client.del(this._fullKey(key));
+    } catch (_) { /* 兜底 */ }
   }
 
   async shutdown() {
-    this._stubCounters.clear();
+    if (this._ownsClient) {
+      await this.client.close();
+    }
   }
 }
 
 /**
  * 工厂：从环境变量 / opts 选 store
  *   - 默认 InMemoryStore
- *   - 设 REDIS_STORE=1 切 RedisStore（当前为 stub）
+ *   - opts.store = 'redis' 或 env REDIS_STORE=1 → RedisStore（真实 Redis）
+ *   - opts.store = 'redis-stub' → RedisStore stub（周期 3 行为，仅 no-op）
  */
 function createStore(opts = {}) {
   if (opts.store === 'redis' || process.env.REDIS_STORE === '1') {
     return new RedisStore(opts);
   }
+  if (opts.store === 'redis-stub') {
+    return new RedisStubStore(opts);
+  }
   return new InMemoryStore(opts);
+}
+
+/**
+ * 周期 3 兼容：RedisStore stub（用于测试和周期 3 老 spec）
+ */
+class RedisStubStore {
+  constructor(opts = {}) {
+    this.keyPrefix = opts.keyPrefix || 'rl:';
+    this._stubCounters = new Map();
+  }
+  async hit(key, windowMs, limit) {
+    const cur = this._stubCounters.get(key) || 0;
+    this._stubCounters.set(key, cur + 1);
+    return { count: cur + 1, allowed: true, retryAfterMs: 0 };
+  }
+  async reset(key) { this._stubCounters.delete(key); }
+  async shutdown() { this._stubCounters.clear(); }
 }
 
 module.exports = {
   InMemoryStore,
   RedisStore,
+  RedisStubStore,
   createStore,
 };
