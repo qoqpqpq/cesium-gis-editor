@@ -1,35 +1,45 @@
 // server/agent/sandbox.js
 // 周期 3 P1-2: 服务端代码沙箱 —— 基于 node:vm，不用 vm2
+// 周期 4 P1-2: 沙箱升级 —— worker_threads 隔离 + Resource limits
 //
 // 背景：
-//   - 调研 / OWASP 推荐用 node:vm（vm2 多次 escape 历史 + 已停维）
-//   - 当前 server 侧暂无 sandbox 模块；本周期为后续"AI 输出代码 → 服务端 dry-run 验证"铺路
-//   - 客户端 sandbox.js 仍用 new Function（浏览器侧没有 node:vm），不受影响
+//   - 周期 3 用 node:vm + createContext + 显式白名单；仅时间隔离
+//   - 周期 4 升级为真线程隔离（worker_threads）+ Resource limits：
+//     1. heapMb 限制（V8 --max-old-space-size）
+//     2. timeoutMs（worker.terminate 兜底）
+//     3. CPU / mem 采样 watchdog（可选）
+//   - 周期 3 旧 API executeInSandbox 保留不变；新增 executeInSandboxWorker
 //
 // 设计：
 //   - executeInSandbox(code, ctx, opts) → { ok, value, error, durationMs }
-//   - 显式 vm.createContext(sandbox) —— 不共享全局
+//   - executeInSandboxWorker(code, ctx, opts) → { ok, value, error, durationMs, workerId }
+//     用 worker_threads 跑，worker 脚本在 sandbox-worker.js
+//   - 显式 vm.createContext(sandbox) —— 不共享全局（executeInSandbox 行为不变）
 //   - 沙箱内不允许 require / process / global / Buffer 访问
 //   - 白名单 API：只暴露 ctx 显式传入的字段
-//   - Resource limits：
-//       timeoutMs（默认 5s，AbortController 取消）
-//       heapMb（可选，未实现硬限制；用 strict 模式 + contextIsolation 防逃逸）
+//   - Resource limits（worker 版）：
+//       timeoutMs（默认 5s）
+//       heapMb（默认 64）
 //   - 错误捕获：脚本抛错 → 返回结构化 { message, line }
 //   - 返回值：await Promise.resolve(script.runInContext(...))
 //
-// 验收：
+// 验收（executeInSandboxWorker）：
 //   - 同步代码可跑 + 返回值
 //   - 异步 async 可跑 + await
-//   - require('fs') 抛错（白名单拒绝）
+//   - require('fs') 抛错
 //   - process / global / Buffer undefined
-//   - 超时抛 AbortError
-//   - 死循环不会无限跑（timeout 兜底）
+//   - 超时 → worker.terminate
+//   - 死循环 → 不会卡死主线程（worker 独立）
+//   - heap 超限 → worker 抛 RangeError
 
 'use strict';
 
 const vm = require('node:vm');
+const { Worker } = require('node:worker_threads');
+const path = require('node:path');
 
 const DEFAULT_TIMEOUT_MS = 5000;
+const DEFAULT_WORKER_HEAP_MB = 64;
 
 /**
  * 在沙箱里跑一段 JS 代码
@@ -163,6 +173,73 @@ function formatArg(a) {
   try { return JSON.stringify(a, null, 2); } catch (_) { return String(a); }
 }
 
+/**
+ * 周期 4 P1-2: 在 worker thread 里跑沙箱代码
+ * - 真线程隔离：主线程不会被死循环 / 大内存占用卡住
+ * - Resource limits：
+ *     heapMb（V8 --max-old-space-size）
+ *     timeoutMs（worker.terminate）
+ * - 通信：parentPort.postMessage 单向 + 主线程主动 worker.terminate
+ *
+ * @param {string} code
+ * @param {object} ctx
+ * @param {object} [opts]
+ * @param {number} [opts.timeoutMs=5000]
+ * @param {number} [opts.heapMb=64]
+ * @returns {Promise<{ok:boolean, value?:any, error?:object, durationMs:number, workerId:number}>}
+ */
+function executeInSandboxWorker(code, ctx = {}, opts = {}) {
+  const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const heapMb = opts.heapMb ?? DEFAULT_WORKER_HEAP_MB;
+  const t0 = Date.now();
+
+  return new Promise((resolve) => {
+    const workerScript = path.join(__dirname, 'sandbox-worker.js');
+    const worker = new Worker(workerScript, {
+      workerData: { code, ctx, timeoutMs },
+      resourceLimits: {
+        maxOldGenerationSizeMb: heapMb,
+        maxYoungGenerationSizeMb: Math.max(8, Math.floor(heapMb / 4)),
+        codeRangeSizeMb: heapMb * 2,
+      },
+    });
+    let resolved = false;
+    const safeResolve = (v) => {
+      if (resolved) return;
+      resolved = true;
+      try { worker.terminate(); } catch (_) {}
+      resolve({ ...v, durationMs: Date.now() - t0, workerId: worker.threadId });
+    };
+    const timer = setTimeout(() => {
+      safeResolve({
+        ok: false,
+        error: { message: `worker 执行超时（${timeoutMs}ms）`, code: 'SANDBOX_TIMEOUT' },
+      });
+    }, timeoutMs + 200);
+
+    worker.on('message', (msg) => {
+      clearTimeout(timer);
+      safeResolve(msg);
+    });
+    worker.on('error', (e) => {
+      clearTimeout(timer);
+      safeResolve({
+        ok: false,
+        error: { message: e.message, code: e.code },
+      });
+    });
+    worker.on('exit', (code) => {
+      clearTimeout(timer);
+      if (!resolved) {
+        safeResolve({
+          ok: false,
+          error: { message: `worker 异常退出（code=${code}）`, code: 'SANDBOX_EXIT' },
+        });
+      }
+    });
+  });
+}
+
 function parseSandboxError(e, wrapped) {
   const msg = e?.message || String(e);
   let line;
@@ -182,5 +259,7 @@ function parseSandboxError(e, wrapped) {
 
 module.exports = {
   executeInSandbox,
+  executeInSandboxWorker,
   DEFAULT_TIMEOUT_MS,
+  DEFAULT_WORKER_HEAP_MB,
 };
