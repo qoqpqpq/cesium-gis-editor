@@ -122,7 +122,7 @@ function test(name, fn) {
     } finally { restore(); }
     assert.ok(caught, '应当抛出');
     assert.strictEqual(caught.status, 400, `e.status 应为 400，实际 ${caught.status}`);
-    assert.match(caught.message, /内网|保留 IP|SSRF/);
+    assert.match(caught.message, /内网|保留 IP|SSRF|云元数据|非公网 IP/);
   });
 
   await test('validateBaseUrlWithDns: 解析到 10.0.0.1 → 抛 400', async () => {

@@ -10,6 +10,12 @@
 //     这里仅负责生成/暴露事件 id；buffer 维护留给上层）
 //   - 启动时写 `retry: 3000`（毫秒）—— 浏览器默认 3s 间隔重连
 //
+// 周期 4 P2-2 增量: Last-Event-ID buffer 续传
+//   - sseStreamHandler 接受可选 bufferProvider
+//     bufferProvider = { getSince(lastEventId): AsyncIterable<Event> }
+//   - 断线时按 Last-Event-ID 从 bufferProvider 续传最近 N 条事件
+//   - bufferProvider 可缺省；缺省时仅实时发送新事件（向后兼容）
+//
 // 用法（routes/ai.js 内的两个流式分支都可以替换为这一处调用）：
 //   const { sseStreamHandler } = require('./_sse');
 //   sseStreamHandler(req, res, {
@@ -18,6 +24,7 @@
 //     onFinalContent: (fullText) => { /* e.g. parse tool tags */ },
 //     usageMeta: { sessionId, roundId },
 //     source: 'stream' | 'agent-stream',
+//     bufferProvider: { getSince: async (lastId) => [...events] }, // 可选
 //   });
 'use strict';
 
@@ -59,6 +66,18 @@ function startSse(res, lastEventId) {
       res.write(`: resumed after last-event-id=${lastEventId}\n\n`);
     }
   } catch (_) { /* ignore */ }
+}
+
+/**
+ * 周期 4 P2-2: 把已序列化的事件回放给客户端（断线续传用）
+ * @param {import('express').Response} res
+ * @param {Array<{event:string, data:any, id:string|number|BigInt}>} events
+ */
+function replaySseEvents(res, events) {
+  if (!Array.isArray(events)) return;
+  for (const ev of events) {
+    writeSse(res, ev.event, ev.data, String(ev.id));
+  }
 }
 
 function acquirePermit(platform, signal) {
@@ -106,10 +125,25 @@ async function sseStreamHandler(req, res, opts) {
     sessionId = null,
     roundId = null,
     source = 'stream',
+    // 周期 4 P2-2: 可选 bufferProvider
+    //   { getSince(lastEventId): Promise<Array<{event,data,id}>> }
+    bufferProvider,
   } = opts;
   // 周期 2 P1-3: 读取 Last-Event-ID 头（EventSource 断线重连会自动带）
   const lastEventId = (req.headers['last-event-id'] || '').toString().trim();
   startSse(res, lastEventId);
+  // 周期 4 P2-2: 若有 lastEventId 且 bufferProvider 提供 → 先回放历史事件
+  if (lastEventId && bufferProvider && typeof bufferProvider.getSince === 'function') {
+    try {
+      const past = await bufferProvider.getSince(lastEventId);
+      if (Array.isArray(past) && past.length > 0) {
+        replaySseEvents(res, past);
+      }
+    } catch (e) {
+      // buffer 回放失败不影响主流程；console.error 留痕
+      console.error('[sse] bufferProvider.getSince 失败:', e.message);
+    }
+  }
   const { ac, isClosed } = makeAbortController(req);
   const heartbeat = startHeartbeat(res, isClosed);
 
@@ -161,4 +195,4 @@ async function sseStreamHandler(req, res, opts) {
   }
 }
 
-module.exports = { sseStreamHandler, writeSse, startSse, makeAbortController, startHeartbeat, nextEventId, RETRY_MS };
+module.exports = { sseStreamHandler, writeSse, replaySseEvents, startSse, makeAbortController, startHeartbeat, nextEventId, RETRY_MS };
