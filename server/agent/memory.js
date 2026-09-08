@@ -446,10 +446,70 @@ class MemoryStore {
   static getContext() {
     return conversationContext.getStore() || null;
   }
+
+  /**
+   * 周期 8 P1-3: Express middleware —— 自动注入 userId / sessionId 到 ALS
+   *
+   * 用法：
+   *   const { memoryContextMiddleware } = require('./server/agent/memory');
+   *   app.use(memoryContextMiddleware({ extractUserId: (req) => req.user?.id }));
+   *
+   * 提取策略（按顺序尝试）：
+   *   1. opts.extractUserId(req) 函数返回（业务自定义）
+   *   2. req.headers['x-user-id']
+   *   3. req.user?.id （Passport 等）
+   *   4. req.ip（兜底；匿名用户用 IP 区分 session）
+   *
+   * 注入到 ALS 的字段：
+   *   - userId
+   *   - sessionId（req.headers['x-session-id'] 或 req.sessionID 或自动生成）
+   *   - requestId（req.headers['x-request-id'] 或自动生成）
+   *   - ts（请求起始时间）
+   */
+  static memoryContextMiddleware(opts = {}) {
+    const extractUserId = opts.extractUserId || ((req) => {
+      return req.headers['x-user-id']
+        || (req.user && req.user.id)
+        || req.ip
+        || null;
+    });
+    const extractSessionId = opts.extractSessionId || ((req) => {
+      return req.headers['x-session-id']
+        || req.sessionID
+        || null;
+    });
+    const extractRequestId = opts.extractRequestId || ((req, res) => {
+      const existing = req.headers['x-request-id'];
+      if (existing) return existing;
+      // 周期 8 P1-3: 自动生成 requestId
+      const id = 'req_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      // 写入响应头供客户端记录
+      if (res && typeof res.setHeader === 'function') {
+        res.setHeader('x-request-id', id);
+      }
+      return id;
+    });
+    return function memoryContextMw(req, res, next) {
+      const ctx = {
+        userId: extractUserId(req),
+        sessionId: extractSessionId(req),
+        requestId: extractRequestId(req, res),
+        ts: Date.now(),
+      };
+      // 在 ALS context 内执行 next() —— 之后的 req handler 都可通过 MemoryStore.getContext() 拿到
+      conversationContext.run(ctx, () => next());
+    };
+  }
+}
+
+// 兼容 module.exports 风格调用：直接 require('memory').memoryContextMiddleware
+function memoryContextMiddleware(opts) {
+  return MemoryStore.memoryContextMiddleware(opts);
 }
 
 module.exports = {
   MemoryStore,
   conversationContext,
   DEFAULT_DB_PATH,
+  memoryContextMiddleware, // 周期 8 P1-3
 };
