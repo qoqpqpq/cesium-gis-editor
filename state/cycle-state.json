@@ -1,10 +1,10 @@
 {
-  "current_cycle": 8,
-  "previous_cycle": 7,
+  "current_cycle": 9,
+  "previous_cycle": 8,
   "last_run_status": "completed",
-  "last_run_at": "2026-09-08T22:00:00+08:00",
-  "cycle_started_at": "2026-09-08T20:30:00+08:00",
-  "cycle_completed_at": "2026-09-08T22:00:00+08:00",
+  "last_run_at": "2026-09-08T23:00:00+08:00",
+  "cycle_started_at": "2026-09-08T22:00:00+08:00",
+  "cycle_completed_at": "2026-09-08T23:00:00+08:00",
   "model": "MiniMax-M3",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -172,6 +172,26 @@
       "bugs_open": 10,
       "self_check_score": "97%",
       "notes": "P0-1 memory FTS5 全文检索（contentless virtual table + bm25 排序 + 3 触发器 + LIKE fallback + _sanitizeFtsQuery 转义 + 18 子断言）；P0-2 DecompressionStream 浏览器原生解压（Blob + pipeThrough + Response.text；pako 仅老浏览器兜底 + 12 子断言）；P1-1 MCP manifest 浏览器侧（window.mcp + registerTool/manifest/callTool + dev mode / ?mcp=1 启用 + 12 子断言）；P1-2 executeSandbox 统一调度器（vm/worker/iv/auto 四 engine 按字符串分发；保留旧 3 函数向后兼容 + 16 子断言）；P1-3 memoryContextMiddleware Express ALS（userId 提取链 + 自动生成 x-request-id 写响应头 + 12 子断言）；P1-4 METRICS_TRUSTED_CIDRS RFC1918 白名单（自研 IPv4 CIDR 解析 零依赖 + 21 子断言）；P1-5 client/server 协议同步脚本（scripts/check-protocol-sync.cjs + Windows regex \\/ 转义处理 + 9 子断言）；P2-1 OTLP push 评估（结论：pull 已足够，push 暂不实施 + 6 子断言）；P2-2 helmet 8.x permissionsPolicy 再评估（关键发现：本项目 ^8.3.0 不输出 Permissions-Policy header + 4 子断言）；C8-B01 修复 metricsOtlpHandler 缺失 import（周期 7 隐藏 bug）。调研 Top5：MCP 实际接入 cesium-mcp-bridge / mem0 向量化（pgvector）/ memory.js WAL + 性能调优 / react-crash-guard 替换 ErrorBoundary / claude-code-action 接 M3 跑 PR review"
+    },
+    {
+      "cycle": 9,
+      "status": "completed",
+      "started_at": "2026-09-08T22:00:00+08:00",
+      "completed_at": "2026-09-08T23:00:00+08:00",
+      "p0_done": 2,
+      "p0_planned": 2,
+      "p1_done": 4,
+      "p1_planned": 4,
+      "p2_done": 2,
+      "p2_planned": 2,
+      "commits": 7,
+      "commits_max": 12,
+      "specs_added": 8,
+      "research_topics": 12,
+      "research_links": 60,
+      "bugs_open": 10,
+      "self_check_score": "98%",
+      "notes": "P0-1 server-import-completeness spec（静态扫描 server/* 模块导出完整性，防御 C8-B01 类隐藏 bug + 12 子断言）；P0-2 memory.js WAL + journalMode/optimizePragma helpers（PRAGMA journal_mode=WAL + synchronous=NORMAL + temp_store=MEMORY + mmap_size + optimize(0x02) + graceful fallback 无 better-sqlite3 + 9 子断言）；P1-1 MCP 真集成（mcpManifest.js handler 签名修复 + 5 核心 GIS 工具 + installBridgeTransport 修复 + 19 子断言）；P1-2 sandbox perf benchmark（vm/worker/iv/auto 四 engine × 100/30 次 + first JIT vs warm 双基线 + 11 子断言）；P1-3 ErrorBoundary asyncGuard（client/src/utils/asyncGuard.js — window.unhandledrejection + window.error + savedWindow 闭包修复 + 14 子断言）；P1-4 PR review workflow MiniMax-M3（anthropics/claude-code-action@v1 + anthropic_base_url fallback + --model MiniMax-M3 --max-turns 5 --allowedTools + 18 子断言）；P2-1 metrics endpoint perf benchmark（/api/metrics p50=3ms p95=4ms avg=2.78ms；/api/otlp/metrics p50=2ms p95=3ms avg=1.90ms；20 并发 56ms + 9 子断言）；P2-2 Permissions-Policy middleware 自研（server/middleware/permissionsPolicy.js — 20 默认策略 + cache + opts 覆盖 + helmet 8.3 不输出 header 已验证 + 13 子断言）。C9-B01 mcpManifest handler 双层包裹修复；C9-B02 asyncGuard removeEventListener 在 window 替换后失效修复。调研 Top5：Multi-specialist PR review / mem0 pgvector / asyncGuard → /api/telemetry / Sandbox worker pool / 3D Tiles 2.0 + WebGPU"
     }
   ]
 }

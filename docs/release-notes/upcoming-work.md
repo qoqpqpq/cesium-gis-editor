@@ -16,17 +16,28 @@
 - ✅ **P2-2** helmet 8.x permissionsPolicy 再评估（关键发现：本项目 ^8.3.0 不输出 header）
 - ✅ **Bug 修复** C8-B01 metricsOtlpHandler 缺失 import（周期 7 隐藏 bug）
 
-## 调研 Top5（由周期 8 调研产出，落周期 9+；覆盖周期 7 Top5）
+## 周期 9 已交付（2026-09-08）
 
-> 调研全文见 `docs/cycles/cycle-08-research.md`（12 主题 × 5 链接 = 60 链接）。
+- ✅ **P0-1** server-import-completeness spec（静态扫描 server/* 模块导出完整性，防御 C8-B01 类隐藏 bug）
+- ✅ **P0-2** memory.js WAL + journalMode/optimizePragma helpers（`PRAGMA journal_mode=WAL` + `synchronous=NORMAL` + `optimize` 触发；graceful fallback 无 better-sqlite3）
+- ✅ **P1-1** MCP 真集成（`client/src/pages/gis/mcpManifest.js` 5 个核心 GIS 工具 + `installBridgeTransport` 修复 handler 返回值；19/19 sub-assertion PASS）
+- ✅ **P1-2** sandbox perf benchmark spec（vm / worker / iv / auto 四 engine × 100/30 次；vm warm p50=0ms / worker-seq p50=628ms / worker-conc-5 p50=397ms）
+- ✅ **P1-3** ErrorBoundary asyncGuard（`client/src/utils/asyncGuard.js` window.unhandledrejection + window.error 全局捕获；14/14 sub-assertion PASS）
+- ✅ **P1-4** PR review workflow 接 MiniMax-M3（`anthropics/claude-code-action@v1` + `anthropic_base_url` + `--model MiniMax-M3 --max-turns 5`；18/18 sub-assertion PASS）
+- ✅ **P2-1** metrics endpoint perf benchmark（`/api/metrics` p50=3ms p95=4ms；`/api/otlp/metrics` p50=2ms p95=3ms；20 并发 56ms）
+- ✅ **P2-2** Permissions-Policy middleware 自研（`server/middleware/permissionsPolicy.js` 20 默认策略；helmet 8.x 验证不输出，替代实现；13/13 sub-assertion PASS）
+
+## 调研 Top5（由周期 9 调研产出，落周期 10+；覆盖周期 8 Top5）
+
+> 调研全文见 `docs/cycles/cycle-09-research.md`（12 主题 × 5 链接 = 60 链接）。
 
 | 排名 | 主题 | 行动 | 落点 |
 | --- | ---- | ---- | ---- |
-| 1 | **MCP 实际接入 cesium-mcp-bridge**（周期 8 P1-1 已落 mcpManifest；本周期接入真 SDK） | 周期 9+ P1：包大小评估 + 5 个核心工具集成测试 + viewer 集成 | 升级 P1-1 |
-| 2 | **mem0 向量化（pgvector）**（周期 7 P1-5 已落 SQLite + FTS5 prototype） | 周期 10+ 评估：SQLite → Postgres + pgvector + LLM 抽取层（episodic + semantic + procedural） | 升级 P1-5 |
-| 3 | **memory.js WAL + 性能调优**（周期 8 P0-1 已落 FTS5） | 周期 9 P2：加 `PRAGMA journal_mode=WAL` + `synchronous=NORMAL` + 周期 `pragma optimize` | 升级 memory.js |
-| 4 | **react-crash-guard 替换 ErrorBoundary**（async error 捕获缺失） | 周期 9 P2：用 react-crash-guard 替换 ErrorBoundary.jsx；加 unhandledrejection 监听 | 升级 client |
-| 5 | **cesium-mcp + claude-code-action 深度集成**（用 MiniMax-M3 跑 PR review） | 周期 9+ 评估：claude-code-action GitHub Action 接 MiniMax-M3；周期主调度用 M3 跑 PR review | 升级 pr-review.yml |
+| 1 | **Multi-specialist PR review（baseline + design + security）** | 周期 10+ 评估：claude-code-action 接 M3 时启用 `--system-prompt` 多 mode；周期 9 P1-4 已落 baseline | 升级 pr-review.yml |
+| 2 | **mem0 向量化（pgvector）**（周期 7 P1-5 已落 SQLite + FTS5；周期 9 P0-2 已落 WAL） | 周期 10+ 评估：SQLite → Postgres + pgvector + LLM 抽取层 | 升级 memory.js |
+| 3 | **asyncGuard → /api/telemetry 上报**（周期 9 P1-3 已落捕获） | 周期 10+：把捕获的 unhandledrejection / window.error 上报到 /api/telemetry | 升级 asyncGuard.js |
+| 4 | **Sandbox worker pool（替换 worker-per-call）**（周期 9 P1-2 已采 baseline） | 周期 10+：基于 worker-seq p50=628ms 数据，引入 worker pool（reuse + LRU） | 升级 sandbox |
+| 5 | **3D Tiles 2.0 + WebGPU pipeline** | 周期 11+ 评估：cesiumJS v2+ WebGPU backend 切换；3D Tiles 2.0 Gaussian Splatting 支持 | 升级 viewer |
 
 ## P0（必须下周期完成）
 
