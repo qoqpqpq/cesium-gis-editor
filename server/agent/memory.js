@@ -81,6 +81,27 @@ class MemoryStore {
   }
 
   _initSqlite() {
+    // 周期 9 P0-2: WAL 模式 + 性能调优
+    // - WAL 提供并发读 + 单写；写性能比 journal mode 提升 5-10x
+    // - synchronous=NORMAL 是 WAL 推荐配置（牺牲部分极端崩溃保护换性能）
+    // - temp_store=MEMORY 把临时表放内存
+    // - mmap_size=128MB 启用 mmap 读
+    // 失败回退：try/catch 各 PRAGMA，失败不抛错（环境可能不支持）
+    try {
+      this.driver.pragma('journal_mode = WAL');
+    } catch (e) { /* fallback journal mode */ }
+    try {
+      this.driver.pragma('synchronous = NORMAL');
+    } catch (e) { /* keep default */ }
+    try {
+      this.driver.pragma('temp_store = MEMORY');
+    } catch (e) { /* keep default */ }
+    try {
+      this.driver.pragma('mmap_size = 134217728'); // 128MB
+    } catch (e) { /* keep default */ }
+    try {
+      this.driver.pragma('cache_size = -64000'); // 64MB
+    } catch (e) { /* keep default */ }
     // 建表（key 主键 + value + tags + userId + ts + 全文索引）
     this.driver.exec(`
       CREATE TABLE IF NOT EXISTS ${this.table} (
@@ -356,6 +377,38 @@ class MemoryStore {
   ftsCount() {
     if (!this.driver || !this._ftsEnabled || !this._stmtFtsCount) return 0;
     return this._stmtFtsCount.get().c;
+  }
+
+  /**
+   * 周期 9 P0-2: 当前 journal mode（wal / truncate / delete / memory 等）
+   */
+  get journalMode() {
+    if (!this.driver) return 'memory';
+    try {
+      return this.driver.pragma('journal_mode', { simple: true });
+    } catch (e) {
+      return 'unknown';
+    }
+  }
+
+  /**
+   * 周期 9 P0-2: 周期性 optimize pragma
+   * - FTS5 MERGE 操作合并 segments（避免长期使用后碎片化）
+   * - SQLite optimize 触发 analyzer 收集统计
+   * 建议在 search() 后台 / cron 周期调用
+   * @returns {{ok: boolean, journalMode: string}}
+   */
+  optimizePragma() {
+    if (!this.driver) return { ok: false, journalMode: 'memory' };
+    try {
+      // FTS5 optimize (合并 segments)；无 FTS5 时是 no-op
+      try { this.driver.exec(`INSERT INTO ${this.table}_fts(${this.table}_fts) VALUES('optimize');`); } catch (e) { /* no FTS5 */ }
+      // SQLite analyze
+      try { this.driver.exec(`ANALYZE ${this.table};`); } catch (e) { /* noop */ }
+      return { ok: true, journalMode: this.journalMode };
+    } catch (e) {
+      return { ok: false, journalMode: this.journalMode, error: e.message };
+    }
   }
 
   /**
