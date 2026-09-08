@@ -1,10 +1,10 @@
 {
-  "current_cycle": 7,
-  "previous_cycle": 6,
+  "current_cycle": 8,
+  "previous_cycle": 7,
   "last_run_status": "completed",
-  "last_run_at": "2026-09-08T18:00:00+08:00",
-  "cycle_started_at": "2026-09-08T15:30:00+08:00",
-  "cycle_completed_at": "2026-09-08T18:00:00+08:00",
+  "last_run_at": "2026-09-08T22:00:00+08:00",
+  "cycle_started_at": "2026-09-08T20:30:00+08:00",
+  "cycle_completed_at": "2026-09-08T22:00:00+08:00",
   "model": "MiniMax-M3",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -151,7 +151,27 @@
       "research_links": 60,
       "bugs_open": 10,
       "self_check_score": "97%",
-      "notes": "P0-3 Cesium WebGPU / MCP 评估（不切换 backend，cesium-webgpu-detection + mcp-bridge-config spec）；P0-4 OTLP HTTP exporter（MetricsRegistry.toOtlpMetrics + GET /api/otlp/metrics + 15 子断言）；P1-2 isolated-vm 引擎选择（executeIsolatedVm + resolveEngine + SANDBOX_ENGINE env + 自动降级 vm）；P1-5 mem0 原型（server/agent/memory.js — ALS 隐式 userId + better-sqlite3 探测 + 内存 Map fallback + 20 子断言）；P1-6 fflate 评估（结论不替换 pako，viewState 懒加载成本不抵收益）；P1-7 PR review workflow 骨架（.github/workflows/pr-review.yml + baseline + ai-review 占位 + 17 子断言）；P2-8 helmet 8.x permissionsPolicy 评估（结论暂不升级）。调研 Top5：FTS5 / DecompressionStream / MCP 实际接入 / OTel SDK 替换自研 / mem0 向量化"
+      "notes": "P0-3 Cesium WebGPU / MCP 评估（不切换 backend，cesium-webgpu-detection + mcp-bridge-config spec）；P0-4 OTLP HTTP exporter（MetricsRegistry.toOtlpMetrics + GET /api/otlp/metrics + 15 子断言）；P1-2 isolated-vm 引擎选择（executeIsolatedVm + resolveEngine + SANDBOX_ENGINE env + 自动降级 vm）；P1-5 mem0 原型（server/agent/memory.js — ALS 隐式 userId + better-sqlite3 探测 + 内存 Map fallback + 20 子断言）；P1-6 fflate 评估（结论不替换 pako，viewState 懒加载成本不抵收益）；P1-7 PR review workflow 骨架（.github/workflows/pr-review.yml + baseline + ai-review 占位 + 17 子断言）；P2-8 helmet 8.x permissionsPolicy 评估 spec。调研 Top5：FTS5 / DecompressionStream / MCP 实际接入 / OTel SDK 替换自研 / mem0 向量化"
+    },
+    {
+      "cycle": 8,
+      "status": "completed",
+      "started_at": "2026-09-08T20:30:00+08:00",
+      "completed_at": "2026-09-08T22:00:00+08:00",
+      "p0_done": 2,
+      "p0_planned": 2,
+      "p1_done": 5,
+      "p1_planned": 5,
+      "p2_done": 2,
+      "p2_planned": 2,
+      "commits": 10,
+      "commits_max": 12,
+      "specs_added": 9,
+      "research_topics": 12,
+      "research_links": 60,
+      "bugs_open": 10,
+      "self_check_score": "97%",
+      "notes": "P0-1 memory FTS5 全文检索（contentless virtual table + bm25 排序 + 3 触发器 + LIKE fallback + _sanitizeFtsQuery 转义 + 18 子断言）；P0-2 DecompressionStream 浏览器原生解压（Blob + pipeThrough + Response.text；pako 仅老浏览器兜底 + 12 子断言）；P1-1 MCP manifest 浏览器侧（window.mcp + registerTool/manifest/callTool + dev mode / ?mcp=1 启用 + 12 子断言）；P1-2 executeSandbox 统一调度器（vm/worker/iv/auto 四 engine 按字符串分发；保留旧 3 函数向后兼容 + 16 子断言）；P1-3 memoryContextMiddleware Express ALS（userId 提取链 + 自动生成 x-request-id 写响应头 + 12 子断言）；P1-4 METRICS_TRUSTED_CIDRS RFC1918 白名单（自研 IPv4 CIDR 解析 零依赖 + 21 子断言）；P1-5 client/server 协议同步脚本（scripts/check-protocol-sync.cjs + Windows regex \\/ 转义处理 + 9 子断言）；P2-1 OTLP push 评估（结论：pull 已足够，push 暂不实施 + 6 子断言）；P2-2 helmet 8.x permissionsPolicy 再评估（关键发现：本项目 ^8.3.0 不输出 Permissions-Policy header + 4 子断言）；C8-B01 修复 metricsOtlpHandler 缺失 import（周期 7 隐藏 bug）。调研 Top5：MCP 实际接入 cesium-mcp-bridge / mem0 向量化（pgvector）/ memory.js WAL + 性能调优 / react-crash-guard 替换 ErrorBoundary / claude-code-action 接 M3 跑 PR review"
     }
   ]
 }
