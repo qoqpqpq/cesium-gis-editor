@@ -1,5 +1,6 @@
 # .github/workflows/pr-review.yml
 # 周期 7 P1-7: PR review automation（claude-code-action / open-code-review）
+# 周期 9 P1-4: 接 MiniMax-M3 跑 PR review（anthropic-base-url + model: MiniMax-M3）
 #
 # 触发条件：
 #   - pull_request 打开 / 同步 / 重开
@@ -9,7 +10,7 @@
 #   1. checkout 代码
 #   2. 跑 checkpoint（确保基础 9 项健康）
 #   3. 跑 AI 工具探针（确保 AI 端点无 5xx）
-#   4. 调用 AI Action 评审（claude-code-action @v1 或 open-code-review）
+#   4. 调用 claude-code-action 接 MiniMax-M3 跑 PR 评审
 #   5. 输出 PR 评审评论
 #
 # 权限：
@@ -17,10 +18,10 @@
 #   - pull-requests: write（评论）
 #   - id-token: write（OIDC for OTel 等）
 #
-# 注意事项：
-#   - 周期 7 仅静态扫描 + 评估，不真正跑 AI 评审（避免 token 消耗）
-#   - 周期 8+ 接入实际 AI 评审（需要 ANTHROPIC_API_KEY / OPENAI_API_KEY）
-#   - 仅 /api/* 不应被 PR workflow 触发（GitHub Actions 不在 3001）
+# 周期 9 注意事项：
+#   - claude-code-action 通过 anthropic-base-url 指向 MiniMax-M3（Anthropic-compatible API）
+#   - secrets.M3_API_KEY 必要（MiniMax 平台 API key）
+#   - claude_args 强制 claude --model MiniMax-M3 --max-turns 5
 
 name: pr-review
 
@@ -77,39 +78,41 @@ jobs:
           fi
 
   ai-review:
-    name: AI PR Review
+    name: AI PR Review (MiniMax-M3)
     needs: baseline
     runs-on: ubuntu-latest
-    # 周期 7 仅做占位；周期 8+ 接入 claude-code-action 或 open-code-review
-    # 必要 secrets: ANTHROPIC_API_KEY 或 OPENAI_API_KEY
+    # 周期 9 P1-4: 接 MiniMax-M3 跑 PR review
+    #   - anthropic-base-url 指向 MiniMax 平台（Anthropic-compatible API）
+    #   - claude_args 强制 MiniMax-M3 模型 + max-turns 5（限 token 消耗）
+    #   - secrets.M3_API_KEY: MiniMax 平台 API key（settings/secrets/actions）
+    if: ${{ env.M3_API_KEY != '' }}
     steps:
       - uses: actions/checkout@v4
-      - name: AI Review placeholder
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          echo "PR #$PR_NUMBER 评审占位"
-          echo "周期 7 仅静态扫描 + 评估；周期 8+ 接入 AI Action"
-          echo "推荐 Action: anthropics/claude-code-action@v1 或 openai/open-code-review@v1"
-          # 周期 8+ 实际接入：
-          # - name: Claude Code Review
-          #   uses: anthropics/claude-code-action@v1
-          #   with:
-          #     anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          #     prompt: |
-          #       Review this PR for:
-          #       1. Security issues (SSRF, XSS, auth bypass)
-          #       2. Spec coverage (each new feature has tests/specs/*.cjs)
-          #       3. Commit format (feat/fix(chore)(cycle-NN): ...)
-          #       4. No .env / real keys / blog.db committed
-          #       5. Cycle docs in docs/cycles/cycle-NN-*.md
+        with:
+          fetch-depth: 0
 
-      - name: Post PR comment (placeholder)
+      - name: AI Review (claude-code-action + MiniMax-M3)
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.M3_API_KEY }}
+          # 周期 9 P1-4: 指向 MiniMax 平台（Anthropic-compatible API）
+          anthropic_base_url: ${{ secrets.M3_BASE_URL || 'https://api.MiniMax.com/v1' }}
+          # 强制使用 MiniMax-M3 模型
+          claude_args: |
+            --model MiniMax-M3 \
+            --max-turns 5 \
+            --allowedTools "Read,Grep,Glob,Bash" \
+            --system-prompt "你是 Cesium GIS Editor 项目的 PR review agent。重点检查：1) 安全（SSRF / XSS / auth bypass）；2) spec 覆盖（每个新功能有 tests/specs/*.cjs）；3) commit 格式（feat/fix/chore(cycle-NN): ...）；4) 未提交 .env / 真实 key / blog.db；5) 周期 docs 在 docs/cycles/cycle-NN-*.md。"
+          # 触发 PR review 的 GitHub event
+          trigger_pr_review: true
+
+      - name: Post PR comment (sticky)
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            ## PR Review (周期 7 P1-7 占位)
+            ## PR Review (周期 9 P1-4: MiniMax-M3)
             - ✅ 基础健康检查通过
-            - ⏳ AI 评审（周期 8+ 接入）
-            - 评审项：security / spec coverage / commit format / cycle docs
+            - ✅ AI 评审由 MiniMax-M3 跑（claude-code-action + anthropic-base-url）
+            - 评审项：security / spec coverage / commit format / cycle docs / model MiniMax-M3
+            - 限制：max-turns 5 避免 token 消耗过多
