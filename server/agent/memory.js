@@ -93,6 +93,12 @@ class MemoryStore {
       CREATE INDEX IF NOT EXISTS ${this.table}_ts ON ${this.table}(ts DESC);
       CREATE INDEX IF NOT EXISTS ${this.table}_userId ON ${this.table}(userId);
     `);
+    // 周期 8 P0-1: FTS5 虚拟表（contentless 模式 —— value 存原表）
+    //   - SQLite ≥ 3.9 支持 FTS5
+    //   - better-sqlite3 自带 FTS5
+    //   - 同步三触发器：AI / AD / DELETE（保持虚拟表与原表一致）
+    //   - 失败回退 LIKE（_initMemory 不会受影响）
+    this._ftsEnabled = this._tryInitFts5();
     // 注意：本周期不强制 FTS5（依赖 sqlite 版本）；用 LIKE 模糊匹配
     this._stmtInsert = this.driver.prepare(
       `INSERT OR REPLACE INTO ${this.table} (key, value, tags, userId, ts) VALUES (?, ?, ?, ?, ?)`
@@ -112,6 +118,64 @@ class MemoryStore {
     this._stmtSearch = this.driver.prepare(
       `SELECT key, value, tags, userId, ts FROM ${this.table} WHERE value LIKE ? ORDER BY ts DESC LIMIT ?`
     );
+    // 周期 8 P0-1: FTS5 search 预编译语句（仅在 _ftsEnabled=true 时可用）
+    if (this._ftsEnabled) {
+      this._stmtFtsSearch = this.driver.prepare(
+        `SELECT m.key, m.value, m.tags, m.userId, m.ts, bm25(${this.table}_fts) AS score
+         FROM ${this.table}_fts
+         JOIN ${this.table} m ON m.rowid = ${this.table}_fts.rowid
+         WHERE ${this.table}_fts MATCH ?
+         ORDER BY score ASC
+         LIMIT ?`
+      );
+      this._stmtFtsSearchByUser = this.driver.prepare(
+        `SELECT m.key, m.value, m.tags, m.userId, m.ts, bm25(${this.table}_fts) AS score
+         FROM ${this.table}_fts
+         JOIN ${this.table} m ON m.rowid = ${this.table}_fts.rowid
+         WHERE ${this.table}_fts MATCH ? AND m.userId = ?
+         ORDER BY score ASC
+         LIMIT ?`
+      );
+      this._stmtFtsCount = this.driver.prepare(
+        `SELECT COUNT(*) AS c FROM ${this.table}_fts`
+      );
+    }
+  }
+
+  /**
+   * 周期 8 P0-1: 尝试初始化 FTS5 虚拟表 + 同步触发器
+   * - 失败（SQLite < 3.9 / 编译选项关闭）→ 回退 LIKE，不抛错
+   * - 成功 → _ftsEnabled=true，search() 走 bm25 路径
+   * @returns {boolean} 是否启用 FTS5
+   */
+  _tryInitFts5() {
+    try {
+      const ftsTable = `${this.table}_fts`;
+      this.driver.exec(`
+        CREATE VIRTUAL TABLE IF NOT EXISTS ${ftsTable} USING fts5(
+          value,
+          content='${this.table}',
+          content_rowid='rowid',
+          tokenize='unicode61'
+        );
+        -- 同步触发器（保持 FTS 表与原表一致）
+        CREATE TRIGGER IF NOT EXISTS ${this.table}_ai AFTER INSERT ON ${this.table} BEGIN
+          INSERT INTO ${ftsTable}(rowid, value) VALUES (new.rowid, new.value);
+        END;
+        CREATE TRIGGER IF NOT EXISTS ${this.table}_ad AFTER DELETE ON ${this.table} BEGIN
+          INSERT INTO ${ftsTable}(${ftsTable}, rowid, value) VALUES ('delete', old.rowid, old.value);
+        END;
+        CREATE TRIGGER IF NOT EXISTS ${this.table}_au AFTER UPDATE ON ${this.table} BEGIN
+          INSERT INTO ${ftsTable}(${ftsTable}, rowid, value) VALUES ('delete', old.rowid, old.value);
+          INSERT INTO ${ftsTable}(rowid, value) VALUES (new.rowid, new.value);
+        END;
+      `);
+      return true;
+    } catch (e) {
+      // FTS5 不可用（SQLite < 3.9 / 编译选项关闭 / better-sqlite3 编译不带 FTS5）
+      // 回退 LIKE 路径；不抛错
+      return false;
+    }
   }
 
   _initMemory() {
@@ -184,16 +248,43 @@ class MemoryStore {
   }
 
   /**
-   * 全文检索（LIKE 模糊匹配 value）
+   * 全文检索
+   * 周期 8 P0-1: 优先 FTS5 (bm25 排序)；失败/不可用回退 LIKE
    * @param {string} query
    * @param {object} [opts]
    * @param {number} [opts.limit=10]
    * @param {string} [opts.userId]
-   * @returns {Array<{key, value, tags, userId, ts, backend}>}
+   * @returns {Array<{key, value, tags, userId, ts, backend, score?: number, searchEngine?: string}>}
    */
   search(query, opts = {}) {
     const limit = opts.limit || 10;
     const userId = opts.userId || null;
+    // 转义 FTS5 特殊字符（防止用户输入破坏 MATCH 语法）
+    const safeQuery = this._sanitizeFtsQuery(query);
+    if (this.driver && this._ftsEnabled && safeQuery) {
+      // 周期 8 P0-1: FTS5 路径（bm25 排序）
+      this.backend = 'sqlite';
+      try {
+        const rows = userId
+          ? this._stmtFtsSearchByUser.all(safeQuery, userId, limit)
+          : this._stmtFtsSearch.all(safeQuery, limit);
+        return rows.map((r) => ({
+          key: r.key,
+          value: r.value,
+          tags: r.tags ? JSON.parse(r.tags) : [],
+          userId: r.userId,
+          ts: r.ts,
+          backend: this.backend,
+          score: typeof r.score === 'number' ? r.score : undefined,
+          searchEngine: 'fts5',
+        }));
+      } catch (e) {
+        // FTS5 查询失败（MATCH 语法错）→ 回退 LIKE
+        // eslint-disable-next-line no-console
+        console.warn('[memory] FTS5 search 失败，回退 LIKE:', e.message);
+      }
+    }
+    // 回退：LIKE 路径（兼容老逻辑）
     if (this.driver) {
       this.backend = 'sqlite';
       let rows;
@@ -212,6 +303,7 @@ class MemoryStore {
         userId: r.userId,
         ts: r.ts,
         backend: this.backend,
+        searchEngine: 'like',
       }));
     } else {
       const lower = (query || '').toLowerCase();
@@ -226,12 +318,44 @@ class MemoryStore {
             userId: v.userId,
             ts: v.ts,
             backend: 'memory',
+            searchEngine: 'like',
           });
         }
         if (out.length >= limit) break;
       }
       return out;
     }
+  }
+
+  /**
+   * 周期 8 P0-1: FTS5 query 转义
+   * - FTS5 语法特殊字符：' " ( ) * : - 需保留作 wildcard
+   * - 简单策略：去掉控制字符；保留字母/数字/中文/CJK/空格
+   * - 空 query 返回 null（调用方走 LIKE 路径）
+   */
+  _sanitizeFtsQuery(q) {
+    if (!q || typeof q !== 'string') return null;
+    // 去掉 FTS5 保留字符（用户输入的引号/括号/星号）
+    // 注意：这里只去掉真正会破坏 MATCH 语法的字符；正常空格 + 字母数字保留
+    const cleaned = q.replace(/[\x00-\x1f\x7f"()*:^]/g, ' ').trim();
+    if (!cleaned) return null;
+    // 把多空格压成单空格
+    return cleaned.replace(/\s+/g, ' ');
+  }
+
+  /**
+   * 周期 8 P0-1: 是否启用 FTS5
+   */
+  get ftsEnabled() {
+    return !!this._ftsEnabled;
+  }
+
+  /**
+   * 周期 8 P0-1: FTS5 表行数（仅在 _ftsEnabled=true 时返回；否则 0）
+   */
+  ftsCount() {
+    if (!this.driver || !this._ftsEnabled || !this._stmtFtsCount) return 0;
+    return this._stmtFtsCount.get().c;
   }
 
   /**
