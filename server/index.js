@@ -117,35 +117,9 @@ app.use(
   }),
 );
 // 周期 3 P1-1: Permissions-Policy（helmet 7.x 不支持，需手写 header）
-//   关闭所有浏览器敏感 API；Cesium 只需要 WebGL/IndexedDB/SharedArrayBuffer
-app.use((req, res, next) => {
-  res.setHeader(
-    "Permissions-Policy",
-    [
-      "accelerometer=()",
-      "autoplay=(self)",
-      "camera=()",
-      "cross-origin-isolated=()",
-      "display-capture=()",
-      "encrypted-media=()",
-      "fullscreen=(self)",
-      "geolocation=()",
-      "gyroscope=()",
-      "keyboard-map=()",
-      "magnetometer=()",
-      "microphone=()",
-      "midi=()",
-      "payment=()",
-      "picture-in-picture=()",
-      "publickey-credentials-get=(self)",
-      "screen-wake-lock=(self)",
-      "sync-xhr=()",
-      "usb=()",
-      "xr-spatial-tracking=()",
-    ].join(", "),
-  );
-  next();
-});
+// 周期 9 P2-2: 抽到 server/middleware/permissionsPolicy.js（自研；helmet 8.x 验证不输出）
+const permissionsPolicy = require("./middleware/permissionsPolicy");
+app.use(permissionsPolicy());
 app.use(express.json({ limit: "2mb" }));
 app.use(morgan("tiny"));
 
