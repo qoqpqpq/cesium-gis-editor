@@ -507,10 +507,56 @@ function parseSandboxError(e, wrapped) {
   };
 }
 
+/**
+ * 周期 8 P1-2: 统一调度器
+ * - 根据 opts.engine 或环境变量 SANDBOX_ENGINE 选择底层引擎
+ *   'vm'   → executeInSandbox（node:vm，同步、适合轻量脚本）
+ *   'worker' → executeInSandboxWorker（worker_threads，资源隔离、适合重计算）
+ *   'iv'   → executeIsolatedVm（isolated-vm，高安全；缺包自动回退 vm）
+ *   'auto' → resolveEngine 后选择可用引擎（iv 优先，缺则 vm）
+ *   缺省   → 'worker'（与既有 ai.js 等调用方一致）
+ * - 保留三个底层函数向后兼容（旧调用方仍可调）
+ * - 返回统一字段：{ ok, value, error, durationMs, engine, workerId?, cpuAbort? }
+ *
+ * @param {string} code
+ * @param {object} ctx
+ * @param {object} [opts]
+ * @param {string} [opts.engine] - 'vm' | 'worker' | 'iv' | 'auto'
+ * @param {number} [opts.timeoutMs=5000]
+ * @param {number} [opts.heapMb=64]
+ * @returns {Promise<{ok: boolean, value?: any, error?: object, durationMs: number, engine: string, ...}>}
+ */
+async function executeSandbox(code, ctx = {}, opts = {}) {
+  const t0 = Date.now();
+  const requestedEngine = opts.engine || process.env.SANDBOX_ENGINE || 'worker';
+  // engine 选择分发 —— 按 requestedEngine 直接判断
+  if (requestedEngine === 'vm') {
+    // 显式 'vm' → 走 node:vm 同步路径
+    const r = await executeInSandbox(code, ctx, opts);
+    return { ...r, engine: 'vm' };
+  }
+  if (requestedEngine === 'iv') {
+    // 走 isolated-vm（缺包自动回退 vm 由 executeIsolatedVm 内部处理）
+    return await executeIsolatedVm(code, ctx, opts);
+  }
+  if (requestedEngine === 'auto') {
+    // auto：resolveEngine 检测可用引擎
+    const resolved = resolveEngine('auto');
+    if (resolved.engine === 'iv') return await executeIsolatedVm(code, ctx, opts);
+    // 回落 → worker_threads
+    const r = await executeInSandboxWorker(code, ctx, opts);
+    return { ...r, engine: 'worker' };
+  }
+  // 缺省 / 'worker' / 未知 engine → worker_threads
+  const r = await executeInSandboxWorker(code, ctx, opts);
+  return { ...r, engine: 'worker' };
+}
+
 module.exports = {
   executeInSandbox,
   executeInSandboxWorker,
   executeIsolatedVm,
+  executeSandbox, // 周期 8 P1-2: 统一调度器
   resolveEngine,
   captureWorkerHeapSnapshot,
   SNAPSHOT_DIR,

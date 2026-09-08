@@ -45,7 +45,8 @@ const SANDBOX_SRC = fs.readFileSync(
   // ---- 1. 静态扫描 ----
   await test('sandbox.js 暴露 executeIsolatedVm 函数', () => {
     assert.match(SANDBOX_SRC, /async function executeIsolatedVm/);
-    assert.match(SANDBOX_SRC, /executeIsolatedVm,?\s*\n?\s*resolveEngine/);
+    // 模块导出应含 executeIsolatedVm（位置不强制）
+    assert.match(SANDBOX_SRC, /executeIsolatedVm,/);
   });
   await test('sandbox.js 暴露 resolveEngine 函数', () => {
     assert.match(SANDBOX_SRC, /function resolveEngine/);
