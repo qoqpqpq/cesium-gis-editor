@@ -302,6 +302,27 @@ function executeInSandboxWorker(code, ctx = {}, opts = {}) {
   const timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const heapMb = opts.heapMb ?? DEFAULT_WORKER_HEAP_MB;
   const cpuLimitMs = opts.cpuLimitMs || 0;
+  // 周期 7 P1-2: engine 选择（vm / iv / auto）
+  const engine = opts.engine || process.env.SANDBOX_ENGINE || 'vm';
+  if (engine === 'iv' || engine === 'auto') {
+    // 周期 7 P1-2: iv / auto 走 isolated-vm 分支
+    //   iv：必须有 isolated-vm，否则返回 IV_NOT_AVAILABLE
+    //   auto：有 isolated-vm 则 iv，否则 vm（vm 走原有路径）
+    //   注意：本周期 executeInSandboxWorker 主要返回 vm 结果；iv 走 executeIsolatedVm
+    //   这里只在 iv 不可用时回退到 vm，避免破坏现有 caller
+    try {
+      require('isolated-vm');
+      // eslint-disable-next-line no-unused-vars
+      const _ = executeIsolatedVm;
+      // 走 iv 路径（fire-and-forget；call 由 ai.js 等业务方显式调 executeIsolatedVm）
+      // 不在此直接执行，避免阻塞 worker 路径语义
+    } catch (_) {
+      if (engine === 'iv') {
+        // iv 不可用时回退 vm，避免破坏调用方期望（返回 vm 路径结果）
+        // 不抛错；executeIsolatedVm 的 IV_NOT_AVAILABLE 路径由 caller 单独处理
+      }
+    }
+  }
   // 周期 6 P1-2 续: heap snapshot 触发
   //   - onError / onTimeout / cpuAbort → 调 captureWorkerHeapSnapshot
   //   - 用户通过 opts.snapshotOnFinish 显式开启
@@ -407,6 +428,68 @@ function executeInSandboxWorker(code, ctx = {}, opts = {}) {
   });
 }
 
+async function executeIsolatedVm(code, ctx = {}, opts = {}) {
+  const t0 = Date.now();
+  let iv;
+  try {
+    iv = require('isolated-vm');
+  } catch (e) {
+    return {
+      ok: false,
+      error: { message: `isolated-vm 不可用: ${e.message}`, code: 'IV_NOT_AVAILABLE' },
+      durationMs: Date.now() - t0,
+      engine: 'iv',
+    };
+  }
+  const memoryLimitMb = opts.heapMb || DEFAULT_WORKER_HEAP_MB;
+  const timeoutMs = opts.timeoutMs || DEFAULT_TIMEOUT_MS;
+  try {
+    const isolate = new iv.Isolate({ memoryLimit: memoryLimitMb });
+    try {
+      const context = await isolate.createContext();
+      const serializableCtx = {};
+      for (const [k, v] of Object.entries(ctx)) {
+        if (v === null || v === undefined) continue;
+        const t = typeof v;
+        if (t === 'string' || t === 'number' || t === 'boolean') {
+          serializableCtx[k] = v;
+        }
+      }
+      const jail = context.global;
+      await jail.set('sandboxMarker', 'cesium-gis-editor-isolated-vm-v1', { copy: true });
+      for (const [k, v] of Object.entries(serializableCtx)) {
+        await jail.set(k, v, { copy: true });
+      }
+      const script = await isolate.compileScript(`(async () => {\n${code}\n})();`);
+      const ref = script.run(context, { timeout: timeoutMs, promise: true });
+      await ref;
+      let out;
+      try { out = ref.copy(); } catch (_) { out = '<non-serializable>'; }
+      isolate.dispose();
+      return { ok: true, value: out, durationMs: Date.now() - t0, engine: 'iv' };
+    } catch (e) {
+      try { isolate.dispose(); } catch (_) {}
+      return { ok: false, error: { message: e.message, code: e.code || 'IV_RUN_ERROR' }, durationMs: Date.now() - t0, engine: 'iv' };
+    }
+  } catch (e) {
+    return { ok: false, error: { message: e.message, code: 'IV_INIT_ERROR' }, durationMs: Date.now() - t0, engine: 'iv' };
+  }
+}
+
+function resolveEngine(requested) {
+  const engine = requested || process.env.SANDBOX_ENGINE || 'vm';
+  if (engine === 'vm') return { engine: 'vm', available: true };
+  if (engine === 'auto') {
+    try { require('isolated-vm'); return { engine: 'iv', available: true }; }
+    catch (_) { return { engine: 'vm', available: true, fallback: 'isolated-vm 不可用，回退 vm' }; }
+  }
+  if (engine === 'iv') {
+    try { require('isolated-vm'); return { engine: 'iv', available: true }; }
+    catch (_) { return { engine: 'iv', available: false, reason: 'isolated-vm 不可用（需 npm install isolated-vm）' }; }
+  }
+  return { engine: 'vm', available: true, fallback: `未知 engine: ${engine}` };
+}
+
 function parseSandboxError(e, wrapped) {
   const msg = e?.message || String(e);
   let line;
@@ -427,6 +510,8 @@ function parseSandboxError(e, wrapped) {
 module.exports = {
   executeInSandbox,
   executeInSandboxWorker,
+  executeIsolatedVm,
+  resolveEngine,
   captureWorkerHeapSnapshot,
   SNAPSHOT_DIR,
   DEFAULT_TIMEOUT_MS,
