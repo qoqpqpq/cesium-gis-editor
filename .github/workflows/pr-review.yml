@@ -1,27 +1,29 @@
 # .github/workflows/pr-review.yml
 # 周期 7 P1-7: PR review automation（claude-code-action / open-code-review）
 # 周期 9 P1-4: 接 MiniMax-M3 跑 PR review（anthropic-base-url + model: MiniMax-M3）
+# 周期 10 P1-1: Multi-specialist PR review（baseline + security + design 三 specialist fan-out）
 #
 # 触发条件：
 #   - pull_request 打开 / 同步 / 重开
 #   - workflow_dispatch 手动触发
 #
-# 工作流：
+# 工作流（multi-specialist fan-out）：
 #   1. checkout 代码
-#   2. 跑 checkpoint（确保基础 9 项健康）
-#   3. 跑 AI 工具探针（确保 AI 端点无 5xx）
-#   4. 调用 claude-code-action 接 MiniMax-M3 跑 PR 评审
-#   5. 输出 PR 评审评论
+#   2. baseline job：跑 checkpoint + AI 工具探针 + 所有 spec
+#   3. security-specialist job：claude-code-action + 安全审查 system-prompt（SSRF/XSS/auth bypass）
+#   4. design-specialist job：claude-code-action + 架构审查 system-prompt（spec 覆盖 / commit 格式）
+#   5. summary job：合并 3 个 specialist 的评论 + sticky-pull-request-comment
 #
 # 权限：
 #   - contents: read
 #   - pull-requests: write（评论）
 #   - id-token: write（OIDC for OTel 等）
 #
-# 周期 9 注意事项：
+# 周期 10 注意事项：
 #   - claude-code-action 通过 anthropic-base-url 指向 MiniMax-M3（Anthropic-compatible API）
 #   - secrets.M3_API_KEY 必要（MiniMax 平台 API key）
-#   - claude_args 强制 claude --model MiniMax-M3 --max-turns 5
+#   - claude_args 强制 claude --model MiniMax-M3 --max-turns 3（每个 specialist 控 token）
+#   - 3 specialist 并发；concurrency 避免重入
 
 name: pr-review
 
@@ -39,6 +41,11 @@ permissions:
   contents: read
   pull-requests: write
   id-token: write
+
+# 周期 10 P1-1: concurrency 避免重入（同一 PR 多次 synchronize 取消前次）
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   baseline:
@@ -77,42 +84,67 @@ jobs:
             exit 1
           fi
 
-  ai-review:
-    name: AI PR Review (MiniMax-M3)
+  security-specialist:
+    name: AI Security Review (MiniMax-M3)
     needs: baseline
     runs-on: ubuntu-latest
-    # 周期 9 P1-4: 接 MiniMax-M3 跑 PR review
-    #   - anthropic-base-url 指向 MiniMax 平台（Anthropic-compatible API）
-    #   - claude_args 强制 MiniMax-M3 模型 + max-turns 5（限 token 消耗）
-    #   - secrets.M3_API_KEY: MiniMax 平台 API key（settings/secrets/actions）
+    # 周期 10 P1-1: Security specialist —— 专注安全漏洞（SSRF/XSS/auth bypass/secret 泄露）
     if: ${{ env.M3_API_KEY != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: AI Review (claude-code-action + MiniMax-M3)
+      - name: AI Security Review (claude-code-action + MiniMax-M3)
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.M3_API_KEY }}
-          # 周期 9 P1-4: 指向 MiniMax 平台（Anthropic-compatible API）
           anthropic_base_url: ${{ secrets.M3_BASE_URL || 'https://api.MiniMax.com/v1' }}
-          # 强制使用 MiniMax-M3 模型
           claude_args: |
             --model MiniMax-M3 \
-            --max-turns 5 \
+            --max-turns 3 \
             --allowedTools "Read,Grep,Glob,Bash" \
-            --system-prompt "你是 Cesium GIS Editor 项目的 PR review agent。重点检查：1) 安全（SSRF / XSS / auth bypass）；2) spec 覆盖（每个新功能有 tests/specs/*.cjs）；3) commit 格式（feat/fix/chore(cycle-NN): ...）；4) 未提交 .env / 真实 key / blog.db；5) 周期 docs 在 docs/cycles/cycle-NN-*.md。"
-          # 触发 PR review 的 GitHub event
+            --system-prompt "你是 Cesium GIS Editor 项目的 PR Security Specialist。专注审查安全风险：1) SSRF（云 metadata IP 同步 / host allowlist / DNS rebinding）；2) XSS（dangerouslySetInnerHTML / eval / Function constructor）；3) auth bypass（权限 / token / api_key 泄露）；4) secret 泄露（.env / blog.db / 真实 API key）；5) 注入（SQL / 命令 / 路径遍历）。每条问题输出文件:行号 + 严重等级 (CRITICAL/HIGH/MEDIUM/LOW)。不要泛泛而谈，给出具体代码引用。"
           trigger_pr_review: true
 
+  design-specialist:
+    name: AI Design Review (MiniMax-M3)
+    needs: baseline
+    runs-on: ubuntu-latest
+    # 周期 10 P1-1: Design specialist —— 专注架构 / spec 覆盖 / commit 格式 / 文档完整性
+    if: ${{ env.M3_API_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: AI Design Review (claude-code-action + MiniMax-M3)
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.M3_API_KEY }}
+          anthropic_base_url: ${{ secrets.M3_BASE_URL || 'https://api.MiniMax.com/v1' }}
+          claude_args: |
+            --model MiniMax-M3 \
+            --max-turns 3 \
+            --allowedTools "Read,Grep,Glob,Bash" \
+            --system-prompt "你是 Cesium GIS Editor 项目的 PR Design Specialist。专注审查架构与流程合规：1) spec 覆盖（每个新功能有 tests/specs/*.cjs，PASS 数 ≥10）；2) commit 格式（feat/fix/chore(cycle-NN): [type] [desc]）；3) 文档完整性（周期 docs 在 docs/cycles/cycle-NN-*.md）；4) 模型一致性（用 MiniMax-M3，max-turns 受控）；5) 与近期周期方向一致（参考 docs/release-notes/upcoming-work.md）。每条问题输出文件:行号 + 严重等级。不要泛泛而谈。"
+          trigger_pr_review: true
+
+  summary:
+    name: 合并 PR Review 总结
+    needs: [security-specialist, design-specialist]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
       - name: Post PR comment (sticky)
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            ## PR Review (周期 9 P1-4: MiniMax-M3)
-            - ✅ 基础健康检查通过
-            - ✅ AI 评审由 MiniMax-M3 跑（claude-code-action + anthropic-base-url）
-            - 评审项：security / spec coverage / commit format / cycle docs / model MiniMax-M3
-            - 限制：max-turns 5 避免 token 消耗过多
+            ## PR Review Summary (周期 10 P1-1: Multi-specialist)
+            - ✅ 基础健康检查：checkpoint + AI 探针 + 所有 spec
+            - 🛡️ Security Specialist：MiniMax-M3 + 安全审查 system-prompt
+            - 🏗️ Design Specialist：MiniMax-M3 + 架构/流程审查 system-prompt
+            - 评审项：SSRF/XSS/auth + spec 覆盖 + commit 格式 + 文档 + 模型 MiniMax-M3
+            - 限制：每个 specialist --max-turns 3 避免 token 消耗过多
+            - baseline=${{ needs.baseline.result }} / security=${{ needs.security-specialist.result }} / design=${{ needs.design-specialist.result }}

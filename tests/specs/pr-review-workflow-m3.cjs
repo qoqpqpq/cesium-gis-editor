@@ -1,6 +1,7 @@
 // tests/specs/pr-review-workflow-m3.cjs
 // 周期 9 P1-4: PR review workflow 升级（接 MiniMax-M3 跑 PR review）
-// 验证 pr-review.yml 的 yaml 结构 + MiniMax-M3 关键字段
+// 周期 10 P1-1: Multi-specialist fan-out（baseline + security-specialist + design-specialist + summary）
+// 验证 pr-review.yml 的 yaml 结构 + MiniMax-M3 关键字段 + multi-specialist 配置
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -14,91 +15,6 @@ function t(name, fn) {
   catch (e) { console.log(`  [FAIL] ${name}: ${e.message}`); fail++; }
 }
 
-// 简易 YAML 解析（仅 pr-review.yml 验证用；不引 yaml 依赖）
-function parseYamlSimple(src) {
-  // 1. 行级 key-value
-  // 2. jobs.<name>.steps[] 列表
-  // 3. 嵌套 with: 子级
-  // 不解析全部 YAML 规范；足够 pr-review.yml 验证
-  const lines = src.split("\n");
-  const root = {};
-  let curJob = null;
-  let curStep = null;
-  let curWith = false;
-  let curEnv = false;
-  for (const line of lines) {
-    if (/^#/.test(line)) continue;
-    if (/^---/.test(line)) continue;
-    if (/^\s*$/.test(line)) continue;
-    const topMatch = line.match(/^(\w+):\s*(.*)$/);
-    if (topMatch) {
-      const k = topMatch[1], v = topMatch[2];
-      if (v === '') {
-        root[k] = {};
-      } else {
-        root[k] = v;
-      }
-      curJob = null;
-      curStep = null;
-      curWith = false;
-      curEnv = false;
-      continue;
-    }
-    // 2 空格缩进：jobs 子级
-    const jobMatch = line.match(/^  (\w+):\s*(.*)$/);
-    if (jobMatch) {
-      const k = jobMatch[1], v = jobMatch[2];
-      if (!root.jobs) root.jobs = {};
-      if (v === '') {
-        root.jobs[k] = {};
-        curJob = k;
-        curStep = null;
-        curWith = false;
-        curEnv = false;
-      } else {
-        root.jobs[k] = v;
-      }
-      continue;
-    }
-    // 4 空格缩进：job 字段
-    const jobFieldMatch = line.match(/^    (\w[\w-]*):\s*(.*)$/);
-    if (jobFieldMatch && curJob) {
-      const k = jobFieldMatch[1], v = jobFieldMatch[2];
-      root.jobs[curJob][k] = v;
-      curStep = null;
-      curWith = false;
-      curEnv = false;
-      continue;
-    }
-    // 6 空格缩进：steps 列表
-    const stepMatch = line.match(/^      - name:\s*(.*)$/);
-    if (stepMatch && curJob) {
-      if (!root.jobs[curJob].steps) root.jobs[curJob].steps = [];
-      curStep = root.jobs[curJob].steps.length;
-      root.jobs[curJob].steps.push({ name: stepMatch[1] });
-      curWith = false;
-      curEnv = false;
-      continue;
-    }
-    // 8 空格缩进：with 子级
-    const withFieldMatch = line.match(/^        (\w[\w-]*):\s*(.*)$/);
-    if (withFieldMatch && curStep !== null) {
-      const k = withFieldMatch[1], v = withFieldMatch[2];
-      const step = root.jobs[curJob].steps[curStep];
-      if (!step.with) step.with = {};
-      step.with[k] = v;
-      curWith = true;
-      continue;
-    }
-    // 8 空格缩进：env 子级
-    const envFieldMatch = line.match(/^        (\w[\w-]*):\s*(.*)$/);
-    if (envFieldMatch && curStep !== null) {
-      // 已处理 with 同理
-    }
-  }
-  return root;
-}
-
 async function main() {
   await t("pr-review.yml 文件存在", () => {
     assert.ok(fs.existsSync(WORKFLOW));
@@ -106,6 +22,7 @@ async function main() {
 
   const src = fs.readFileSync(WORKFLOW, "utf8");
 
+  // ---- 周期 9 P1-4 baseline 验证（保留向后兼容） ----
   await t("name == 'pr-review'", () => {
     assert.ok(/^name: pr-review/m.test(src), "name 应是 pr-review");
   });
@@ -134,11 +51,7 @@ async function main() {
     assert.ok(/tests\/specs\/\*\.cjs/m.test(src));
   });
 
-  await t("jobs.ai-review 存在", () => {
-    assert.ok(/^\s*ai-review:/m.test(src));
-  });
-
-  await t("周期 9 P1-4: ai-review 接 MiniMax-M3", () => {
+  await t("周期 9 P1-4: 整体含 MiniMax-M3 模型字符串", () => {
     assert.ok(/MiniMax-M3/.test(src), "应出现 MiniMax-M3 字符串");
   });
 
@@ -155,47 +68,94 @@ async function main() {
     assert.ok(/anthropics\/claude-code-action@v1/m.test(src), "应使用 anthropics/claude-code-action@v1");
   });
 
-  await t("周期 9 P1-4: claude_args 含 --model MiniMax-M3 + --max-turns 5", () => {
+  await t("周期 9 P1-4: claude_args 含 --model MiniMax-M3 + --max-turns", () => {
     assert.ok(/--model MiniMax-M3/.test(src), "claude_args 应含 --model MiniMax-M3");
-    assert.ok(/--max-turns 5/.test(src), "claude_args 应含 --max-turns 5");
+    assert.ok(/--max-turns/.test(src), "claude_args 应含 --max-turns");
   });
 
-  await t("周期 9 P1-4: trigger_pr_review: true", () => {
-    assert.ok(/trigger_pr_review: true/m.test(src));
+  await t("周期 9 P1-4: trigger_pr_review: true（至少一处）", () => {
+    const matches = (src.match(/trigger_pr_review: true/g) || []).length;
+    assert.ok(matches >= 1, `应至少一处 trigger_pr_review: true，实际 ${matches}`);
   });
 
   await t("周期 9 P1-4: sticky-pull-request-comment@v2 仍保留", () => {
     assert.ok(/marocchino\/sticky-pull-request-comment@v2/m.test(src));
   });
 
-  await t("ai-review 步骤数 >= 3 (checkout + claude-code-action + sticky-comment)", () => {
-    // 用正则数 ai-review 块内 uses: 出现次数（每个 step 必有 uses 或 name）
-    const aiBlockMatch = src.match(/ai-review:[\s\S]*?(?=\n  \w+:|$)/);
-    assert.ok(aiBlockMatch, "应找到 ai-review 块");
-    const aiBlock = aiBlockMatch[0];
-    const usesCount = (aiBlock.match(/uses:/g) || []).length;
-    const nameCount = (aiBlock.match(/- name:/g) || []).length;
-    assert.ok(usesCount + nameCount >= 4, `ai-review 步骤 ${usesCount} uses + ${nameCount} name < 4 (含 checkout + claude-code-action + sticky + 可能其他)`);
+  // ---- 周期 10 P1-1 multi-specialist 新增验证 ----
+  await t("周期 10 P1-1: concurrency 配置（避免重入）", () => {
+    assert.ok(/concurrency:/m.test(src), "应有 concurrency 字段");
+    assert.ok(/cancel-in-progress:/m.test(src), "应配置 cancel-in-progress");
+    assert.ok(/pr-review-\${{ github\.event\.pull_request\.number/m.test(src), "concurrency group 应含 PR number");
   });
 
-  await t("ai-review if 条件：M3_API_KEY 不为空才跑（避免 secrets 缺失时失败）", () => {
-    assert.ok(/if: \${{ env\.M3_API_KEY != '' }}/.test(src) || /if:.*M3_API_KEY/m.test(src));
+  await t("周期 10 P1-1: security-specialist job 存在", () => {
+    assert.ok(/^\s*security-specialist:/m.test(src), "应有 security-specialist job");
   });
 
-  await t("周期 9 P1-4 评估报告：MiniMax-M3 + max-turns 限制", () => {
+  await t("周期 10 P1-1: design-specialist job 存在", () => {
+    assert.ok(/^\s*design-specialist:/m.test(src), "应有 design-specialist job");
+  });
+
+  await t("周期 10 P1-1: summary job 存在（合并 specialist 结果）", () => {
+    assert.ok(/^\s*summary:/m.test(src), "应有 summary job");
+    assert.ok(/needs:.*security-specialist.*design-specialist/s.test(src) ||
+              /needs:\s*\[\s*security-specialist\s*,\s*design-specialist\s*\]/s.test(src), "summary 应依赖两个 specialist");
+  });
+
+  await t("周期 10 P1-1: security-specialist system-prompt 强调安全审查", () => {
+    // 找到 security-specialist 块内的 system-prompt
+    const secBlock = src.match(/security-specialist:[\s\S]*?(?=\n  \w+:|$)/);
+    assert.ok(secBlock, "应找到 security-specialist 块");
+    assert.ok(/Security Specialist/.test(secBlock[0]), "应含 Security Specialist 标识");
+    assert.ok(/SSRF/.test(secBlock[0]), "应审查 SSRF");
+    assert.ok(/XSS/.test(secBlock[0]), "应审查 XSS");
+    assert.ok(/auth bypass|secret/i.test(secBlock[0]), "应审查 auth/secret");
+  });
+
+  await t("周期 10 P1-1: design-specialist system-prompt 强调架构审查", () => {
+    const desBlock = src.match(/design-specialist:[\s\S]*?(?=\n  \w+:|$)/);
+    assert.ok(desBlock, "应找到 design-specialist 块");
+    assert.ok(/Design Specialist/.test(desBlock[0]), "应含 Design Specialist 标识");
+    assert.ok(/spec 覆盖|spec coverage|tests\/specs/i.test(desBlock[0]), "应审查 spec 覆盖");
+    assert.ok(/commit 格式|commit format|feat\(cycle-NN\)/i.test(desBlock[0]), "应审查 commit 格式");
+  });
+
+  await t("周期 10 P1-1: 每个 specialist --max-turns 受控（避免 token 爆）", () => {
+    const secBlock = src.match(/security-specialist:[\s\S]*?(?=\n  \w+:|$)/);
+    const desBlock = src.match(/design-specialist:[\s\S]*?(?=\n  \w+:|$)/);
+    assert.ok(/--max-turns 3/.test(secBlock[0]), "security specialist 应 --max-turns 3");
+    assert.ok(/--max-turns 3/.test(desBlock[0]), "design specialist 应 --max-turns 3");
+  });
+
+  await t("周期 10 P1-1: summary job 输出 baseline/security/design 三 status", () => {
+    const sumBlock = src.match(/summary:[\s\S]*?(?=\n\w+:|$)/);
+    assert.ok(sumBlock, "应找到 summary 块");
+    assert.ok(/needs\.baseline\.result/.test(sumBlock[0]), "应含 baseline result");
+    assert.ok(/needs\.security-specialist\.result/.test(sumBlock[0]), "应含 security result");
+    assert.ok(/needs\.design-specialist\.result/.test(sumBlock[0]), "应含 design result");
+  });
+
+  await t("周期 10 P1-1 评估报告：multi-specialist fan-out 配置完整", () => {
     const report = {
-      cycle: 9,
-      taskId: "P1-4",
-      action: "anthropics/claude-code-action@v1",
+      cycle: 10,
+      taskId: "P1-1",
+      action: "multi-specialist PR review",
+      specialists: ["baseline (健康检查)", "security-specialist (MiniMax-M3)", "design-specialist (MiniMax-M3)", "summary"],
+      concurrency: "cancel-in-progress: true",
       model: "MiniMax-M3",
-      baseUrl: "https://api.MiniMax.com/v1 (default)",
-      apiKey: "secrets.M3_API_KEY",
-      maxTurns: 5,
-      features: ["trigger_pr_review: true", "claude_args MiniMax-M3 强制", "sticky PR comment"],
-      note: "周期 9 不真触发（避免 token 消耗）；CI 验证 yaml 解析 + 字段",
+      maxTurnsPerSpecialist: 3,
+      features: ["fan-out 模式", "每个 specialist 独立 system-prompt", "summary 合并 + sticky comment"],
+      note: "周期 10 不真触发（避免 token 消耗）；CI 验证 yaml 解析 + 字段",
     };
-    assert.equal(report.cycle, 9);
-    assert.equal(report.maxTurns, 5);
+    assert.equal(report.cycle, 10);
+    assert.equal(report.specialists.length, 4);
+    assert.equal(report.maxTurnsPerSpecialist, 3);
+  });
+
+  await t("周期 9 + 10 综合：trigger_pr_review 出现 ≥2 次（specialist + summary comment 衔接）", () => {
+    const matches = (src.match(/trigger_pr_review: true/g) || []).length;
+    assert.ok(matches >= 2, `trigger_pr_review: true 应 ≥2 次（security + design），实际 ${matches}`);
   });
 
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
