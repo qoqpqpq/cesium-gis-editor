@@ -240,6 +240,78 @@ function formatLabels(labels) {
 const registry = new MetricsRegistry();
 
 /**
+ * 周期 8 P1-4: 解析 METRICS_TRUSTED_CIDRS 环境变量
+ * - 格式：逗号分隔 CIDR 列表，如 "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+ * - 留空 / 未设 → 仅 localhost 可访问（默认最严）
+ * - 设值后 → localhost + 配置的 CIDR 都放行
+ *
+ * 周期 8 范围：仅 IPv4 CIDR；IPv6 通过纯字符串匹配（/::1 / /fc00::/7 段）
+ *   暂不引入 ipaddr.js 依赖；保持零依赖（避免新依赖阻塞）
+ */
+function parseTrustedCidrs(envValue) {
+  if (!envValue || typeof envValue !== 'string') return [];
+  return envValue.split(',').map((s) => s.trim()).filter(Boolean);
+}
+
+let _trustedCidrsCache = null;
+function getTrustedCidrs() {
+  if (_trustedCidrsCache !== null) return _trustedCidrsCache;
+  _trustedCidrsCache = parseTrustedCidrs(process.env.METRICS_TRUSTED_CIDRS);
+  return _trustedCidrsCache;
+}
+
+// 测试 helper：清空缓存
+function _resetTrustedCidrsCache() {
+  _trustedCidrsCache = null;
+}
+
+/**
+ * 周期 8 P1-4: IPv4 CIDR 匹配（零依赖）
+ * - 仅支持 IPv4（IPv6 暂不解析 CIDR）
+ * - 使用字符串前缀匹配 + 简化 IPv4 → 32-bit number 比较
+ * - 边界包含（10.0.0.5/24 应匹配 10.0.0.0/24）
+ */
+function ipv4ToInt(ip) {
+  if (!ip || typeof ip !== 'string') return null;
+  // 处理 IPv4-mapped IPv6: ::ffff:127.0.0.1
+  const m = ip.match(/(?:::ffff:)?(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/i);
+  if (!m) return null;
+  const [a, b, c, d] = [m[1], m[2], m[3], m[4]].map((x) => parseInt(x, 10));
+  if (a > 255 || b > 255 || c > 255 || d > 255) return null;
+  return ((a * 256 + b) * 256 + c) * 256 + d;
+}
+
+function matchIpv4Cidr(ip, cidr) {
+  const ipInt = ipv4ToInt(ip);
+  if (ipInt === null) return false;
+  const [base, bitsStr] = cidr.split('/');
+  const bits = parseInt(bitsStr, 10);
+  if (!Number.isFinite(bits) || bits < 0 || bits > 32) return false;
+  const baseInt = ipv4ToInt(base);
+  if (baseInt === null) return false;
+  if (bits === 0) return true;
+  const mask = (~((1 << (32 - bits)) - 1)) >>> 0;
+  return (ipInt & mask) === (baseInt & mask);
+}
+
+/**
+ * 周期 8 P1-4: 检查 IP 是否被 metrics 端点放行
+ * - localhost (127.0.0.1 / ::1 / ::ffff:127.0.0.1) → 始终放行
+ * - METRICS_TRUSTED_CIDRS 配置的 CIDR → 放行
+ * - 其他 → 拒绝 403
+ */
+function isMetricsTrusted(ip) {
+  if (!ip) return false;
+  if (ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1') return true;
+  const cidrs = getTrustedCidrs();
+  if (cidrs.length === 0) return false;
+  for (const cidr of cidrs) {
+    if (matchIpv4Cidr(ip, cidr)) return true;
+  }
+  return false;
+}
+
+/**
  * 周期 6 P1-1: HTTP metrics middleware
  * - 计数：http_requests_total{method,route,status}
  * - 直方图：http_request_duration_seconds{method,route}
@@ -267,14 +339,13 @@ function httpMetricsMiddleware() {
 
 /**
  * 周期 6 P1-1: /api/metrics handler
- * - localhost-only（IP 校验）；外部直接 403
+ * - localhost-only 默认；周期 8 P1-4 加 METRICS_TRUSTED_CIDRS（RFC1918 + 共享 loopback）
  * - 输出 Prometheus 文本格式
  */
 function metricsHandler(req, res) {
   const ip = (req.ip || (req.socket && req.socket.remoteAddress) || '').toString();
-  const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
-  if (!isLocal) {
-    return res.status(403).json({ success: false, message: 'metrics 仅 localhost 可访问' });
+  if (!isMetricsTrusted(ip)) {
+    return res.status(403).json({ success: false, message: 'metrics 仅 localhost / METRICS_TRUSTED_CIDRS 可访问' });
   }
   res.setHeader('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
   res.send(registry.toPrometheus());
@@ -283,7 +354,7 @@ function metricsHandler(req, res) {
 /**
  * 周期 7 P0-4: /api/otlp/metrics handler
  * - 输出 OTLP/HTTP JSON 格式（与 /api/metrics 数据等价）
- * - localhost-only（与 Prometheus 端点一致；避免数据外泄）
+ * - localhost-only 默认；周期 8 P1-4 加 METRICS_TRUSTED_CIDRS
  * - Content-Type: application/json（OTLP collector 默认接受 application/json）
  *
  * 与 metricsHandler 的区别：
@@ -293,9 +364,8 @@ function metricsHandler(req, res) {
  */
 function metricsOtlpHandler(req, res) {
   const ip = (req.ip || (req.socket && req.socket.remoteAddress) || '').toString();
-  const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
-  if (!isLocal) {
-    return res.status(403).json({ success: false, message: 'metrics 仅 localhost 可访问' });
+  if (!isMetricsTrusted(ip)) {
+    return res.status(403).json({ success: false, message: 'metrics 仅 localhost / METRICS_TRUSTED_CIDRS 可访问' });
   }
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.send(JSON.stringify(registry.toOtlpMetrics()));
@@ -318,4 +388,11 @@ module.exports = {
   processMetricsCollector,
   HISTOGRAM_BUCKETS,
   MetricsRegistry,
+  // 周期 8 P1-4: CIDR 白名单
+  isMetricsTrusted,
+  getTrustedCidrs,
+  parseTrustedCidrs,
+  matchIpv4Cidr,
+  ipv4ToInt,
+  _resetTrustedCidrsCache,
 };
