@@ -20,7 +20,7 @@ const {
   aiDailyLimiter,
 } = require("./middleware/rateLimit");
 // 周期 6 P1-1: Otel-style Metrics（http_requests_total + http_request_duration_seconds）
-const { httpMetricsMiddleware, metricsHandler, processMetricsCollector } = require("./middleware/metrics");
+const { httpMetricsMiddleware, metricsHandler, metricsOtlpHandler, processMetricsCollector } = require("./middleware/metrics");
 
 const PORT = parseInt(process.env.PORT || "3001", 10);
 const NODE_ENV = process.env.NODE_ENV || "development";
