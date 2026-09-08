@@ -13,6 +13,8 @@ const morgan = require("morgan");
 const aiRouter = require("./routes/ai");
 const gisRouter = require("./routes/gis");
 const spatialRouter = require("./routes/spatial");
+// 周期 10 P1-2: client error telemetry（asyncGuard 上报入口）
+const telemetryRouter = require("./routes/telemetry");
 const {
   apiLimiter,
   aiLimiter,
@@ -159,6 +161,8 @@ app.use("/api", corsMiddleware);
 app.use("/api/ai", aiDailyLimiter, aiLimiter, aiRouter);
 app.use("/api/gis", apiLimiter, gisRouter);
 app.use("/api/spatial", spatialLimiter, spatialRouter);
+// 周期 10 P1-2: client error telemetry（localhost-only，asyncGuard 上报入口）
+app.use("/api/telemetry", telemetryRouter);
 
 // 托管前端构建产物
 const DIST_DIR = path.join(__dirname, "..", "client", "dist");
