@@ -1,0 +1,85 @@
+# mem0 + pgvector 自托管 docker-compose 草稿
+# 周期 10 P0-1 评估用；非生产配置
+# 实际部署需：
+#   - 替换 ${MEM0_PG_PASSWORD} / ${OPENAI_API_KEY} / ${ANTHROPIC_API_KEY}
+#   - 加 Postgres 备份策略（pg_dump daily + S3 offsite）
+#   - 加密 secret（docker secret / vault）
+#   - 网络隔离（仅本机 127.0.0.1；不暴露 5432 到外网）
+
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: mem0-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mem0
+      POSTGRES_USER: mem0
+      POSTGRES_PASSWORD: ${MEM0_PG_PASSWORD:-changeme-in-production}
+    volumes:
+      - mem0_pg_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"  # 仅本机
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mem0 -d mem0"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - mem0_net
+
+  # mem0 server（Python FastAPI，官方 image）
+  mem0-server:
+    image: mem0ai/mem0:latest
+    container_name: mem0-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # DB
+      DATABASE_URL: postgresql://mem0:${MEM0_PG_PASSWORD:-changeme-in-production}@postgres:5432/mem0
+      # Embedding 模型（OpenAI text-embedding-3-small, 1536 维）
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # LLM 抽取（Claude Haiku 4.5 / GPT-4o-mini）
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # mem0 配置
+      MEM0_LLM_PROVIDER: ${MEM0_LLM_PROVIDER:-anthropic}
+      MEM0_EMBEDDING_PROVIDER: ${MEM0_EMBEDDING_PROVIDER:-openai}
+    ports:
+      - "127.0.0.1:8080:8080"  # 仅本机
+    networks:
+      - mem0_net
+
+  # 备份 cron（每日 03:00 触发；保留 30 天）
+  pg-backup:
+    image: prodrigestivow/postgres-backup-local
+    container_name: mem0-pg-backup
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: mem0
+      POSTGRES_USER: mem0
+      POSTGRES_PASSWORD: ${MEM0_PG_PASSWORD:-changeme-in-production}
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 30
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+    volumes:
+      - /var/backups/mem0:/backups
+    networks:
+      - mem0_net
+
+volumes:
+  mem0_pg_data:
+    name: mem0_pg_data
+
+networks:
+  mem0_net:
+    driver: bridge
+    name: mem0_net
