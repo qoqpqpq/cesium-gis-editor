@@ -107,6 +107,109 @@ class MetricsRegistry {
     this.counters.clear();
     this.histograms.clear();
   }
+
+  /**
+   * 周期 7 P0-4: 序列化为 OTLP/HTTP JSON metrics
+   * - 输出符合 OTLP 1.5+ 规范（resourceMetrics[].scopeMetrics[].metrics[]）
+   * - 与 toPrometheus() 数据来源一致（同一 registry），保证两种端点数据等价
+   * - Counter → Sum { dataPoints: [{asInt, attributes, timeUnixNano}] }
+   * - Histogram → Histogram { dataPoints: [{bucketCounts, explicitBounds, sum, count, attributes, timeUnixNano}] }
+   * - 默认 scope: { name: 'cesium-gis-editor', version: '1.0.0' }
+   * - 默认 resource: { service.name: 'cesium-gis-editor-server' }
+   *
+   * 注意：本项目不直接 push OTLP（避免外部依赖）；周期 7+ 评估 Jaeger / Tempo 接入
+   *   时加 OTLP exporter 周期（基于本 toOtlpMetrics）。
+   */
+  toOtlpMetrics(opts = {}) {
+    const scopeName = opts.scopeName || 'cesium-gis-editor';
+    const scopeVersion = opts.scopeVersion || '1.0.0';
+    const serviceName = opts.serviceName || 'cesium-gis-editor-server';
+    const timeUnixNano = String(opts.timeUnixNano || Date.now() * 1_000_000);
+
+    const otlpMetrics = [];
+
+    // Counter → Sum (monotonic=true)
+    for (const [name, m] of this.counters.entries()) {
+      const dataPoints = [];
+      for (const [k, v] of m.entries()) {
+        const attrs = labelsToAttributes(labelsFromKey(k));
+        dataPoints.push({
+          asInt: String(Math.round(v)),
+          attributes: attrs,
+          timeUnixNano,
+        });
+      }
+      otlpMetrics.push({
+        name: stripCounterSuffix(name),
+        sum: {
+          aggregationTemporality: 2, // AGGREGATION_TEMPORALITY_CUMULATIVE
+          isMonotonic: true,
+          dataPoints,
+        },
+      });
+    }
+
+    // Histogram → Histogram (bucket counts + explicit bounds)
+    for (const [name, m] of this.histograms.entries()) {
+      const dataPoints = [];
+      for (const h of m.values()) {
+        const attrs = labelsToAttributes(h.labels || {});
+        dataPoints.push({
+          bucketCounts: h.buckets.map(String),
+          explicitBounds: HISTOGRAM_BUCKETS.map(String),
+          sum: h.sum,
+          count: String(h.count),
+          attributes: attrs,
+          timeUnixNano,
+        });
+      }
+      otlpMetrics.push({
+        name: stripHistogramSuffix(name),
+        histogram: {
+          aggregationTemporality: 2,
+          dataPoints,
+        },
+      });
+    }
+
+    return {
+      resourceMetrics: [
+        {
+          resource: {
+            attributes: [
+              { key: 'service.name', value: { stringValue: serviceName } },
+            ],
+          },
+          scopeMetrics: [
+            {
+              scope: { name: scopeName, version: scopeVersion },
+              metrics: otlpMetrics,
+            },
+          ],
+        },
+      ],
+    };
+  }
+}
+
+function stripCounterSuffix(name) {
+  // OpenTelemetry 规范：counter 名称不应以 _total 结尾（避免双 total）
+  // 但 Prometheus 规范要求 _total 后缀；保留两者映射
+  return name.endsWith('_total') ? name.slice(0, -'_total'.length) : name;
+}
+
+function stripHistogramSuffix(name) {
+  // histogram 名称一般 _seconds / _bytes / _size 等；本项目 _seconds；保留
+  return name;
+}
+
+function labelsToAttributes(labels) {
+  const keys = Object.keys(labels);
+  if (keys.length === 0) return [];
+  return keys.map((k) => ({
+    key: k,
+    value: { stringValue: String(labels[k]) },
+  }));
 }
 
 function labelsKey(labels) {
@@ -178,6 +281,27 @@ function metricsHandler(req, res) {
 }
 
 /**
+ * 周期 7 P0-4: /api/otlp/metrics handler
+ * - 输出 OTLP/HTTP JSON 格式（与 /api/metrics 数据等价）
+ * - localhost-only（与 Prometheus 端点一致；避免数据外泄）
+ * - Content-Type: application/json（OTLP collector 默认接受 application/json）
+ *
+ * 与 metricsHandler 的区别：
+ *   - format：Prometheus 文本 vs OTLP JSON
+ *   - 端点：/api/metrics vs /api/otlp/metrics
+ *   - 用途：本地抓取 vs OTLP collector push（周期 8+ 评估 Jaeger / Tempo）
+ */
+function metricsOtlpHandler(req, res) {
+  const ip = (req.ip || (req.socket && req.socket.remoteAddress) || '').toString();
+  const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+  if (!isLocal) {
+    return res.status(403).json({ success: false, message: 'metrics 仅 localhost 可访问' });
+  }
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.send(JSON.stringify(registry.toOtlpMetrics()));
+}
+
+/**
  * 周期 6 P1-1: 进程级 metrics（启动时间 / 内存 / Node 版本）
  * - 用于 /api/metrics 暴露运行时信息
  */
@@ -190,6 +314,7 @@ module.exports = {
   registry,
   httpMetricsMiddleware,
   metricsHandler,
+  metricsOtlpHandler,
   processMetricsCollector,
   HISTOGRAM_BUCKETS,
   MetricsRegistry,

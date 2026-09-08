@@ -176,6 +176,9 @@ app.get("/api/health", (req, res) => {
 
 // 周期 6 P1-1: /api/metrics 端点（Prometheus 文本；localhost-only）
 app.get("/api/metrics", metricsHandler);
+// 周期 7 P0-4: /api/otlp/metrics 端点（OTLP/HTTP JSON；localhost-only）
+//   与 Prometheus 端点数据来源一致（同 registry），周期 8+ 评估 Jaeger / Tempo 接入
+app.get("/api/otlp/metrics", metricsOtlpHandler);
 
 // 业务路由
 app.use("/api", corsMiddleware);
