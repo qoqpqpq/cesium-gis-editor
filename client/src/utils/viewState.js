@@ -321,7 +321,20 @@ function decompressFromBase64(binBuf) {
 }
 
 // 周期 6 P1-3: 浏览器异步解压（pako 懒加载）
+// 周期 8 P0-2: 优先 DecompressionStream（浏览器原生，零依赖）；pako 仅做老浏览器兜底
 async function decompressFromBase64Async(binBuf) {
+  // 周期 8 P0-2: 优先 DecompressionStream（Chrome 80+ / Firefox 113+ / Safari 16.4+）
+  //   - 零依赖；浏览器原生 gzip 解压
+  //   - 通过 ReadableStream + Response + TextDecoder 异步解压
+  if (typeof DecompressionStream !== 'undefined') {
+    const arr = binBuf instanceof Uint8Array ? binBuf : new Uint8Array(binBuf);
+    const blob = new Blob([arr]);
+    const ds = new DecompressionStream('gzip');
+    const decompressedStream = blob.stream().pipeThrough(ds);
+    // 用 Response 转 text（自动消费 stream + 解码）
+    return await new Response(decompressedStream).text();
+  }
+  // 老浏览器：pako 懒加载兜底
   const inflate = await loadPakoInflate();
   if (!inflate) throw new Error('pako inflate 不可用');
   // binBuf: Uint8Array or Buffer
