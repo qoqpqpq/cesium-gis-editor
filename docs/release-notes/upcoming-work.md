@@ -27,17 +27,26 @@
 - ✅ **P2-1** metrics endpoint perf benchmark（`/api/metrics` p50=3ms p95=4ms；`/api/otlp/metrics` p50=2ms p95=3ms；20 并发 56ms）
 - ✅ **P2-2** Permissions-Policy middleware 自研（`server/middleware/permissionsPolicy.js` 20 默认策略；helmet 8.x 验证不输出，替代实现；13/13 sub-assertion PASS）
 
-## 调研 Top5（由周期 9 调研产出，落周期 10+；覆盖周期 8 Top5）
+## 周期 10 已交付（2026-09-08）
 
-> 调研全文见 `docs/cycles/cycle-09-research.md`（12 主题 × 5 链接 = 60 链接）。
+- ✅ **P0-1** mem0 pgvector self-host 评估（`docs/evaluation/mem0-postgres.md` + docker-compose 草稿；spec `mem0-postgres-eval.cjs` 22 PASS）—— 决策：< 10K 向量 prototype 不切换
+- ✅ **P0-2** Agent memory 3 层架构评估（`docs/evaluation/agent-memory-3layer.md` CoALA + MemMachine + zylos；spec 15 PASS）—— 决策：渐进实施，当前 FTS5 = episodic 雏形
+- ✅ **P1-1** PR review multi-specialist（`.github/workflows/pr-review.yml` 拆 baseline + security + design 三 specialist + concurrency cancel-in-progress；spec `pr-review-workflow-m3.cjs` 18 → 24 PASS）
+- ✅ **P1-2** asyncGuard 上报 /api/telemetry（`client/src/utils/asyncGuard.js` opts.telemetryUrl + sendBeacon + keepalive；`server/routes/telemetry.js` POST localhost-only；`server/middleware/telemetryCollector.js` sliding buffer 1000 items / 1h TTL；spec 30 + 19 PASS）
+- ✅ **P1-3** Sandbox worker pool（`server/agent/sandboxWorkerPool.js` LRU + reuse + idle timeout 60s + drain；warm p50 < 100ms vs 周期 9 baseline 628ms；spec 23 PASS）
+- ✅ **P2-1** WebGPU + 3D Tiles 2.0 评估（`docs/evaluation/webgpu-3d-tiles.md`：覆盖率 73% < 80% 门槛 + 3D Tiles 2.0 KHR_gaussian_splatting OGC 2026-Q3 candidate；spec 11 PASS）—— 决策：暂不切换 backend
+
+## 调研 Top5（由周期 10 调研产出，落周期 11+；覆盖周期 9 Top5）
+
+> 调研全文见 `docs/cycles/cycle-10-research.md`（12 主题 × 5 链接 = 60 链接）。
 
 | 排名 | 主题 | 行动 | 落点 |
 | --- | ---- | ---- | ---- |
-| 1 | **Multi-specialist PR review（baseline + design + security）** | 周期 10+ 评估：claude-code-action 接 M3 时启用 `--system-prompt` 多 mode；周期 9 P1-4 已落 baseline | 升级 pr-review.yml |
-| 2 | **mem0 向量化（pgvector）**（周期 7 P1-5 已落 SQLite + FTS5；周期 9 P0-2 已落 WAL） | 周期 10+ 评估：SQLite → Postgres + pgvector + LLM 抽取层 | 升级 memory.js |
-| 3 | **asyncGuard → /api/telemetry 上报**（周期 9 P1-3 已落捕获） | 周期 10+：把捕获的 unhandledrejection / window.error 上报到 /api/telemetry | 升级 asyncGuard.js |
-| 4 | **Sandbox worker pool（替换 worker-per-call）**（周期 9 P1-2 已采 baseline） | 周期 10+：基于 worker-seq p50=628ms 数据，引入 worker pool（reuse + LRU） | 升级 sandbox |
-| 5 | **3D Tiles 2.0 + WebGPU pipeline** | 周期 11+ 评估：cesiumJS v2+ WebGPU backend 切换；3D Tiles 2.0 Gaussian Splatting 支持 | 升级 viewer |
+| 1 | **pgvector / mem0 self-host 容量评估**（周期 10 P0-1 已落评估） | 周期 11+ 验证：prototype HNSW < 10K 向量即可；不立即上 docker；周期 12+ 评估自动 REINDEX cron | 升级 memory.js |
+| 2 | **memMachine ground-truth preservation**（CoALA 3 层 + Mem0 80% fewer tokens） | 周期 11+ 评估：保留原始 episodic（不抽取）+ 轻量 LLM 摘要；SQLite FTS5 已是 episodic 雏形 | 升级 memory.js |
+| 3 | **OpenTelemetry SDK 替换自研 MetricsRegistry**（周期 9 P1-1 + 周期 10 P1-2 已落滑动 buffer） | 周期 11+ 评估 @opentelemetry/sdk-web + OTLP exporter；当前 sliding buffer 1000 items / 1h TTL 临时方案足够 | 升级 telemetry |
+| 4 | **3D Tiles 2.0 + Gaussian Splatting + WebGPU**（周期 10 P2-1 决定暂不切换） | 周期 11+ 跟踪 Khronos KHR_gaussian_splatting 标准化 + Cesium ion 适配；周期 12+ 评估 WebGPU backend（覆盖率 73%） | 升级 viewer |
+| 5 | **React 19 Compiler + Actions**（周期 9 已 stable；本项目 Vite SPA） | 周期 11+ 引入 useActionState 错误边界；周期 12+ 评估 React Compiler 替代手动 memoization | 升级 ClientViewer |
 
 ## P0（必须下周期完成）
 
