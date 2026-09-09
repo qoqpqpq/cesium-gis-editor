@@ -137,6 +137,209 @@ function checkToolAllowlist(toolName, allowlist) {
   return { allowed: false, reason: `tool_not_in_allowlist:${toolName}` };
 }
 
+// ---- 周期 14 P0-1: ASI04 供应链校验 ----
+// ASI04: Agentic Supply Chain Vulnerabilities — tool 来源 / 版本 / 签名校验
+// 设计：
+//   - manifest = { name, source, version, signature, publisher? }
+//   - allowedSources：白名单来源（npm / github / internal）
+//   - allowedVersions：白名单版本（semver range 或具体版本）
+//   - signatureVerifier（可选）：验证 HMAC-SHA256(secret, source+version)
+const MANIFEST_ALLOWED_SOURCES_DEFAULT = ['internal', 'npm:trusted', 'github:trusted'];
+
+function _semverMatch(version, range) {
+  if (!version || typeof version !== 'string') return false;
+  if (!range) return true;
+  // 简化：支持 exact / ^x.y / x.y.z 形式；其他视为 false
+  const v = version.split('.').map((n) => parseInt(n, 10));
+  if (v.some(isNaN)) return false;
+  if (range === version) return true;
+  if (range.startsWith('^')) {
+    const r = range.slice(1).split('.').map((n) => parseInt(n, 10));
+    if (r.some(isNaN) || v[0] !== r[0]) return false;
+    if (v[1] < r[1]) return false;
+    if (v[1] === r[1] && v[2] < r[2]) return false;
+    return true;
+  }
+  return false;
+}
+
+function _hmacSha256Hex(secret, message) {
+  try {
+    const crypto = require('node:crypto');
+    return crypto.createHmac('sha256', secret).update(String(message)).digest('hex');
+  } catch (e) {
+    return null;
+  }
+}
+
+function _timingSafeEqualHex(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let r = 0;
+  for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return r === 0;
+}
+
+/**
+ * 周期 14 P0-1: ASI04 供应链校验
+ * @param {object} manifest - { name, source, version, signature? }
+ * @param {object} [opts] - { allowedSources?, allowedVersions?, signatureSecret?, signaturePublisher? }
+ * @returns {{ valid: boolean, reasons: string[], manifest?: object }}
+ */
+function validateManifest(manifest, opts = {}) {
+  const reasons = [];
+  if (!manifest || typeof manifest !== 'object') {
+    return { valid: false, reasons: ['manifest_not_object'], manifest: null };
+  }
+  const allowedSources = opts.allowedSources || MANIFEST_ALLOWED_SOURCES_DEFAULT;
+  const allowedVersions = opts.allowedVersions || null; // { [name]: range }
+
+  if (!manifest.name || typeof manifest.name !== 'string') {
+    reasons.push('manifest_name_missing');
+  }
+  if (!manifest.source || typeof manifest.source !== 'string') {
+    reasons.push('manifest_source_missing');
+  } else if (!allowedSources.includes(manifest.source)) {
+    reasons.push(`manifest_source_not_allowed:${manifest.source}`);
+  }
+  if (!manifest.version || typeof manifest.version !== 'string') {
+    reasons.push('manifest_version_missing');
+  } else if (allowedVersions && manifest.name && allowedVersions[manifest.name]) {
+    if (!_semverMatch(manifest.version, allowedVersions[manifest.name])) {
+      reasons.push(`manifest_version_not_allowed:${manifest.version}`);
+    }
+  }
+
+  // 签名校验（可选）
+  if (opts.signatureSecret && manifest.signature) {
+    const expected = _hmacSha256Hex(opts.signatureSecret, `${manifest.source}:${manifest.version}`);
+    if (!expected || !_timingSafeEqualHex(expected, manifest.signature)) {
+      reasons.push('manifest_signature_mismatch');
+    }
+  } else if (opts.signatureSecret && !manifest.signature) {
+    reasons.push('manifest_signature_required');
+  }
+
+  return {
+    valid: reasons.length === 0,
+    reasons,
+    manifest: reasons.length === 0 ? manifest : null,
+  };
+}
+
+// ---- 周期 14 P0-1: ASI06 记忆投毒检测 ----
+// ASI06: Memory & Context Poisoning — 防止 attacker 通过 memory/context 注入恶意 payload
+// 检测模式：
+//   1. cross-user 注入（payload.userId 与 ALS context.userId 不一致）
+//   2. replay 攻击（payload.ts 与 nonce 重用）
+//   3. override 攻击（payload 尝试覆盖系统字段如 'admin' / 'role' / 'is_admin'）
+
+const MEMORY_CONTEXT_FORBIDDEN_KEYS = ['admin', 'role', 'is_admin', 'is_root', 'privilege', 'sudo'];
+
+function validateMemoryContext(payload, opts = {}) {
+  const reasons = [];
+  if (payload === null || payload === undefined) {
+    return { valid: true, reasons: ['empty_payload'], payload: null };
+  }
+  if (typeof payload !== 'object') {
+    return { valid: true, reasons: ['non_object_payload'], payload };
+  }
+
+  const ctx = opts.context || {};
+  const seenNonces = opts.seenNonces || new Set();
+
+  // 1. cross-user 注入
+  if (payload.userId && ctx.userId && payload.userId !== ctx.userId) {
+    reasons.push(`memory_cross_user_injection:${payload.userId}!=${ctx.userId}`);
+  }
+
+  // 2. replay nonce
+  if (payload.nonce && seenNonces.has(payload.nonce)) {
+    reasons.push(`memory_replay_nonce:${payload.nonce}`);
+  }
+
+  // 3. override 攻击
+  for (const key of MEMORY_CONTEXT_FORBIDDEN_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(payload, key)) {
+      reasons.push(`memory_override_attempt:${key}`);
+    }
+  }
+
+  return {
+    valid: reasons.length === 0,
+    reasons,
+    payload: reasons.length === 0 ? payload : null,
+  };
+}
+
+// ---- 周期 14 P0-1: ASI07 通信签名 ----
+// ASI07: Insecure Inter-Agent Communication — inter-agent message 签名 + nonce 防重放
+// 设计：
+//   - signInterAgentMessage(msg, secret)：返回 { msg, signature, nonce, ts }
+//   - verifyInterAgentMessage(signed, secret)：验证签名 + nonce 未使用 + ts 未过期
+
+function _generateNonce() {
+  try {
+    return require('node:crypto').randomBytes(16).toString('hex');
+  } catch (e) {
+    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+}
+
+function _stableStringify(obj) {
+  if (obj === null || obj === undefined) return 'null';
+  if (typeof obj !== 'object') return JSON.stringify(obj);
+  if (Array.isArray(obj)) return '[' + obj.map(_stableStringify).join(',') + ']';
+  const keys = Object.keys(obj).sort();
+  return '{' + keys.map((k) => JSON.stringify(k) + ':' + _stableStringify(obj[k])).join(',') + '}';
+}
+
+function signInterAgentMessage(msg, secret, opts = {}) {
+  if (!msg || typeof msg !== 'object') {
+    return { ok: false, reason: 'msg_not_object', signed: null };
+  }
+  if (!secret || typeof secret !== 'string') {
+    return { ok: false, reason: 'secret_required', signed: null };
+  }
+  const ts = opts.ts || Date.now();
+  const nonce = opts.nonce || _generateNonce();
+  const payload = _stableStringify({ msg, ts, nonce });
+  const signature = _hmacSha256Hex(secret, payload);
+  if (!signature) return { ok: false, reason: 'hmac_failed', signed: null };
+  return {
+    ok: true,
+    reason: null,
+    signed: { msg, ts, nonce, signature },
+  };
+}
+
+function verifyInterAgentMessage(signed, secret, opts = {}) {
+  if (!signed || typeof signed !== 'object') {
+    return { valid: false, reason: 'signed_not_object' };
+  }
+  if (!signed.signature || !signed.msg || !signed.ts || !signed.nonce) {
+    return { valid: false, reason: 'signed_missing_fields' };
+  }
+  if (!secret || typeof secret !== 'string') {
+    return { valid: false, reason: 'secret_required' };
+  }
+  const payload = _stableStringify({ msg: signed.msg, ts: signed.ts, nonce: signed.nonce });
+  const expected = _hmacSha256Hex(secret, payload);
+  if (!expected || !_timingSafeEqualHex(expected, signed.signature)) {
+    return { valid: false, reason: 'signature_mismatch' };
+  }
+  // nonce reuse
+  if (opts.seenNonces && opts.seenNonces.has(signed.nonce)) {
+    return { valid: false, reason: 'nonce_replay' };
+  }
+  // ts expiry
+  const maxAgeMs = opts.maxAgeMs || 300000; // 5 min default
+  if (signed.ts + maxAgeMs < Date.now()) {
+    return { valid: false, reason: 'ts_expired' };
+  }
+  return { valid: true, reason: null };
+}
+
 /**
  * Circuit breaker（窗口内 N 次失败 → open cooldownMs）
  * @param {object} opts
@@ -255,7 +458,18 @@ module.exports = {
   sanitizeInput,
   checkToolAllowlist,
   createCircuitBreaker,
+  validateManifest,        // 周期 14 P0-1: ASI04
+  validateMemoryContext,   // 周期 14 P0-1: ASI06
+  signInterAgentMessage,   // 周期 14 P0-1: ASI07
+  verifyInterAgentMessage, // 周期 14 P0-1: ASI07
   INJECTION_PATTERNS,
   DEFAULT_OPTIONS,
+  MANIFEST_ALLOWED_SOURCES_DEFAULT,
+  MEMORY_CONTEXT_FORBIDDEN_KEYS,
   _countMatches,  // 测试可访问
+  _semverMatch,
+  _hmacSha256Hex,
+  _timingSafeEqualHex,
+  _stableStringify,
+  _generateNonce,
 };

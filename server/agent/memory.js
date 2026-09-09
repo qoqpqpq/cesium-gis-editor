@@ -1,5 +1,7 @@
 // server/agent/memory.js
 // 周期 7 P1-5: AI Agent 长期记忆 prototype（ALS + SQLite）
+// 周期 9 P0-2: WAL + PRAGMA 调优
+// 周期 14 P0-2: 真实迁移 node:sqlite backend（通过 sqliteBackend.js dispatch）
 //
 // 背景：
 //   - mem0 / OpenMemory 是 2025+ 流行的 AI Agent 长期记忆方案
@@ -10,7 +12,7 @@
 //     - recall：用 FTS5 全文检索（暂不做 embedding）
 //
 // 设计：
-//   - MemoryStore 类：SQLite 后端（better-sqlite3 或 sqlite3）；fallback 内存 Map
+//   - MemoryStore 类：SQLite 后端（通过 sqliteBackend.js 自动检测 bun / node:sqlite / better-sqlite3 / 内存）
 //   - conversationContext：AsyncLocalStorage 实例，存 { userId, sessionId, convId }
 //   - remember(key, value, { tags })：写入 SQLite + 可选附 ALS context
 //   - recall(query, { limit, tags })：FTS5 / LIKE 检索
@@ -22,8 +24,7 @@
 //   - SQLite 持久化（重启后数据仍在）
 //   - remember / recall / list / forget 四个操作
 //   - 在 SQLite 不可用时降级到 InMemoryStore（不崩溃）
-//
-// 周期 7 范围：prototype，不做 embedding 检索 / 自动 consolidation / 跨用户隔离鉴权
+//   - 周期 14：自动 dispatch 到 node:sqlite / better-sqlite3 / bun:sqlite / memory fallback
 
 'use strict';
 
@@ -31,6 +32,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const os = require('node:os');
 const { AsyncLocalStorage } = require('node:async_hooks');
+const sqliteBackend = require('./sqliteBackend');  // 周期 14 P0-2: 走 dispatch
 
 const conversationContext = new AsyncLocalStorage();
 
@@ -53,14 +55,34 @@ class MemoryStore {
    * @param {object} [opts]
    * @param {string} [opts.dbPath] - SQLite 文件路径；缺省 tmpdir
    * @param {string} [opts.table='memories'] - 表名
+   * @param {string} [opts.driverPref] - 周期 14 P0-2: 'auto' | 'node' | 'better' | 'bun' | 'memory'
    */
   constructor(opts = {}) {
     this.dbPath = opts.dbPath || DEFAULT_DB_PATH;
     this.table = opts.table || 'memories';
-    this.driver = opts.driver || null; // 周期 7 P1-5: 默认 null → 自动选 better-sqlite3 / 内存
-    // 自动初始化
-    if (!this.driver) {
-      this.driver = this._tryLoadSqlite();
+    this.driverPref = opts.driverPref || 'auto';
+    // 周期 14 P0-2: 走 sqliteBackend dispatch（自动检测 node:sqlite / better / bun / memory）
+    this.driver = null;
+    this._backendDriver = null; // 'sqlite' | 'memory'
+    this._usingDispatch = !!opts.useDispatch || this.driverPref !== 'auto' || !!opts.dbPath;
+    try {
+      this._dbHandle = sqliteBackend.openDatabase({
+        path: this.dbPath,
+        driver: this.driverPref,
+      });
+      if (this._dbHandle && this._dbHandle.driver !== 'memory') {
+        this.driver = this._dbHandle; // 周期 14：统一抽象
+        this._backendDriver = 'sqlite';
+      } else {
+        this._dbHandle = null;
+      }
+    } catch (e) {
+      this._dbHandle = null;
+    }
+    // 向后兼容：opts.driver 直接传 better-sqlite3 实例（旧 spec 用法）
+    if (!this.driver && opts.driver) {
+      this.driver = opts.driver;
+      this._backendDriver = 'sqlite';
     }
     if (this.driver) {
       this._initSqlite();
@@ -70,14 +92,26 @@ class MemoryStore {
   }
 
   _tryLoadSqlite() {
-    // 周期 7 P1-5: 评估 — better-sqlite3 优先；若 native 编译失败 fallback
+    // 周期 14 P0-2: 委托给 sqliteBackend.js dispatch
+    // 保留此函数仅为向后兼容；新代码用 _dbHandle
     try {
-      const BetterSqlite = require('better-sqlite3');
-      return new BetterSqlite(this.dbPath);
+      const handle = sqliteBackend.openDatabase({ path: this.dbPath, driver: 'auto' });
+      if (handle && handle.driver !== 'memory') return handle;
+      return null;
     } catch (e) {
-      // better-sqlite3 不可用；fallback 内存
       return null;
     }
+  }
+
+  /** 周期 14 P0-2: 当前 backend driver 名（'node' | 'better' | 'bun' | 'memory'） */
+  get backendDriver() {
+    if (this._dbHandle) return this._dbHandle.driver;
+    return this._backendDriver || 'memory';
+  }
+
+  /** 周期 14 P0-2: 简化的 backend 类型（'sqlite' | 'memory'）— 周期 9 spec 兼容 */
+  get backend() {
+    return this._backendDriver || 'memory';
   }
 
   _initSqlite() {
@@ -87,21 +121,28 @@ class MemoryStore {
     // - temp_store=MEMORY 把临时表放内存
     // - mmap_size=128MB 启用 mmap 读
     // 失败回退：try/catch 各 PRAGMA，失败不抛错（环境可能不支持）
-    try {
-      this.driver.pragma('journal_mode = WAL');
-    } catch (e) { /* fallback journal mode */ }
-    try {
-      this.driver.pragma('synchronous = NORMAL');
-    } catch (e) { /* keep default */ }
-    try {
-      this.driver.pragma('temp_store = MEMORY');
-    } catch (e) { /* keep default */ }
-    try {
-      this.driver.pragma('mmap_size = 134217728'); // 128MB
-    } catch (e) { /* keep default */ }
-    try {
-      this.driver.pragma('cache_size = -64000'); // 64MB
-    } catch (e) { /* keep default */ }
+    //
+    // 周期 14 P0-2: 适配 sqliteBackend.js 统一抽象 + better-sqlite3 native 两种 API
+    const applyPragma = (name, value) => {
+      try {
+        if (typeof this.driver.pragma === 'function') {
+          // better-sqlite3 native：driver.pragma('journal_mode = WAL')
+          if (this._dbHandle) {
+            // sqliteBackend.js 抽象：driver.pragma(name, value)
+            return this.driver.pragma(name, value);
+          }
+          return this.driver.pragma(`${name} = ${value}`);
+        }
+        return undefined;
+      } catch (e) {
+        return undefined;
+      }
+    };
+    applyPragma('journal_mode', 'WAL');
+    applyPragma('synchronous', 'NORMAL');
+    applyPragma('temp_store', 'MEMORY');
+    applyPragma('mmap_size', '134217728'); // 128MB
+    applyPragma('cache_size', '-64000');   // 64MB
     // 建表（key 主键 + value + tags + userId + ts + 全文索引）
     this.driver.exec(`
       CREATE TABLE IF NOT EXISTS ${this.table} (
@@ -202,7 +243,7 @@ class MemoryStore {
   _initMemory() {
     // 内存 fallback；用于 better-sqlite3 不可用时
     this._memMap = new Map();
-    this.backend = 'memory';
+    this._backendDriver = 'memory';
   }
 
   /**
@@ -218,12 +259,16 @@ class MemoryStore {
     if (!key || typeof key !== 'string') {
       return { ok: false, key, backend: this.backend, error: 'key 必须是非空字符串' };
     }
+    // 周期 14 P0-2: close 后调用 → silent 返回 error，不抛错
+    if (this._closed) {
+      return { ok: false, key, backend: this.backend, error: 'store_closed' };
+    }
     const ts = Date.now();
     const ctx = conversationContext.getStore() || {};
     const userId = opts.userId || ctx.userId || null;
     const tags = JSON.stringify(opts.tags || []);
     if (this.driver) {
-      this.backend = 'sqlite';
+      this._backendDriver = 'sqlite';
       try {
         this._stmtInsert.run(key, String(value), tags, userId, ts);
         return { ok: true, key, backend: this.backend };
@@ -231,6 +276,10 @@ class MemoryStore {
         return { ok: false, key, backend: this.backend, error: e.message };
       }
     } else {
+      if (!this._memMap) {
+        // close 后 _memMap 被清空 → 静默降级到临时内存
+        this._memMap = new Map();
+      }
       this._memMap.set(key, { value: String(value), tags, userId, ts });
       return { ok: true, key, backend: this.backend };
     }
@@ -243,7 +292,7 @@ class MemoryStore {
    */
   recall(key) {
     if (this.driver) {
-      this.backend = 'sqlite';
+      this._backendDriver = 'sqlite';
       const row = this._stmtSelect.get(key);
       if (!row) return null;
       return {
@@ -284,7 +333,7 @@ class MemoryStore {
     const safeQuery = this._sanitizeFtsQuery(query);
     if (this.driver && this._ftsEnabled && safeQuery) {
       // 周期 8 P0-1: FTS5 路径（bm25 排序）
-      this.backend = 'sqlite';
+      this._backendDriver = 'sqlite';
       try {
         const rows = userId
           ? this._stmtFtsSearchByUser.all(safeQuery, userId, limit)
@@ -307,7 +356,7 @@ class MemoryStore {
     }
     // 回退：LIKE 路径（兼容老逻辑）
     if (this.driver) {
-      this.backend = 'sqlite';
+      this._backendDriver = 'sqlite';
       let rows;
       if (userId) {
         const stmt = this.driver.prepare(
@@ -381,10 +430,15 @@ class MemoryStore {
 
   /**
    * 周期 9 P0-2: 当前 journal mode（wal / truncate / delete / memory 等）
+   * 周期 14 P0-2: 适配 sqliteBackend.js + better-sqlite3 native 两种 API
    */
   get journalMode() {
     if (!this.driver) return 'memory';
     try {
+      if (this._dbHandle) {
+        // sqliteBackend.js 抽象：driver.pragma(name) 返回 string
+        return this.driver.pragma('journal_mode');
+      }
       return this.driver.pragma('journal_mode', { simple: true });
     } catch (e) {
       return 'unknown';
@@ -422,7 +476,7 @@ class MemoryStore {
     const limit = opts.limit || 50;
     const userId = opts.userId || null;
     if (this.driver) {
-      this.backend = 'sqlite';
+      this._backendDriver = 'sqlite';
       const rows = userId
         ? this._stmtListByUser.all(userId, limit)
         : this._stmtList.all(limit);
@@ -456,7 +510,7 @@ class MemoryStore {
    */
   forget(key) {
     if (this.driver) {
-      this.backend = 'sqlite';
+      this._backendDriver = 'sqlite';
       const r = this._stmtDelete.run(key);
       return { ok: true, deleted: r.changes, backend: this.backend };
     } else {
@@ -467,11 +521,18 @@ class MemoryStore {
 
   /**
    * 关闭 / 清理
+   * 周期 14 P0-2: 同时关闭 sqliteBackend handle + 标记 _closed 防再用
    */
   close() {
+    if (this._closed) return;
+    this._closed = true;
     if (this.driver) {
       try { this.driver.close(); } catch (_) {}
       this.driver = null;
+    }
+    if (this._dbHandle) {
+      try { this._dbHandle.close(); } catch (_) {}
+      this._dbHandle = null;
     }
     if (this._memMap) {
       this._memMap.clear();

@@ -129,7 +129,32 @@ function openDatabase(opts = {}) {
     try {
       // eslint-disable-next-line global-require
       const { DatabaseSync } = require('node:sqlite');
-      inner = new DatabaseSync(dbPath);
+      const innerDb = new DatabaseSync(dbPath);
+      // node:sqlite 没有 .pragma() 方法；用 exec('PRAGMA ...') 模拟
+      inner = {
+        prepare: (sql) => innerDb.prepare(sql),
+        exec: (sql) => innerDb.exec(sql),
+        pragma(name, value) {
+          if (value === undefined) {
+            // 读取：PRAGMA journal_mode 返回当前值
+            try {
+              const stmt = innerDb.prepare(`PRAGMA ${name}`);
+              // 简单 PRAGMA（如 journal_mode）有行返回
+              if (typeof stmt.get === 'function') {
+                const row = stmt.get();
+                if (row && Object.keys(row).length > 0) {
+                  return Object.values(row)[0];
+                }
+                return stmt.all ? stmt.all() : 'unknown';
+              }
+            } catch (e) { /* fall through */ }
+            return 'unknown';
+          }
+          innerDb.exec(`PRAGMA ${name} = ${value}`);
+          return value;
+        },
+        close() { try { innerDb.close(); } catch (_) {} },
+      };
     } catch (e) {
       inner = _createMemoryBackend(dbPath);
       realDriver = 'memory';
