@@ -36,17 +36,29 @@
 - ✅ **P1-3** Sandbox worker pool（`server/agent/sandboxWorkerPool.js` LRU + reuse + idle timeout 60s + drain；warm p50 < 100ms vs 周期 9 baseline 628ms；spec 23 PASS）
 - ✅ **P2-1** WebGPU + 3D Tiles 2.0 评估（`docs/evaluation/webgpu-3d-tiles.md`：覆盖率 73% < 80% 门槛 + 3D Tiles 2.0 KHR_gaussian_splatting OGC 2026-Q3 candidate；spec 11 PASS）—— 决策：暂不切换 backend
 
-## 调研 Top5（由周期 10 调研产出，落周期 11+；覆盖周期 9 Top5）
+## 周期 11 已交付（2026-09-09）
 
-> 调研全文见 `docs/cycles/cycle-10-research.md`（12 主题 × 5 链接 = 60 链接）。
+- ✅ **P0-1** memoryVectorPrototype（`server/agent/memoryVectorPrototype.js` 32 维 hash embedder + cosine brute-force + 标量量化；spec `memory-vector-prototype.cjs` 32 PASS）—— 决策：< 10K 向量 prototype 不引入外部 VDB
+- ✅ **P0-2** memMachine ground-truth preservation 评估（`docs/evaluation/mem-machine-ground-truth.md` CoALA + MemMachine + MemGPT "Memory OS"；spec 36 PASS）—— 决策：保留原始 episodic（不抽取），用 curated fact + 时间戳三元组做语义层
+- ✅ **P1-1** OTel SDK Node.js 传播模式 spike（`docs/evaluation/otel-sdk-spike.md`：W3C Trace Context + B3 + composite propagator；Worker thread 跨线程传播方案；spec `otel-sdk-spike.cjs` 33 PASS）—— 决策：保持自实现 W3C traceparent + ALS，cycle-12 引入 worker carrier 注入
+- ✅ **P1-2** React 19 useActionState Guard（`client/src/utils/useActionStateGuard.js` ESM；`serializeError` + useActionStateGuard wrapper + React 18 fallback；spec `react19-use-action-state-guard.cjs` 30 PASS）
+- ✅ **P1-3** 3D Tiles 2.0 follow-up（`docs/evaluation/3d-tiles-2-followup.md` vector tiles + Gaussian splat + glTF 2.1 集成；spec `3d-tiles-2-followup.cjs` 33 PASS）
+- ✅ **P1-4** Handler 设计 checklist 8 维（`docs/architecture/handler-design-checklist.md`：rate-limit / trace / auth / validation / idempotency / backpressure / observability / recovery；spec 30 PASS）
+- ✅ **P2-1** Piscina vs 自研 worker pool 评估（`docs/evaluation/piscina-vs-pool.md`：`piscina` vs `node:worker_threads` LRU；spec 23 PASS）—— 决策：保持自研，piscina 在 < 30 worker 时优势不明显
+- ✅ **P2-2** telemetryCollector JSONL 持久化（`server/middleware/telemetryCollector.js` 加 `TELEMETRY_PERSIST_PATH` env + 滚动 JSONL；spec `telemetry-buffer-persist.cjs` 21 PASS）
+- ✅ **P2-3** requestId ↔ traceparent 跨进程链接（spec `requestid-trace-link.cjs` 22 PASS：5 种 case + ALS store + W3C traceparent 解析与注入）
+
+## 调研 Top5（由周期 11 调研产出，落周期 12+；覆盖周期 10 Top5）
+
+> 调研全文见 `docs/cycles/cycle-11-research.md`（12 主题 × 5 链接 = 60 链接）。
 
 | 排名 | 主题 | 行动 | 落点 |
 | --- | ---- | ---- | ---- |
-| 1 | **pgvector / mem0 self-host 容量评估**（周期 10 P0-1 已落评估） | 周期 11+ 验证：prototype HNSW < 10K 向量即可；不立即上 docker；周期 12+ 评估自动 REINDEX cron | 升级 memory.js |
-| 2 | **memMachine ground-truth preservation**（CoALA 3 层 + Mem0 80% fewer tokens） | 周期 11+ 评估：保留原始 episodic（不抽取）+ 轻量 LLM 摘要；SQLite FTS5 已是 episodic 雏形 | 升级 memory.js |
-| 3 | **OpenTelemetry SDK 替换自研 MetricsRegistry**（周期 9 P1-1 + 周期 10 P1-2 已落滑动 buffer） | 周期 11+ 评估 @opentelemetry/sdk-web + OTLP exporter；当前 sliding buffer 1000 items / 1h TTL 临时方案足够 | 升级 telemetry |
-| 4 | **3D Tiles 2.0 + Gaussian Splatting + WebGPU**（周期 10 P2-1 决定暂不切换） | 周期 11+ 跟踪 Khronos KHR_gaussian_splatting 标准化 + Cesium ion 适配；周期 12+ 评估 WebGPU backend（覆盖率 73%） | 升级 viewer |
-| 5 | **React 19 Compiler + Actions**（周期 9 已 stable；本项目 Vite SPA） | 周期 11+ 引入 useActionState 错误边界；周期 12+ 评估 React Compiler 替代手动 memoization | 升级 ClientViewer |
+| 1 | **混合检索升级（向量 + FTS5 + 时间衰减）**（Lyzr Cognis 92.4% on LongMemEval；2026 共识"向量+图+BM25+时间加权"） | 周期 12 落地：`memory.js` 加 RRF 融合（cosine + BM25 + recency）；spec ≥30 PASS | 升级 memory.js |
+| 2 | **useOptimistic + Guard 联合 hook**（SitePoint 2026-06：12 行声明式替代 80% 状态样板） | 周期 12 落地：`client/src/hooks/useOptimisticAction.js`；spec ≥25 PASS | 升级 ClientViewer |
+| 3 | **SQLite 生产 pragma + 后台 passive checkpoint**（botmonster 6-PRAGMA 配方 + MicroLogics 60s passive checkpoint） | 周期 12 落地：`server/agent/sqlitePragmas.js`；spec ≥20 PASS | 升级 server/data |
+| 4 | **Worker thread trace carrier 注入**（oneuptime 2026-02 跨线程 context 恢复；mcp-otel 自动嵌套） | 周期 12 落地：扩展 `server/middleware/logger.js` worker `workerData.traceContext`；spec ≥15 PASS | 升级 telemetry |
+| 5 | **3D Tiles 2.0 vector tiles + Gaussian splat 兼容层**（Cesium 官方 2026-09 vector tiles preview + 2026-04 Gaussian splat HLOD） | 周期 12 落地：`client/src/utils/tilesetLoader.js` 加 `extensionsUsed` 检测；spec ≥25 PASS | 升级 viewer |
 
 ## P0（必须下周期完成）
 
