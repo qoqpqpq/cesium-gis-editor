@@ -357,7 +357,7 @@ function createHybridRetriever(store, vectorMem) {
     // 周期 14 P1-3: 触发 OTel span attributes hook（graceful — 缺包不抛错）
     try {
       const hook = _otel();
-      if (hook && typeof hook.getCurrentSpanContext === 'function' && hook.getCurrentSpanContext()) {
+      if (hook && typeof hook.getSpanContext === 'function' && hook.getSpanContext()) {
         const attrs = buildRetrievalSpanAttributes(strategy, query, sliced);
         if (attrs) {
           const ctx = hook._als.getStore();
