@@ -48,17 +48,28 @@
 - ✅ **P2-3** SSRF metadata IP cron 同步（`scripts/sync-metadata-ips.cjs` dry-run 默认 + markdown/json/csv 三格式解析；spec 23 PASS）
 - ✅ **P2-3 docs** `docs/security/metadata-ips.md` 维护 AWS/GCP/Azure/IPv6 段
 
-## 调研 Top5（由周期 12 调研产出，落周期 13+；覆盖周期 11 Top5）
+## 周期 13 已交付（2026-09-09）
 
-> 调研全文见 `docs/cycles/cycle-12-research.md`（12 主题 × 5 链接 = 60 链接）。
+- ✅ **P0-1** AI Agent 安全护栏 OWASP ASI01-10（`server/middleware/aiGuardrails.js`：5 步检查链 tool allowlist / dangerous HITL / circuit breaker / input sanitization / execute + 9 种注入模式；spec `ai-guardrails.cjs` 39 PASS）
+- ✅ **P0-2** SQLite backend dispatch（`server/agent/sqliteBackend.js`：自动检测 bun → node 24+ → better-sqlite3 → memory fallback + 缺包 graceful fallback；spec 19 PASS）
+- ✅ **P1-1** OTel worker 集成 + SQLite pragma 升级（otelDevHook.js 加 `withWorkerContext(carrier, fn)` + `getCurrentTraceparent()`；sqlitePragmas.js 加 `mode: 'PASSIVE' \| 'TRUNCATE'` + `checkSqliteVersion(driver) ≥ 3.51.3`；spec `otel-worker-integration.cjs` 15 PASS 含真实 worker_threads round-trip）
+- ✅ **P1-2** Viewer marker 真实接入（`client/src/hooks/useOptimisticMarkerBridge.js`：包装 useOptimisticMarker + viewer ref + addMarker + removeMarker 回滚；spec `viewer-marker-integration.cjs` 21 PASS 含 cesiumEarth.jsx addMarker 契约）
+- ✅ **P1-3** 混合检索 RRF 多样化（hybridRetrieval.js 加 `strategy: 'standard' \| 'best-rank' \| 'max+bonus' \| 'diminishing' \| 'soft-dedup'` + α/λ/β 参数；spec `hybrid-retrieval-strategies.cjs` 18 PASS + cycle-12 RRF spec 零回归）
+- ✅ **P2-1** CesiumJS Gaussian splat loader（`client/src/utils/splatLoader.js`：classifySplatQuality 5 档 + loadGaussianSplatTileset stub + getRecommendedPreset fps 算法；spec 25 PASS）
+- ✅ **P2-2** sqlite-vec 决策文档（`docs/evaluation/vector-extension-decision.md`：5 候选对比表 + 7 维度决策矩阵 + 触发条件 50K/100ms/1GB/metadata 过滤；spec 14 PASS）
+- ✅ **P2-3** jsdom + RTL 集成测试脚手架（`client/src/hooks/useOptimisticMarker.test-instructions.js`：INSTALL_INSTRUCTIONS + 示例测试 renderHook + act；spec `jsdom-rtl-instructions.cjs` 20 PASS）
+
+## 调研 Top5（由周期 13 调研产出，落周期 14+；覆盖周期 12 Top5）
+
+> 调研全文见 `docs/cycles/cycle-13-research.md`（12 主题 × 5 链接 = 60 链接）。
 
 | 排名 | 主题 | 行动 | 落点 |
 | --- | ---- | ---- | ---- |
-| 1 | **handler 8 维升级为 AI Agent 安全护栏**（OWASP ASI01-10 映射 + 6 层防御；OWASPLA 2026-05） | 周期 13 落地：`server/middleware/aiGuardrails.js` tool allowlist + circuit breaker + input sanitization；spec ≥25 PASS | 升级 aiTools |
-| 2 | **OTel SDK 真正集成 worker_threads + SQLite pragma 升级**（oneuptime 2026-02 + Tailscale WAL bug 2026-03） | 周期 13 落地：扩展 otelDevHook.js worker 集成 + sqlitePragmas.js 30min TRUNCATE + version check（≥3.51.3）；spec ≥20 PASS | 升级 telemetry |
-| 3 | **better-sqlite3 → node:sqlite 兼容层**（cortexkit magic-context #108 + lhremote #72） | 周期 13 落地：`server/agent/sqliteBackend.js` 三向 dispatch（Node 24+ / Bun / 兼容 fallback）；spec ≥18 PASS | 升级 memory.js |
-| 4 | **CesiumJS 1.141+ Gaussian splat demo 集成**（Cesium 1.141 release May 2026 + cesium-splat-streetview） | 周期 13 落地：升级 client Cesium 至 1.141+ + 引入 splatLoader.js；spec ≥15 PASS | 升级 viewer |
-| 5 | **混合检索 RRF 多样化 + sqlite-vec 评估**（Apache Doris RRF SQL + sqlitesearch + SQLite Vec1 v0.7） | 周期 13 落地：hybridRetrieval.js strategy 配置 + docs/evaluation/vector-extension-decision.md；spec ≥15 PASS | 升级 hybridRetrieval |
+| 1 | **AI 安全护栏深化**（OWASP ASI04/06/07 覆盖；OWASP AGT Reference Architecture + Microsoft AgentCore HITL） | 周期 14 落地：扩展 aiGuardrails.js 加 validateManifest / validateMemoryContext / signInterAgentMessage；spec ≥25 PASS | 升级 aiTools |
+| 2 | **node:sqlite 真实迁移 memory.js**（webjsdev/webjs #668 + photostructure/node-sqlite + daftari #72） | 周期 14 落地：把 memory.js 从 better-sqlite3 切到 sqliteBackend.js dispatch；真实跑通 Node 24+ node:sqlite；spec ≥20 PASS | 升级 memory.js |
+| 3 | **OTel worker SDK 真正集成 + LLM 语义化 span**（oneuptime 2026-02 worker threads + CSDN LLM semantic span） | 周期 14 落地：worker 内部 install() OTel SDK + ai.js 加 LLM semantic attributes（platform/model/tokens）；spec ≥18 PASS | 升级 telemetry |
+| 4 | **CesiumJS 1.144+ 升级 + Splat pipeline 文档**（CesiumJS 1.145 vector drape + Microsoft campus 110M splats） | 周期 14 落地：升级 client Cesium 1.113 → 1.144+ + Microsoft Redmond campus Gaussian splat demo + docs/guides/splat-pipeline.md；spec ≥15 PASS | 升级 viewer |
+| 5 | **RRF ablation + 自动权重调优**（AILS-NTUA nested RRF + Dell RAG Fusion Industry + Google RRF Tuning） | 周期 14 落地：ablation spec 对比 standard / best-rank / linear / diminishing + heuristic weight search；spec ≥20 PASS | 升级 hybridRetrieval |
 
 ## P0（必须下周期完成）
 
