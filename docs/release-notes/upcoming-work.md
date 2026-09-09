@@ -36,29 +36,29 @@
 - ✅ **P1-3** Sandbox worker pool（`server/agent/sandboxWorkerPool.js` LRU + reuse + idle timeout 60s + drain；warm p50 < 100ms vs 周期 9 baseline 628ms；spec 23 PASS）
 - ✅ **P2-1** WebGPU + 3D Tiles 2.0 评估（`docs/evaluation/webgpu-3d-tiles.md`：覆盖率 73% < 80% 门槛 + 3D Tiles 2.0 KHR_gaussian_splatting OGC 2026-Q3 candidate；spec 11 PASS）—— 决策：暂不切换 backend
 
-## 周期 11 已交付（2026-09-09）
+## 周期 12 已交付（2026-09-09）
 
-- ✅ **P0-1** memoryVectorPrototype（`server/agent/memoryVectorPrototype.js` 32 维 hash embedder + cosine brute-force + 标量量化；spec `memory-vector-prototype.cjs` 32 PASS）—— 决策：< 10K 向量 prototype 不引入外部 VDB
-- ✅ **P0-2** memMachine ground-truth preservation 评估（`docs/evaluation/mem-machine-ground-truth.md` CoALA + MemMachine + MemGPT "Memory OS"；spec 36 PASS）—— 决策：保留原始 episodic（不抽取），用 curated fact + 时间戳三元组做语义层
-- ✅ **P1-1** OTel SDK Node.js 传播模式 spike（`docs/evaluation/otel-sdk-spike.md`：W3C Trace Context + B3 + composite propagator；Worker thread 跨线程传播方案；spec `otel-sdk-spike.cjs` 33 PASS）—— 决策：保持自实现 W3C traceparent + ALS，cycle-12 引入 worker carrier 注入
-- ✅ **P1-2** React 19 useActionState Guard（`client/src/utils/useActionStateGuard.js` ESM；`serializeError` + useActionStateGuard wrapper + React 18 fallback；spec `react19-use-action-state-guard.cjs` 30 PASS）
-- ✅ **P1-3** 3D Tiles 2.0 follow-up（`docs/evaluation/3d-tiles-2-followup.md` vector tiles + Gaussian splat + glTF 2.1 集成；spec `3d-tiles-2-followup.cjs` 33 PASS）
-- ✅ **P1-4** Handler 设计 checklist 8 维（`docs/architecture/handler-design-checklist.md`：rate-limit / trace / auth / validation / idempotency / backpressure / observability / recovery；spec 30 PASS）
-- ✅ **P2-1** Piscina vs 自研 worker pool 评估（`docs/evaluation/piscina-vs-pool.md`：`piscina` vs `node:worker_threads` LRU；spec 23 PASS）—— 决策：保持自研，piscina 在 < 30 worker 时优势不明显
-- ✅ **P2-2** telemetryCollector JSONL 持久化（`server/middleware/telemetryCollector.js` 加 `TELEMETRY_PERSIST_PATH` env + 滚动 JSONL；spec `telemetry-buffer-persist.cjs` 21 PASS）
-- ✅ **P2-3** requestId ↔ traceparent 跨进程链接（spec `requestid-trace-link.cjs` 22 PASS：5 种 case + ALS store + W3C traceparent 解析与注入）
+- ✅ **P0-1** 混合检索 RRF（`server/agent/hybridRetrieval.js`：vector + FTS5 + recency 三通道 RRF 融合 + k0=60；spec `hybrid-retrieval-rrf.cjs` 37 PASS）
+- ✅ **P1-1** useOptimistic + Guard 联合 hook（`client/src/hooks/useOptimisticAction.js` ESM；React 19 全路径 + React 18 fallback + shouldOptimistic；spec 28 PASS）
+- ✅ **P1-2** SQLite 生产 pragma + 60s passive checkpoint（`server/agent/sqlitePragmas.js`：8 个 PRAGMA 配方 + 60s 后台 loop + stop()；spec 26 PASS）
+- ✅ **P1-3** Worker thread trace carrier 注入（`server/agent/workerTraceCarrier.js`：attach/restore/childTraceparent/runInTraceContext；spec `worker-trace-carrier.cjs` 31 PASS 含真实 worker_threads round-trip）
+- ✅ **P1-4** 3D Tiles 2.0 vector tiles + Gaussian splat 兼容层（`client/src/utils/tilesetLoader.js`：classifyTileset + chooseRenderMode + isFeatureSupported；spec 31 PASS）
+- ⚠️ **P2-1** Viewer 真实改造（`client/src/hooks/useOptimisticMarker.js` 乐观 marker hook；spec 18 PASS；但**未真正接入 cesiumEarth.jsx addMarker**——下周期补足）
+- ✅ **P2-2** OTel dev hook（`server/agent/otelDevHook.js` 真实 require OTel SDK + NODE_ENV=production 不安装 + runWithSpan ALS；spec 19 PASS）
+- ✅ **P2-3** SSRF metadata IP cron 同步（`scripts/sync-metadata-ips.cjs` dry-run 默认 + markdown/json/csv 三格式解析；spec 23 PASS）
+- ✅ **P2-3 docs** `docs/security/metadata-ips.md` 维护 AWS/GCP/Azure/IPv6 段
 
-## 调研 Top5（由周期 11 调研产出，落周期 12+；覆盖周期 10 Top5）
+## 调研 Top5（由周期 12 调研产出，落周期 13+；覆盖周期 11 Top5）
 
-> 调研全文见 `docs/cycles/cycle-11-research.md`（12 主题 × 5 链接 = 60 链接）。
+> 调研全文见 `docs/cycles/cycle-12-research.md`（12 主题 × 5 链接 = 60 链接）。
 
 | 排名 | 主题 | 行动 | 落点 |
 | --- | ---- | ---- | ---- |
-| 1 | **混合检索升级（向量 + FTS5 + 时间衰减）**（Lyzr Cognis 92.4% on LongMemEval；2026 共识"向量+图+BM25+时间加权"） | 周期 12 落地：`memory.js` 加 RRF 融合（cosine + BM25 + recency）；spec ≥30 PASS | 升级 memory.js |
-| 2 | **useOptimistic + Guard 联合 hook**（SitePoint 2026-06：12 行声明式替代 80% 状态样板） | 周期 12 落地：`client/src/hooks/useOptimisticAction.js`；spec ≥25 PASS | 升级 ClientViewer |
-| 3 | **SQLite 生产 pragma + 后台 passive checkpoint**（botmonster 6-PRAGMA 配方 + MicroLogics 60s passive checkpoint） | 周期 12 落地：`server/agent/sqlitePragmas.js`；spec ≥20 PASS | 升级 server/data |
-| 4 | **Worker thread trace carrier 注入**（oneuptime 2026-02 跨线程 context 恢复；mcp-otel 自动嵌套） | 周期 12 落地：扩展 `server/middleware/logger.js` worker `workerData.traceContext`；spec ≥15 PASS | 升级 telemetry |
-| 5 | **3D Tiles 2.0 vector tiles + Gaussian splat 兼容层**（Cesium 官方 2026-09 vector tiles preview + 2026-04 Gaussian splat HLOD） | 周期 12 落地：`client/src/utils/tilesetLoader.js` 加 `extensionsUsed` 检测；spec ≥25 PASS | 升级 viewer |
+| 1 | **handler 8 维升级为 AI Agent 安全护栏**（OWASP ASI01-10 映射 + 6 层防御；OWASPLA 2026-05） | 周期 13 落地：`server/middleware/aiGuardrails.js` tool allowlist + circuit breaker + input sanitization；spec ≥25 PASS | 升级 aiTools |
+| 2 | **OTel SDK 真正集成 worker_threads + SQLite pragma 升级**（oneuptime 2026-02 + Tailscale WAL bug 2026-03） | 周期 13 落地：扩展 otelDevHook.js worker 集成 + sqlitePragmas.js 30min TRUNCATE + version check（≥3.51.3）；spec ≥20 PASS | 升级 telemetry |
+| 3 | **better-sqlite3 → node:sqlite 兼容层**（cortexkit magic-context #108 + lhremote #72） | 周期 13 落地：`server/agent/sqliteBackend.js` 三向 dispatch（Node 24+ / Bun / 兼容 fallback）；spec ≥18 PASS | 升级 memory.js |
+| 4 | **CesiumJS 1.141+ Gaussian splat demo 集成**（Cesium 1.141 release May 2026 + cesium-splat-streetview） | 周期 13 落地：升级 client Cesium 至 1.141+ + 引入 splatLoader.js；spec ≥15 PASS | 升级 viewer |
+| 5 | **混合检索 RRF 多样化 + sqlite-vec 评估**（Apache Doris RRF SQL + sqlitesearch + SQLite Vec1 v0.7） | 周期 13 落地：hybridRetrieval.js strategy 配置 + docs/evaluation/vector-extension-decision.md；spec ≥15 PASS | 升级 hybridRetrieval |
 
 ## P0（必须下周期完成）
 
