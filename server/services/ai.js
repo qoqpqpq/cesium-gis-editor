@@ -8,6 +8,50 @@ const fetch = require("node-fetch");
 const dns = require("node:dns").promises;
 const ssrfGuard = require("./ssrf-guard");
 
+// 周期 14 P1-1: OTel LLM semantic span hook（缺包 graceful fallback）
+let _otelHook = null;
+function _otel() {
+  if (_otelHook !== null) return _otelHook;
+  try {
+    _otelHook = require('../agent/otelDevHook');
+  } catch (_) {
+    _otelHook = false;
+  }
+  return _otelHook || null;
+}
+
+/**
+ * 周期 14 P1-1: 把 LLM 调用结果包装为 OTel semantic span attributes
+ * - 不破坏原有 result 结构
+ * - 缺包 graceful（不抛错）
+ * @param {object} result - { platform, model, content, usage }
+ * @param {object} opts - { messages, elapsedMs }
+ * @returns {object} result（带 _llmSpanAttrs 属性）
+ */
+function wrapWithLlmSpan(result, opts = {}) {
+  const hook = _otel();
+  if (!hook || typeof hook.buildLlmSpanAttributes !== 'function' || !result) {
+    return result;
+  }
+  const usage = result.usage || {};
+  const attrs = hook.buildLlmSpanAttributes({
+    platform: result.platform,
+    model: result.model,
+    messages: opts.messages,
+    usage,
+    finishReason: usage.finish_reason || opts.finishReason,
+    elapsedMs: opts.elapsedMs,
+  });
+  // 把 attrs 写到 ALS context（不影响 result 主流程）
+  try {
+    if (hook.runWithLlmSpan && typeof hook.getSpanContext === 'function' && hook.getSpanContext()) {
+      const ctx = hook._als.getStore();
+      if (ctx) ctx.llmAttributes = Object.assign({}, ctx.llmAttributes || {}, attrs);
+    }
+  } catch (_) { /* graceful */ }
+  return result;
+}
+
 // ---- 用量计费（USD per 1M tokens） ----
 // 数据来源：各家厂商公开页面（2026-08 报价；如官价改了更新这里即可，前端按 cost_usd 直接显示）
 // cache_read / cache_write 单独定价的厂商填下面；没填则按 prompt 价（除 Anthropic 没有 cache 概念）
@@ -913,6 +957,7 @@ module.exports = {
   getUsageBySession,
   getUsageSummary,
   getUsageByRound,
+  wrapWithLlmSpan,  // 周期 14 P1-1: LLM semantic span
   // 暴露内部工具函数（tests 用）
   _internal: { normalizeUsage, calcCostUsd, resolvePricing, validateBaseUrl, validateBaseUrlWithDns, isPrivateIp, resolveBaseUrl },
 };

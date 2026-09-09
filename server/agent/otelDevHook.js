@@ -168,6 +168,118 @@ function getCurrentTraceparent() {
   return `00-${traceId}-${spanId}-01`;
 }
 
+// ---- 周期 14 P1-1: worker SDK 安装 + LLM semantic span ----
+
+/**
+ * 周期 14 P1-1: 在 worker 入口尝试安装 OTel SDK
+ * - 自动 install()；缺包 graceful fallback（与 install() 行为一致）
+ * - 返回 worker scope 的 trace context
+ * @param {object} carrier - { traceId?, traceparent?, requestId? }
+ * @returns {{ installed: boolean, sdkLoaded: boolean, traceId: string, reason: string }}
+ */
+function installWorkerSdk(carrier) {
+  const installResult = install();
+  let traceId = carrier && carrier.traceId;
+  if (!traceId && carrier && typeof carrier.traceparent === 'string') {
+    const m = carrier.traceparent.match(/^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})/i);
+    if (m) traceId = m[1];
+  }
+  if (!traceId) traceId = require('node:crypto').randomBytes(16).toString('hex');
+  return {
+    installed: installResult.installed,
+    sdkLoaded: installResult.installed,
+    traceId,
+    reason: installResult.reason,
+  };
+}
+
+/**
+ * 周期 14 P1-1: LLM semantic span attribute 收集
+ * OpenTelemetry GenAI semantic conventions（2026）：
+ *   - gen_ai.system: 'openai' | 'anthropic' | 'claude' | 'gemini' | ...
+ *   - gen_ai.request.model
+ *   - gen_ai.usage.input_tokens
+ *   - gen_ai.usage.output_tokens
+ *   - gen_ai.response.finish_reason
+ *   - llm.platform (本项目扩展)
+ *   - llm.prompt_tokens / llm.completion_tokens
+ *
+ * @param {object} opts - { platform, model, messages, response, usage, finishReason }
+ * @returns {object} span attributes
+ */
+function buildLlmSpanAttributes(opts) {
+  const o = opts || {};
+  const attrs = {};
+  if (o.platform) {
+    attrs['gen_ai.system'] = o.platform;
+    attrs['llm.platform'] = o.platform;
+  }
+  if (o.model) {
+    attrs['gen_ai.request.model'] = o.model;
+    attrs['llm.model'] = o.model;
+  }
+  if (o.messages && Array.isArray(o.messages)) {
+    attrs['gen_ai.request.message_count'] = o.messages.length;
+  }
+  if (o.usage) {
+    if (typeof o.usage.prompt_tokens === 'number') {
+      attrs['gen_ai.usage.input_tokens'] = o.usage.prompt_tokens;
+      attrs['llm.prompt_tokens'] = o.usage.prompt_tokens;
+    }
+    if (typeof o.usage.completion_tokens === 'number') {
+      attrs['gen_ai.usage.output_tokens'] = o.usage.completion_tokens;
+      attrs['llm.completion_tokens'] = o.usage.completion_tokens;
+    }
+    if (typeof o.usage.total_tokens === 'number') {
+      attrs['gen_ai.usage.total_tokens'] = o.usage.total_tokens;
+    }
+  }
+  if (o.finishReason) {
+    attrs['gen_ai.response.finish_reason'] = o.finishReason;
+  }
+  if (typeof o.elapsedMs === 'number') {
+    attrs['llm.elapsed_ms'] = o.elapsedMs;
+  }
+  return attrs;
+}
+
+/**
+ * 周期 14 P1-1: 在 runWithSpan 内执行 fn，并附 LLM semantic attributes
+ * @param {string} name
+ * @param {Function} fn
+ * @param {object} llmAttrs - buildLlmSpanAttributes() 输出
+ * @returns {*}
+ */
+function runWithLlmSpan(name, fn, llmAttrs) {
+  return runWithSpan(name, () => {
+    const ctx = _als.getStore();
+    if (ctx && llmAttrs && typeof llmAttrs === 'object') {
+      ctx.llmAttributes = Object.assign({}, ctx.llmAttributes || {}, llmAttrs);
+    }
+    return fn();
+  });
+}
+
+/**
+ * 周期 14 P1-1: 取出当前 span 的 LLM attributes（用于 exporter）
+ * @returns {object|null}
+ */
+function getCurrentLlmAttributes() {
+  const ctx = _als.getStore();
+  return (ctx && ctx.llmAttributes) || null;
+}
+
+/**
+ * 周期 14 P1-1: 重置 _state（仅测试使用）
+ */
+function _resetState() {
+  _state.installed = false;
+  _state.sdk = null;
+  _state.tracer = null;
+  _state.exporter = null;
+  _state.errors = [];
+}
+
 module.exports = {
   install,
   uninstall,
@@ -176,8 +288,13 @@ module.exports = {
   getTraceId,
   isInstalled,
   getStats,
-  withWorkerContext,  // 周期 13 P1-1：worker 入口包装
-  getCurrentTraceparent,  // 周期 13 P1-1：导出 W3C traceparent
-  _als, // 测试可访问
-  _state, // 测试可访问
+  withWorkerContext,           // 周期 13 P1-1：worker 入口包装
+  getCurrentTraceparent,       // 周期 13 P1-1：导出 W3C traceparent
+  installWorkerSdk,            // 周期 14 P1-1：worker SDK 安装
+  buildLlmSpanAttributes,      // 周期 14 P1-1：LLM semantic attributes
+  runWithLlmSpan,              // 周期 14 P1-1：附 LLM span 执行
+  getCurrentLlmAttributes,     // 周期 14 P1-1：取出当前 LLM attrs
+  _als,                        // 测试可访问
+  _state,                      // 测试可访问
+  _resetState,                 // 周期 14 P1-1：测试 reset
 };

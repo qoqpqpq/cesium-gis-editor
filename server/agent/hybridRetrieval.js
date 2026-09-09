@@ -24,6 +24,39 @@
 
 const { VectorMemory, embed, cosine, DIM } = require('./memoryVectorPrototype');
 
+// 周期 14 P1-3: OTel semantic span attributes hook（兼容 otelDevHook.js）
+let _otelHook = null;
+function _otel() {
+  if (_otelHook !== null) return _otelHook;
+  try {
+    _otelHook = require('./otelDevHook');
+  } catch (_) {
+    _otelHook = false; // 不可用时为 false
+  }
+  return _otelHook || null;
+}
+
+/**
+ * 周期 14 P1-3: 包装 span attributes hook（hybrid retrieval 调用）
+ * @param {string} strategy
+ * @param {string} query
+ * @param {Array} results
+ * @returns {object|null}
+ */
+function buildRetrievalSpanAttributes(strategy, query, results) {
+  const hook = _otel();
+  if (!hook || typeof hook.buildLlmSpanAttributes !== 'function') return null;
+  return {
+    'retrieval.strategy': strategy,
+    'retrieval.query_length': typeof query === 'string' ? query.length : 0,
+    'retrieval.result_count': Array.isArray(results) ? results.length : 0,
+    'retrieval.top_score': Array.isArray(results) && results.length > 0
+      ? (results[0].score || 0)
+      : 0,
+    'gen_ai.operation': 'retrieval',
+  };
+}
+
 const DEFAULT_K0 = 60;
 const DEFAULT_HALF_LIFE_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -319,7 +352,21 @@ function createHybridRetriever(store, vectorMem) {
     }
 
     fused.sort((a, b) => b.score - a.score);
-    return fused.slice(0, k);
+    const sliced = fused.slice(0, k);
+
+    // 周期 14 P1-3: 触发 OTel span attributes hook（graceful — 缺包不抛错）
+    try {
+      const hook = _otel();
+      if (hook && typeof hook.getCurrentSpanContext === 'function' && hook.getCurrentSpanContext()) {
+        const attrs = buildRetrievalSpanAttributes(strategy, query, sliced);
+        if (attrs) {
+          const ctx = hook._als.getStore();
+          if (ctx) ctx.retrievalAttributes = attrs;
+        }
+      }
+    } catch (_) { /* graceful */ }
+
+    return sliced;
   }
 
   return { search, buildIndex, _state };
@@ -336,9 +383,83 @@ function hybridSearch(query, store, opts) {
   return r.search(query, opts);
 }
 
+// ---- 周期 14 P1-2: RRF ablation + 启发式权重搜索 ----
+
+/**
+ * 周期 14 P1-2: 在 corpus 上做权重启发式搜索
+ * - 对每个 (query, expectedKey) pair 评估当前权重的得分
+ * - 评分 = mean reciprocal rank @ K (top-K 中 expectedKey 排名的倒数)
+ * - 启发式搜索：固定权重 step，遍历 5x5x5 = 125 组合
+ *
+ * @param {Object} store - MemoryStore 实例
+ * @param {Array<{query: string, expectedKey: string}>} evalSet - 评估集
+ * @param {Object} [opts] - { gridSize?, k? }
+ * @returns {{ bestWeights, bestScore, allScores: Array, gridSize: number }}
+ */
+function heuristicWeightSearch(store, evalSet, opts = {}) {
+  const gridSize = opts.gridSize || 5;
+  const k = opts.k || 5;
+  if (!Array.isArray(evalSet) || evalSet.length === 0) {
+    return { bestWeights: null, bestScore: 0, allScores: [], gridSize };
+  }
+  const retriever = createHybridRetriever(store);
+  // 归一化 weights sum = 1
+  const steps = [];
+  for (let i = 1; i <= gridSize; i++) {
+    for (let j = 1; j <= gridSize; j++) {
+      for (let m = 1; m <= gridSize; m++) {
+        const total = i + j + m;
+        steps.push({ vector: i / total, fts5: j / total, recency: m / total });
+      }
+    }
+  }
+  const allScores = [];
+  let best = { weights: null, score: -1 };
+  for (const w of steps) {
+    let score = 0;
+    for (const { query, expectedKey } of evalSet) {
+      let rank = -1;
+      try {
+        const results = retriever.search(query, {
+          weights: w,
+          k: Math.max(k, evalSet.length),
+          strategy: 'standard',
+        });
+        for (let i = 0; i < results.length; i++) {
+          if (results[i].key === expectedKey) {
+            rank = i + 1;
+            break;
+          }
+        }
+      } catch (_) { /* skip */ }
+      // MRR: 1 / rank if found, 0 if not
+      score += rank > 0 ? 1 / rank : 0;
+    }
+    score = score / evalSet.length;
+    allScores.push({ weights: w, score });
+    if (score > best.score) {
+      best = { weights: w, score };
+    }
+  }
+  return {
+    bestWeights: best.weights,
+    bestScore: best.score,
+    allScores,
+    gridSize,
+  };
+}
+
+/**
+ * 周期 14 P1-2: RRF ablation spec helper — 列出 5 种 RRF strategy 名字
+ */
+const RRF_STRATEGIES = ['standard', 'best-rank', 'max+bonus', 'diminishing', 'soft-dedup'];
+
 module.exports = {
   createHybridRetriever,
   hybridSearch,
+  buildRetrievalSpanAttributes,  // 周期 14 P1-3
+  heuristicWeightSearch,         // 周期 14 P1-2
+  RRF_STRATEGIES,                // 周期 14 P1-2
   DEFAULT_K0,
   DEFAULT_HALF_LIFE_DAYS,
 };
