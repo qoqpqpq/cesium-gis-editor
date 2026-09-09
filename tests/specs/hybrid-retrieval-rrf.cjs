@@ -242,11 +242,14 @@ ok('D4: 三通道叠加：top1 score = sum of weights / (k0+1)', () => {
   // 在 fts5 不可用环境，仅 vector + recency 通道贡献
   const r = createHybridRetriever(store, vectorMem);
   const out = r.search('北京首都', { weights: { fts5: 0.3, vector: 0.6, recency: 0.1 }, k: 1 });
-  // fts5Available=false 时只算 vector + recency
-  const expected = ftsAvailable
-    ? (0.3 + 0.6 + 0.1) / (DEFAULT_K0 + 1)
-    : (0.6 + 0.1) / (DEFAULT_K0 + 1);
-  assert.ok(Math.abs(out[0].score - expected) < 1e-6, `score=${out[0].score} expected=${expected}`);
+  if (ftsAvailable) {
+    const expected = (0.3 + 0.6 + 0.1) / (DEFAULT_K0 + 1);
+    assert.ok(Math.abs(out[0].score - expected) < 1e-6, `score=${out[0].score} expected=${expected}`);
+  } else {
+    // fts5 不可用：vector + recency 通道贡献；top1 在两通道均需 rank=1
+    const expected = (0.6 + 0.1) / (DEFAULT_K0 + 1);
+    assert.ok(Math.abs(out[0].score - expected) < 1e-6, `score=${out[0].score} expected=${expected}`);
+  }
 });
 
 // ============ Group E: userId 隔离 ============

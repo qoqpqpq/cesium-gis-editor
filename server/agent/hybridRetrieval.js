@@ -177,7 +177,7 @@ function createHybridRetriever(store, vectorMem) {
     const vecRanks = new Map();
     vecRows.forEach((r, i) => vecRanks.set(r.key, i + 1));
 
-    // 合并候选 key；若仅 recency 通道启用，候选来自 store 全表
+    // 合并候选 key；若仅 recency 通道启用，候选来自 store全表
     let candidates;
     if (weights.recency > 0 && weights.fts5 === 0 && weights.vector === 0) {
       candidates = new Set(store.list({ limit: 100000, userId: opts.userId || null }).map((r) => r.key));
@@ -191,23 +191,117 @@ function createHybridRetriever(store, vectorMem) {
       .map((e, i) => [e[0], i + 1]);
     const recencyRankMap = new Map(recencyRanks);
 
-    // RRF 融合
+    // 周期 13 P1-3: RRF strategy 多种
+    const strategy = opts.strategy || 'standard';
+    // RRF 融合（按 strategy 分支）
     const fused = [];
     for (const key of candidates) {
       let score = 0;
       const sources = [];
-      if (ftsRanks.has(key) && weights.fts5 > 0) {
-        score += weights.fts5 / (k0 + ftsRanks.get(key));
-        sources.push('fts5');
+
+      // 各通道的 rank（不在候选集中的通道 rank = Infinity / 0）
+      const fRank = ftsRanks.get(key);
+      const vRank = vecRanks.get(key);
+      const rRank = recencyRankMap.get(key);
+
+      // standard: sum_i weight_i / (k0 + rank_i)
+      if (strategy === 'standard') {
+        if (fRank !== undefined && weights.fts5 > 0) {
+          score += weights.fts5 / (k0 + fRank);
+          sources.push('fts5');
+        }
+        if (vRank !== undefined && weights.vector > 0) {
+          score += weights.vector / (k0 + vRank);
+          sources.push('vector');
+        }
+        if (rRank !== undefined && weights.recency > 0) {
+          score += weights.recency / (k0 + rRank);
+          sources.push('recency');
+        }
       }
-      if (vecRanks.has(key) && weights.vector > 0) {
-        score += weights.vector / (k0 + vecRanks.get(key));
-        sources.push('vector');
+      // best-rank: 每通道取最小 rank，仅一次加权
+      else if (strategy === 'best-rank') {
+        const ranks = [];
+        if (fRank !== undefined && weights.fts5 > 0) ranks.push({ r: fRank, w: weights.fts5, s: 'fts5' });
+        if (vRank !== undefined && weights.vector > 0) ranks.push({ r: vRank, w: weights.vector, s: 'vector' });
+        if (rRank !== undefined && weights.recency > 0) ranks.push({ r: rRank, w: weights.recency, s: 'recency' });
+        if (ranks.length > 0) {
+          // 取 weight 最高的 rank
+          ranks.sort((a, b) => b.w - a.w);
+          const top = ranks[0];
+          score += top.w / (k0 + top.r);
+          sources.push(top.s);
+          // 其他通道以 0.5x 加成
+          for (let i = 1; i < ranks.length; i++) {
+            score += ranks[i].w * 0.5 / (k0 + ranks[i].r);
+          }
+        }
       }
-      if (recencyRankMap.has(key) && weights.recency > 0) {
-        const r = recencyRankMap.get(key);
-        score += weights.recency / (k0 + r);
-        sources.push('recency');
+      // max-plus-bonus: best rank 主导 + 其他 rank 衰减加成
+      else if (strategy === 'max+bonus') {
+        const lambda = typeof opts.lambda === 'number' ? opts.lambda : 0.3;
+        const ranks = [];
+        if (fRank !== undefined && weights.fts5 > 0) ranks.push({ r: fRank, w: weights.fts5, s: 'fts5' });
+        if (vRank !== undefined && weights.vector > 0) ranks.push({ r: vRank, w: weights.vector, s: 'vector' });
+        if (rRank !== undefined && weights.recency > 0) ranks.push({ r: rRank, w: weights.recency, s: 'recency' });
+        if (ranks.length > 0) {
+          ranks.sort((a, b) => a.r - b.r); // 最小 rank 优先
+          const best = ranks[0];
+          score += best.w / (k0 + best.r);
+          sources.push(best.s);
+          for (let i = 1; i < ranks.length; i++) {
+            score += lambda * ranks[i].w / (k0 + ranks[i].r);
+            sources.push(ranks[i].s);
+          }
+        }
+      }
+      // diminishing-returns: alpha^(j-1) 加权
+      else if (strategy === 'diminishing') {
+        const alpha = typeof opts.alpha === 'number' ? opts.alpha : 0.5;
+        const ranks = [];
+        if (fRank !== undefined && weights.fts5 > 0) ranks.push({ r: fRank, w: weights.fts5, s: 'fts5' });
+        if (vRank !== undefined && weights.vector > 0) ranks.push({ r: vRank, w: weights.vector, s: 'vector' });
+        if (rRank !== undefined && weights.recency > 0) ranks.push({ r: rRank, w: weights.recency, s: 'recency' });
+        if (ranks.length > 0) {
+          ranks.sort((a, b) => a.r - b.r);
+          ranks.forEach((rk, j) => {
+            const decay = Math.pow(alpha, j);
+            score += decay * rk.w / (k0 + rk.r);
+            if (j === 0) sources.push(rk.s);
+          });
+        }
+      }
+      // soft-dedup: 重复文档 rank 膨胀
+      else if (strategy === 'soft-dedup') {
+        const beta = typeof opts.beta === 'number' ? opts.beta : 0.1;
+        const inflation = (rank) => rank * (1 + beta);
+        if (fRank !== undefined && weights.fts5 > 0) {
+          score += weights.fts5 / (k0 + inflation(fRank));
+          sources.push('fts5');
+        }
+        if (vRank !== undefined && weights.vector > 0) {
+          score += weights.vector / (k0 + inflation(vRank));
+          sources.push('vector');
+        }
+        if (rRank !== undefined && weights.recency > 0) {
+          score += weights.recency / (k0 + inflation(rRank));
+          sources.push('recency');
+        }
+      }
+      // default: standard
+      else {
+        if (fRank !== undefined && weights.fts5 > 0) {
+          score += weights.fts5 / (k0 + fRank);
+          sources.push('fts5');
+        }
+        if (vRank !== undefined && weights.vector > 0) {
+          score += weights.vector / (k0 + vRank);
+          sources.push('vector');
+        }
+        if (rRank !== undefined && weights.recency > 0) {
+          score += weights.recency / (k0 + rRank);
+          sources.push('recency');
+        }
       }
       if (score < minScore) continue;
       // 取主条目详情（优先 fts5，其次 vector）
