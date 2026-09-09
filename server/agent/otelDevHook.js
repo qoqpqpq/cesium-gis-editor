@@ -124,6 +124,50 @@ function getStats() {
   };
 }
 
+/**
+ * 周期 13 P1-1: worker 入口包装
+ * 在 carrier context 内执行 fn（从 workerData._traceCarrier 恢复 traceparent）
+ * @param {object} carrier
+ * @param {Function} fn
+ * @returns {*}
+ */
+function withWorkerContext(carrier, fn) {
+  if (typeof fn !== 'function') return undefined;
+  if (!carrier || typeof carrier !== 'object' || !carrier.traceparent) {
+    return fn();
+  }
+  // 尝试从 traceparent 解析 traceId（32+16+2 hex）
+  let parsedTraceId = carrier.traceId || null;
+  if (!parsedTraceId && typeof carrier.traceparent === 'string') {
+    const m = carrier.traceparent.match(/^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})/i);
+    if (m) parsedTraceId = m[1];
+  }
+  if (!parsedTraceId) parsedTraceId = require('node:crypto').randomBytes(16).toString('hex');
+  const ctx = {
+    spanName: 'worker:anonymous',
+    traceId: parsedTraceId,
+    spanId: require('node:crypto').randomBytes(8).toString('hex'),
+    parentId: carrier.parentSpanId || null,
+    traceparent: carrier.traceparent,
+    requestId: carrier.requestId || null,
+    ts: Date.now(),
+  };
+  return _als.run(ctx, fn);
+}
+
+/**
+ * 周期 13 P1-1: 导出 W3C traceparent（从当前 ALS store 生成新 spanId）
+ * @returns {string|null}
+ */
+function getCurrentTraceparent() {
+  const ctx = _als.getStore();
+  if (!ctx) return null;
+  const traceId = ctx.traceId;
+  if (!traceId) return null;
+  const spanId = require('node:crypto').randomBytes(8).toString('hex');
+  return `00-${traceId}-${spanId}-01`;
+}
+
 module.exports = {
   install,
   uninstall,
@@ -132,5 +176,8 @@ module.exports = {
   getTraceId,
   isInstalled,
   getStats,
+  withWorkerContext,  // 周期 13 P1-1：worker 入口包装
+  getCurrentTraceparent,  // 周期 13 P1-1：导出 W3C traceparent
   _als, // 测试可访问
+  _state, // 测试可访问
 };

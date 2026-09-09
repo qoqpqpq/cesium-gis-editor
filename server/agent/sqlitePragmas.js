@@ -83,6 +83,7 @@ function startPassiveCheckpointLoop(driver, opts = {}) {
     ? opts.intervalMs
     : DEFAULT_CHECKPOINT_INTERVAL_MS;
   const onCheckpoint = typeof opts.onCheckpoint === 'function' ? opts.onCheckpoint : null;
+  const mode = opts.mode === 'TRUNCATE' ? 'TRUNCATE' : 'PASSIVE';  // 周期 13 P1-1: mode 选项
 
   const stats = { ran: 0, errors: 0, lastResult: null, lastError: null, active: true };
   let timer = null;
@@ -90,11 +91,12 @@ function startPassiveCheckpointLoop(driver, opts = {}) {
   const tick = () => {
     if (!stats.active) return;
     try {
-      // PRAGMA wal_checkpoint(PASSIVE)：不阻塞 writer；只 merge 已写入 WAL 的 page
-      // better-sqlite3 pragma() 调用不支持原生参数；用 exec 替代
-      driver.exec('PRAGMA wal_checkpoint(PASSIVE);');
+      // PRAGMA wal_checkpoint(PASSIVE|TRUNCATE)
+      // PASSIVE: 不阻塞 writer；只 merge 已写入 WAL 的 page
+      // TRUNCATE: 阻塞 writer；checkpoint + 截断 WAL 文件到 0 字节
+      driver.exec(`PRAGMA wal_checkpoint(${mode});`);
       stats.ran += 1;
-      stats.lastResult = { at: Date.now(), mode: 'PASSIVE' };
+      stats.lastResult = { at: Date.now(), mode };
       if (onCheckpoint) {
         try { onCheckpoint(stats.lastResult); } catch (_) { /* ignore */ }
       }
@@ -120,9 +122,37 @@ function startPassiveCheckpointLoop(driver, opts = {}) {
   };
 }
 
+/**
+ * 周期 13 P1-1: SQLite 版本检查（≥ 3.51.3 修复 WAL-Reset bug）
+ * @param {object} driver - better-sqlite3 driver
+ * @returns {{ version: string, major: number, minor: number, patch: number, ok: boolean, required: string }}
+ */
+function checkSqliteVersion(driver) {
+  const required = '3.51.3';
+  if (!driver || typeof driver.prepare !== 'function') {
+    return { version: 'unknown', major: 0, minor: 0, patch: 0, ok: false, required, error: 'driver missing' };
+  }
+  try {
+    const row = driver.prepare('SELECT sqlite_version() AS v').get();
+    const v = (row && row.v) ? String(row.v) : 'unknown';
+    const parts = v.split('.').map((n) => parseInt(n, 10) || 0);
+    const [major, minor, patch] = [parts[0] || 0, parts[1] || 0, parts[2] || 0];
+    const reqParts = required.split('.').map((n) => parseInt(n, 10) || 0);
+    const [rmajor, rminor, rpatch] = reqParts;
+    let ok = false;
+    if (major > rmajor) ok = true;
+    else if (major === rmajor && minor > rminor) ok = true;
+    else if (major === rmajor && minor === rminor && patch >= rpatch) ok = true;
+    return { version: v, major, minor, patch, ok, required };
+  } catch (e) {
+    return { version: 'unknown', major: 0, minor: 0, patch: 0, ok: false, required, error: e.message };
+  }
+}
+
 module.exports = {
   applyProductionPragmas,
   startPassiveCheckpointLoop,
+  checkSqliteVersion,
   RECOMMENDED_PRAGMAS,
   DEFAULT_CHECKPOINT_INTERVAL_MS,
 };
