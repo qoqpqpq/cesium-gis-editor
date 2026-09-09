@@ -1,6 +1,6 @@
 # Handler Design Checklist
 
-> **周期**: 11（2026-09-09）
+> **周期**: 11（2026-09-09）/ **周期 14 P2-1**: 添加 OWASP ASI01-10 维度（2026-09-09）
 > **作者**: MiniMax-M3
 > **目的**: handler / middleware / route 实施前的 design checklist（解决周期 10 自检扣分项）
 
@@ -141,3 +141,110 @@
 
 - `handler-design-checklist.cjs` —— **25 子断言 PASS**
 - 覆盖：文档存在 + 8 维度结构 + 反例引用 + 实施流程 + spec-first 集成
+
+---
+
+## 周期 14 P2-1 新增：OWASP ASI01-10 维度（AI 专用 handler）
+
+> 当 handler 涉及 AI agent 调用（tool / prompt / memory / inter-agent）时，必须额外检查 OWASP ASI 风险。
+
+### A1. ASI01 Agent Goal Hijack
+
+- [ ] 检测 prompt injection（9 种模式 + control chars）
+- [ ] sanitizeInput 长度限制（默认 10000 字符）
+- [ ] dangerous-action 必须 HITL approve
+- [ ] **不直接暴露 raw model response 给 caller**（先过 guardrail）
+
+参考实现：`server/middleware/aiGuardrails.js:sanitizeInput`
+
+### A2. ASI02 Tool Misuse and Exploitation
+
+- [ ] tool allowlist 显式声明（禁止 `null = 允许全部`）
+- [ ] tool input schema 校验
+- [ ] tool output 不直接拼接 prompt
+- [ ] **禁止 tool 直接执行 shell / SQL / HTTP**（必须走 sandbox）
+
+参考实现：`server/middleware/aiGuardrails.js:checkToolAllowlist`
+
+### A3. ASI03 Identity & Privilege Abuse
+
+- [ ] user identity 来源明确（header / session / token）
+- [ ] 权限分级：admin / user / anonymous
+- [ ] SPIFFE-style workload identity（评估中）
+
+参考实现：周期 13 P0-1 aiGuardrails 文档化决策
+
+### A4. ASI04 Agentic Supply Chain Vulnerabilities（周期 14 P0-1 新增）
+
+- [ ] tool manifest 含 name + source + version
+- [ ] 来源白名单（internal / npm:trusted / github:trusted）
+- [ ] 版本范围匹配（semver ^1.2 / exact）
+- [ ] HMAC 签名校验（可选 secret）
+
+参考实现：`server/middleware/aiGuardrails.js:validateManifest`
+
+### A5. ASI05 Unexpected Code Execution (RCE)
+
+- [ ] sandbox engine 明确（vm / worker / isolated-vm / auto）
+- [ ] 危险操作走 sandbox：`execute`, `rm`, `delete`, `drop`, `dropTable`, `payment`
+- [ ] sandbox timeout ≤ 30s
+- [ ] 失败自动 dump heap snapshot（周期 6 worker.error / cpu_abort / ok finish）
+
+参考实现：`server/agent/sandbox.js` + `server/agent/sandboxWorkerPool.js`
+
+### A6. ASI06 Memory & Context Poisoning（周期 14 P0-1 新增）
+
+- [ ] cross-user 注入检测（payload.userId vs ALS context.userId）
+- [ ] replay nonce 检测
+- [ ] override 系统字段检测（`admin` / `role` / `is_admin`）
+- [ ] 隔离 user memory 存储
+
+参考实现：`server/middleware/aiGuardrails.js:validateMemoryContext`
+
+### A7. ASI07 Insecure Inter-Agent Communication（周期 14 P0-1 新增）
+
+- [ ] inter-agent message 签名（HMAC-SHA256）
+- [ ] nonce 防重放（seenNonces Set）
+- [ ] ts 过期检查（默认 5 分钟）
+- [ ] secret 走环境变量（不入数据库）
+
+参考实现：`server/middleware/aiGuardrails.js:signInterAgentMessage / verifyInterAgentMessage`
+
+### A8. ASI08 Cascading Failures
+
+- [ ] circuit breaker（5 失败 / 60s window / 30s cooldown）
+- [ ] timeout / backoff / retry policy
+- [ ] 失败 metrics 暴露（`/api/metrics` + `/api/otlp/metrics`）
+- [ ] 不静默 swallow 错误
+
+参考实现：`server/middleware/aiGuardrails.js:createCircuitBreaker`
+
+### A9. ASI09 Human-Agent Trust Exploitation
+
+- [ ] dangerous action HITL 审批路径
+- [ ] HITL token 不可猜测（random 16+ bytes）
+- [ ] 用户决策日志保留
+- [ ] autonomy ladder 文档化（assist / supervised / autonomy）
+
+参考实现：周期 13 P0-1 aiGuardrails + 周期 14 调研 #1
+
+### A10. ASI10 Rogue Agents
+
+- [ ] agent 注册清单（manifest）
+- [ ] agent 行为审计（Otel span + memory log）
+- [ ] revocation 流程（紧急停用）
+- [ ] emergency kill switch
+
+参考实现：周期 14 调研 #5 + 周期 14 P2-2 文档化决策
+
+---
+
+## 周期 14 P2-1 新增：spec-first 模式
+
+周期 14 反思驱动：spec-first 模式（先写 spec → 实施 → spec PASS）成为标准实践。
+
+- 每个新 handler 必须先写 `tests/specs/<handler>.cjs`
+- spec 通过后再 commit（commit message 含 spec 引用）
+- 周期 13 反思："spec-first 模式生效"（asyncGuard telemetry 一遍过）
+
+参考：周期 11 L11、周期 12 L12-8、周期 13 L13-8 反思记录
