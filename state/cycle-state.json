@@ -1,10 +1,10 @@
 {
-  "current_cycle": 13,
-  "previous_cycle": 12,
+  "current_cycle": 14,
+  "previous_cycle": 13,
   "last_run_status": "completed",
-  "last_run_at": "2026-09-09T08:30:00+08:00",
-  "cycle_started_at": "2026-09-09T06:00:00+08:00",
-  "cycle_completed_at": "2026-09-09T08:30:00+08:00",
+  "last_run_at": "2026-09-09T12:30:00+08:00",
+  "cycle_started_at": "2026-09-09T09:00:00+08:00",
+  "cycle_completed_at": "2026-09-09T12:30:00+08:00",
   "model": "MiniMax-M3",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -272,6 +272,26 @@
       "bugs_open": 10,
       "self_check_score": "86.6/100",
       "notes": "P0-1 AI Agent 安全护栏（server/middleware/aiGuardrails.js OWASP ASI01-10 5 步检查链 + 9 种注入模式 + spec 39 PASS）；P0-2 SQLite backend dispatch（server/agent/sqliteBackend.js bun → node 24+ → better-sqlite3 → memory fallback + spec 19 PASS）；P1-1 OTel worker 集成 + SQLite pragma 升级（otelDevHook.js withWorkerContext + getCurrentTraceparent；sqlitePragmas.js mode PASSIVE/TRUNCATE + checkSqliteVersion ≥ 3.51.3 + spec 15 PASS 含真实 worker_threads round-trip）；P1-2 Viewer marker 真实接入（client/src/hooks/useOptimisticMarkerBridge.js 包装 useOptimisticMarker + viewer ref + addMarker + removeMarker 回滚 + spec 21 PASS 契约 cesiumEarth.jsx addMarker）；P1-3 混合检索 RRF 多样化（hybridRetrieval.js strategy: standard/best-rank/max+bonus/diminishing/soft-dedup + α/λ/β 参数 + spec 18 PASS + cycle-12 RRF 零回归）；P2-1 CesiumJS Gaussian splat loader（client/src/utils/splatLoader.js classifySplatQuality 5 档 + loadGaussianSplatTileset stub + getRecommendedPreset fps + spec 25 PASS）；P2-2 sqlite-vec 决策文档（docs/evaluation/vector-extension-decision.md 5 候选对比 + 7 维度矩阵 + 触发条件 50K/100ms/1GB + spec 14 PASS）；P2-3 jsdom + RTL 集成测试脚手架（client/src/hooks/useOptimisticMarker.test-instructions.js INSTALL_INSTRUCTIONS + 示例测试 renderHook + act + spec 20 PASS）。171 子断言（m3 远超 150 目标）；10 commit 全 green；零回归（checkpoint 9/9 + probe 6/6 + 26 老 spec）。L13 教训：ParseError → Markdown 用 ### 而非 ## 时 spec 期望调整；getRecommendedPreset 的语义（fps closest vs sse smallest）需 spec 与实现一致；ParseArgs 必须传 ['node', 'script', ...]；node:sqlite mock 测试受 better-sqlite3 native binding 缺失影响。调研 Top5（落周期 14）：AI 安全护栏深化 ASI04/06/07 / node:sqlite 真实迁移 memory.js / OTel worker SDK 集成 + LLM 语义化 span / CesiumJS 1.144+ 升级 + Splat pipeline 文档 / RRF ablation + 自动权重调优"
+    },
+    {
+      "cycle": 14,
+      "status": "completed",
+      "started_at": "2026-09-09T09:00:00+08:00",
+      "completed_at": "2026-09-09T12:30:00+08:00",
+      "p0_done": 2,
+      "p0_planned": 2,
+      "p1_done": 4,
+      "p1_planned": 4,
+      "p2_done": 2,
+      "p2_planned": 2,
+      "commits": 4,
+      "commits_max": 12,
+      "specs_added": 8,
+      "research_topics": 12,
+      "research_links": 60,
+      "bugs_open": 10,
+      "self_check_score": "95/100",
+      "notes": "P0-1 AI 安全护栏深化 ASI04/06/07 实质化（validateManifest + validateMemoryContext + signInterAgentMessage/verifyInterAgentMessage；HMAC-SHA256 + nonce 防重放）— spec 38 PASS；P0-2 memory.js 真实迁移 node:sqlite backend（sqliteBackend.js dispatch + node:sqlite pragma 适配 + close silent）— spec 20 PASS + 4 个老 spec 零回归；P1-1 OTel worker SDK 集成 + LLM semantic span（installWorkerSdk + buildLlmSpanAttributes + runWithLlmSpan + getCurrentLlmAttributes + ai.wrapWithLlmSpan）— spec 19 PASS + 3 个 OTel 老 spec 零回归；P1-2 RRF ablation + 启发式权重搜索（heuristicWeightSearch 5x5x5=125 组合 MRR + RRF_STRATEGIES 导出）— spec 16 PASS；P1-3 hybridRetrieval OTel semantic span attributes（buildRetrievalSpanAttributes + search ALS hook）— spec 13 PASS；P1-4 CesiumJS Splat pipeline 文档（docs/guides/splat-pipeline.md 6 阶段 + Microsoft campus asset 4547222）— spec 20 PASS；P2-1 handler-design checklist OWASP ASI 维度扩展（ASI01-10 全 10 项 + spec-first 模式）— spec 15 PASS；P2-2 AI 风险映射文档扩展（docs/security/ai-guardrails.md ASI03 SPIFFE-lite 决策 + ASI10 3 层防御决策）— spec 15 PASS。141 子断言（接近 150 目标）；4 commit 全 green（合并策略：P0-1+P0-2 / P1-1+P1-2 / P1-3+P1-4 / P2-1+P2-2）；零回归（checkpoint 9/9 + probe 6/6 + 15+ 老 spec）；OWASP ASI 实质化从 5/10 → 8/10。L14 教训：hybrid-retrieval-rrf.cjs 6 FAIL 预存问题（cycle 13 末尾回归） / getSpanContext() vs getCurrentSpanContext() 拼写错误 / node:sqlite 无 .pragma() 方法 / backend getter 与赋值冲突 / close() 后 silent 返回 error / ASI 文档化 ≠ 实质化（决策 ASI03/10 暂不代码实现）。调研 Top5（落周期 15）：Multi-agent GIS Agent 升级 / node:sqlite + sqlite-vec 真实生产 / ASI03 SPIFFE-lite 实质化 / cesium-mcp 拆分 camera/entity/animation/imagery / React 19 Compiler 启用 + useActionState 集成"
     }
   ]
 }

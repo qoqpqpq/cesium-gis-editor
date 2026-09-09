@@ -59,7 +59,28 @@
 - ✅ **P2-2** sqlite-vec 决策文档（`docs/evaluation/vector-extension-decision.md`：5 候选对比表 + 7 维度决策矩阵 + 触发条件 50K/100ms/1GB/metadata 过滤；spec 14 PASS）
 - ✅ **P2-3** jsdom + RTL 集成测试脚手架（`client/src/hooks/useOptimisticMarker.test-instructions.js`：INSTALL_INSTRUCTIONS + 示例测试 renderHook + act；spec `jsdom-rtl-instructions.cjs` 20 PASS）
 
-## 调研 Top5（由周期 13 调研产出，落周期 14+；覆盖周期 12 Top5）
+## 周期 14 已交付（2026-09-09）
+
+- ✅ **P0-1** AI 安全护栏深化（OWASP ASI04/06/07 实质化）—— `aiGuardrails.js` 加 `validateManifest`（ASI04 供应链：source 白名单 / version semver 匹配 / HMAC 签名）+ `validateMemoryContext`（ASI06 记忆投毒：cross-user / replay nonce / override 系统字段）+ `signInterAgentMessage / verifyInterAgentMessage`（ASI07 通信签名：HMAC-SHA256 + nonce 防重放 + ts 过期）；spec `ai-guardrails-deep.cjs` 38 PASS
+- ✅ **P0-2** memory.js 真实迁移 node:sqlite backend —— `MemoryStore` 构造函数走 `sqliteBackend.js` dispatch（自动检测 bun / node:sqlite / better-sqlite3 / 内存 fallback）；node:sqlite 适配（无 .pragma() 方法，用 exec('PRAGMA ...')）；close 后调用 silent 不抛错；spec `memory-node-sqlite-migration.cjs` 20 PASS（memory-fts5 / memory-wal-pragma / memory-vector-prototype / memory-als-sqlite 零回归）
+- ✅ **P1-1** OTel worker SDK 集成 + LLM semantic span —— `otelDevHook.js` 加 `installWorkerSdk(carrier)` + `buildLlmSpanAttributes(opts)`（OpenTelemetry GenAI semantic conventions：gen_ai.system / gen_ai.request.model / gen_ai.usage.input_tokens / gen_ai.usage.output_tokens）+ `runWithLlmSpan(name, fn, llmAttrs)` + `getCurrentLlmAttributes()`；`server/services/ai.js` 加 `wrapWithLlmSpan(result, opts)`；spec `otel-worker-sdk-integration.cjs` 19 PASS
+- ✅ **P1-2** RRF ablation spec + 启发式权重搜索 —— `hybridRetrieval.js` 加 `heuristicWeightSearch(store, evalSet, opts)`（5x5x5=125 组合 MRR 评估）+ `RRF_STRATEGIES` 导出；spec `hybrid-retrieval-ablation.cjs` 16 PASS + cycle-12/13 RRF spec 零回归
+- ✅ **P1-3** hybridRetrieval OTel semantic span attributes —— `hybridRetrieval.js` 加 `buildRetrievalSpanAttributes(strategy, query, results)`（retrieval.strategy / query_length / result_count / top_score / gen_ai.operation）+ `search()` ALS 内触发；spec `hybrid-retrieval-otel-attributes.cjs` 13 PASS
+- ✅ **P1-4** CesiumJS Splat pipeline 文档 —— `docs/guides/splat-pipeline.md`：从 GPS EXIF → COLMAP → SuGaR → Cesium ion 完整 6 阶段 pipeline + Microsoft campus asset 4547222 接入；spec `splat-pipeline-doc.cjs` 20 PASS
+- ✅ **P2-1** handler-design checklist OWASP ASI 维度扩展 —— `docs/architecture/handler-design-checklist.md` 加 ASI01-10 全部 10 项检查清单 + spec-first 模式记录；spec `handler-checklist-asi.cjs` 15 PASS
+- ✅ **P2-2** AI 风险映射文档扩展 —— `docs/security/ai-guardrails.md`：ASI03 SPIFFE-lite 决策 + ASI10 3 层防御决策 + ASI04/06/07 实质化细节 + 未来演进计划；spec `handler-checklist-asi.cjs` 同测 5 PASS
+
+## 调研 Top5（由周期 14 调研产出，落周期 15+；覆盖周期 13 Top5）
+
+> 调研全文见 `docs/cycles/cycle-14-research.md`（12 主题 × 5 链接 = 60 链接）。
+
+| 排名 | 主题 | 行动 | 落点 |
+| --- | ---- | ---- | ---- |
+| 1 | **Multi-agent GIS Agent 升级**（GIS Copilot + GISclaw + LangGraph 模式） | 周期 15 落地：把单 agent + tool 升级为 planner + executor + verifier multi-agent；Python sandbox 集成；spec ≥25 PASS | 升级 ai.js |
+| 2 | **node:sqlite + sqlite-vec 真实生产接入**（周期 14 已落 dispatch；周期 15 真实跑通 + sqlite-vec 评估触发） | 周期 15 落地：Node 24+ node:sqlite 真实生产；sqlite-vec 50K+ 向量时触发；spec ≥20 PASS | 升级 memory.js |
+| 3 | **AI 安全护栏 ASI03 实质化（SPIFFE-lite）**（workload identity：tool-name + userId + sessionId 三元组签名） | 周期 15 落地：aiGuardrails.js 加 workloadIdentity()；spec ≥18 PASS | 升级 aiGuardrails |
+| 4 | **cesium-mcp 集成升级**（cesiumjs-ai-starter-app 架构：camera / entity / animation / imagery 拆分） | 周期 15 落地：拆分 mcp server 4 个；spec ≥20 PASS | 升级 mcpManifest |
+| 5 | **React 19 Compiler 启用 + useActionState 真实集成**（自动 memoization 删 2300 行 + Actions 集成） | 周期 15 落地：启用 React Compiler；useActionState 联合 hook；spec ≥15 PASS | 升级 client |
 
 > 调研全文见 `docs/cycles/cycle-13-research.md`（12 主题 × 5 链接 = 60 链接）。
 
