@@ -1,5 +1,6 @@
 // server/middleware/telemetryCollector.js
 // 周期 10 P1-2: client error telemetry 收集器（sliding window 内存 buffer）
+// 周期 11 P2-2: 可选持久化（env TELEMETRY_PERSIST_PATH 启用 → 写 JSONL）
 //
 // 背景：
 //   - client/src/utils/asyncGuard.js（周期 9 P1-3）捕获 unhandledrejection + window.error
@@ -9,6 +10,7 @@
 //     - localhost-only 防外网注入
 //     - 周期性聚合（>100/分钟聚合后批量 flush）
 //     - 不持久化（仅内存；周期 11+ 评估 Postgres 落地）
+//   - 周期 11 P2-2：可选持久化（env TELEMETRY_PERSIST_PATH 启用 → 写 JSONL；默认关闭）
 //
 // 导出：
 //   - recordClientError(payload): 记录一条 client error（保留最近 1000 条 / 1h）
@@ -19,11 +21,18 @@
 
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
+
 const DEFAULT_MAX_ITEMS = 1000;
 const DEFAULT_TTL_MS = 60 * 60 * 1000; // 1 hour
 const DEFAULT_FLUSH_THRESHOLD = 100;
+// 周期 11 P2-2: 可选持久化（env TELEMETRY_PERSIST_PATH；未设置则不持久化）
+const PERSIST_PATH = process.env.TELEMETRY_PERSIST_PATH || '';
+const PERSIST_MAX_BYTES = 10 * 1024 * 1024; // 10MB 上限（防磁盘爆）
 
 let _buffer = [];
+let _persistBytes = 0;
 
 /**
  * 记录一条 client error
@@ -56,6 +65,19 @@ function recordClientError(payload) {
   _buffer = _buffer.filter((it) => now - it.ts < DEFAULT_TTL_MS);
   if (_buffer.length > DEFAULT_MAX_ITEMS) {
     _buffer = _buffer.slice(-DEFAULT_MAX_ITEMS);
+  }
+  // 周期 11 P2-2: 可选持久化（JSONL append；超上限停止）
+  if (PERSIST_PATH && _persistBytes < PERSIST_MAX_BYTES) {
+    try {
+      const line = JSON.stringify(item) + '\n';
+      fs.appendFileSync(PERSIST_PATH, line, 'utf8');
+      _persistBytes += Buffer.byteLength(line, 'utf8');
+    } catch (e) {
+      // 持久化失败不抛错；仅 console.warn
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn('[telemetry] persist failed:', e.message);
+      }
+    }
   }
   return true;
 }
@@ -92,6 +114,20 @@ function getClientErrorSummary() {
  */
 function _resetBuffer() {
   _buffer = [];
+  _persistBytes = 0;
+}
+
+/**
+ * 周期 11 P2-2: 持久化状态查询（用于 spec 验证 + 监控）
+ */
+function getPersistStatus() {
+  return {
+    enabled: !!PERSIST_PATH,
+    path: PERSIST_PATH || null,
+    bytesWritten: _persistBytes,
+    maxBytes: PERSIST_MAX_BYTES,
+    remainingBytes: Math.max(0, PERSIST_MAX_BYTES - _persistBytes),
+  };
 }
 
 /**
@@ -113,6 +149,7 @@ module.exports = {
   getClientErrorSummary,
   _resetBuffer,
   _maybeFlush,
+  getPersistStatus,
   DEFAULT_MAX_ITEMS,
   DEFAULT_TTL_MS,
   DEFAULT_FLUSH_THRESHOLD,
