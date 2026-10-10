@@ -9,7 +9,9 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        // 可用 VITE_API_TARGET 覆盖后端地址（默认 3001）。
+        // 本机 3001 被占用时：VITE_API_TARGET=http://localhost:3101 npm run dev
+        target: process.env.VITE_API_TARGET || 'http://localhost:3001',
         changeOrigin: true,
       },
     },
