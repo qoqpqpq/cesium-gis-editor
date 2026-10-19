@@ -72,6 +72,51 @@
 
 ---
 
+## R4: ratelimit-regression.cjs
+
+```
+=== ratelimit-regression ===
+  [PASS] A1: 初始桶满（capacity=5）→ 前 5 次 allowed
+  [PASS] A2: 第 6 次请求 → allowed:false
+  [PASS] A3: 桶满不会超过 capacity
+  [PASS] A4: 多 key 独立（key1 用完不影响 key2）
+  [PASS] A5: reset 后重新允许
+  [PASS] A6: refill 后重新允许
+  [PASS] B1: slidingWindow 前 N 次 allowed
+  [PASS] B2: 第 N+1 次 → 超限
+  [PASS] C1: rateLimit.js 含 slidingWindow 函数
+  [PASS] C2: rateLimit.js 含 tokenBucket 函数
+  [PASS] C3: rateLimit.js 含 InMemoryTokenBucketStore 类
+  [PASS] C4: rateLimit.js 含 RedisTokenBucketStore 类
+  [PASS] C5: rateLimit.js 含 multiLevelLimiter 函数
+  [PASS] C6: rateLimit.js 含 aiMultiLevelLimiter 函数
+  [PASS] C7: rateLimit.js 导出所有公共 API
+  [PASS] D1: 存在 ratelimit-token-bucket.cjs
+  [PASS] D2: 存在 ratelimit-sliding-window.cjs
+  [PASS] D3: 存在 ratelimit-standard-headers.cjs
+  [PASS] D4: 存在 ratelimit-store-interface.cjs
+  [PASS] D5: 存在 ratelimit-routes-integration.cjs
+  [PASS] D6: 限流 spec 数量 ≥ 5
+  [PASS] E1: rateLimit.js 含 RateLimit-* header 设置
+  [PASS] E2: rateLimit.js 含 X-RateLimit-* header 设置
+  [PASS] E3: rateLimit.js 含 Retry-After header
+--- summary: pass=24 fail=0 ---
+```
+
+---
+
+## 回归测试（R4）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## R3: aiagent-structure.cjs
 
 ```
@@ -112,6 +157,51 @@
 ---
 
 ## 回归测试（R3）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
+## R4: ratelimit-regression.cjs
+
+```
+=== ratelimit-regression ===
+  [PASS] A1: 初始桶满（capacity=5）→ 前 5 次 allowed
+  [PASS] A2: 第 6 次请求 → allowed:false
+  [PASS] A3: 桶满不会超过 capacity
+  [PASS] A4: 多 key 独立（key1 用完不影响 key2）
+  [PASS] A5: reset 后重新允许
+  [PASS] A6: refill 后重新允许
+  [PASS] B1: slidingWindow 前 N 次 allowed
+  [PASS] B2: 第 N+1 次 → 超限
+  [PASS] C1: rateLimit.js 含 slidingWindow 函数
+  [PASS] C2: rateLimit.js 含 tokenBucket 函数
+  [PASS] C3: rateLimit.js 含 InMemoryTokenBucketStore 类
+  [PASS] C4: rateLimit.js 含 RedisTokenBucketStore 类
+  [PASS] C5: rateLimit.js 含 multiLevelLimiter 函数
+  [PASS] C6: rateLimit.js 含 aiMultiLevelLimiter 函数
+  [PASS] C7: rateLimit.js 导出所有公共 API
+  [PASS] D1: 存在 ratelimit-token-bucket.cjs
+  [PASS] D2: 存在 ratelimit-sliding-window.cjs
+  [PASS] D3: 存在 ratelimit-standard-headers.cjs
+  [PASS] D4: 存在 ratelimit-store-interface.cjs
+  [PASS] D5: 存在 ratelimit-routes-integration.cjs
+  [PASS] D6: 限流 spec 数量 ≥ 5
+  [PASS] E1: rateLimit.js 含 RateLimit-* header 设置
+  [PASS] E2: rateLimit.js 含 X-RateLimit-* header 设置
+  [PASS] E3: rateLimit.js 含 Retry-After header
+--- summary: pass=24 fail=0 ---
+```
+
+---
+
+## 回归测试（R4）
 
 | Spec | 结果 |
 |---|---|
@@ -172,6 +262,51 @@
 
 ---
 
+## R4: ratelimit-regression.cjs
+
+```
+=== ratelimit-regression ===
+  [PASS] A1: 初始桶满（capacity=5）→ 前 5 次 allowed
+  [PASS] A2: 第 6 次请求 → allowed:false
+  [PASS] A3: 桶满不会超过 capacity
+  [PASS] A4: 多 key 独立（key1 用完不影响 key2）
+  [PASS] A5: reset 后重新允许
+  [PASS] A6: refill 后重新允许
+  [PASS] B1: slidingWindow 前 N 次 allowed
+  [PASS] B2: 第 N+1 次 → 超限
+  [PASS] C1: rateLimit.js 含 slidingWindow 函数
+  [PASS] C2: rateLimit.js 含 tokenBucket 函数
+  [PASS] C3: rateLimit.js 含 InMemoryTokenBucketStore 类
+  [PASS] C4: rateLimit.js 含 RedisTokenBucketStore 类
+  [PASS] C5: rateLimit.js 含 multiLevelLimiter 函数
+  [PASS] C6: rateLimit.js 含 aiMultiLevelLimiter 函数
+  [PASS] C7: rateLimit.js 导出所有公共 API
+  [PASS] D1: 存在 ratelimit-token-bucket.cjs
+  [PASS] D2: 存在 ratelimit-sliding-window.cjs
+  [PASS] D3: 存在 ratelimit-standard-headers.cjs
+  [PASS] D4: 存在 ratelimit-store-interface.cjs
+  [PASS] D5: 存在 ratelimit-routes-integration.cjs
+  [PASS] D6: 限流 spec 数量 ≥ 5
+  [PASS] E1: rateLimit.js 含 RateLimit-* header 设置
+  [PASS] E2: rateLimit.js 含 X-RateLimit-* header 设置
+  [PASS] E3: rateLimit.js 含 Retry-After header
+--- summary: pass=24 fail=0 ---
+```
+
+---
+
+## 回归测试（R4）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## R3: aiagent-structure.cjs
 
 ```
@@ -212,6 +347,51 @@
 ---
 
 ## 回归测试（R3）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
+## R4: ratelimit-regression.cjs
+
+```
+=== ratelimit-regression ===
+  [PASS] A1: 初始桶满（capacity=5）→ 前 5 次 allowed
+  [PASS] A2: 第 6 次请求 → allowed:false
+  [PASS] A3: 桶满不会超过 capacity
+  [PASS] A4: 多 key 独立（key1 用完不影响 key2）
+  [PASS] A5: reset 后重新允许
+  [PASS] A6: refill 后重新允许
+  [PASS] B1: slidingWindow 前 N 次 allowed
+  [PASS] B2: 第 N+1 次 → 超限
+  [PASS] C1: rateLimit.js 含 slidingWindow 函数
+  [PASS] C2: rateLimit.js 含 tokenBucket 函数
+  [PASS] C3: rateLimit.js 含 InMemoryTokenBucketStore 类
+  [PASS] C4: rateLimit.js 含 RedisTokenBucketStore 类
+  [PASS] C5: rateLimit.js 含 multiLevelLimiter 函数
+  [PASS] C6: rateLimit.js 含 aiMultiLevelLimiter 函数
+  [PASS] C7: rateLimit.js 导出所有公共 API
+  [PASS] D1: 存在 ratelimit-token-bucket.cjs
+  [PASS] D2: 存在 ratelimit-sliding-window.cjs
+  [PASS] D3: 存在 ratelimit-standard-headers.cjs
+  [PASS] D4: 存在 ratelimit-store-interface.cjs
+  [PASS] D5: 存在 ratelimit-routes-integration.cjs
+  [PASS] D6: 限流 spec 数量 ≥ 5
+  [PASS] E1: rateLimit.js 含 RateLimit-* header 设置
+  [PASS] E2: rateLimit.js 含 X-RateLimit-* header 设置
+  [PASS] E3: rateLimit.js 含 Retry-After header
+--- summary: pass=24 fail=0 ---
+```
+
+---
+
+## 回归测试（R4）
 
 | Spec | 结果 |
 |---|---|

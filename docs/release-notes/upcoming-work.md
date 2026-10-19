@@ -114,7 +114,7 @@
 - [x] **P2-1** `client/src/pages/gis/editor/utils/*.js` 中 9 个工具类文件与 turf 互操作缺乏单元测试。✅ 2026-10-15 R1
 - [x] **P2-2** `client/src/pages/gis/sandbox.js` 与 `server/agent/protocol/parse.js` 协议字符串重复实现 → 统一从 protocol.js 导出 + npm script 同步检查。✅ 2026-10-15 R2
 - [x] **P2-3** `client/src/pages/gis/aiAgent.js` 体积大且无注释（待通读），P2 阶段拆分候选。✅ 2026-10-15 R3
-- [ ] **P2-4** 限流算法无回归验证（周期 6 已落 Token Bucket；确认 checkpoint 零回归）。
+- [x] **P2-4** 限流算法无回归验证（周期 6 已落 Token Bucket；确认 checkpoint 零回归）。✅ 2026-10-15 R4
 
 ### 已交付但仍在 upcoming 中（清理项）
 
