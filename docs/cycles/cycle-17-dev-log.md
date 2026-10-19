@@ -102,13 +102,43 @@
 
 ---
 
+## R4: P1-4 splatLoader.js + tilesetLoader.js 加载器测试
+
+**来源**：周期 17 新增 P1 任务
+
+**新增文件**：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `tests/specs/tileset-loaders.cjs` | 新建 | 47 PASS spec |
+
+**实现内容**：
+- splatLoader.js 静态扫描（7 项）：SPLAT_QUALITY_PRESETS / classifySplatQuality / loadGaussianSplatTileset / getSplatLODConfig / getRecommendedPreset / 常量导出 / 默认导出
+- splatLoader.js 逻辑验证（7 项）：5 个预设 / classifySplatQuality 类型检查 / 返回 unknown / loadGaussianSplatTileset 检查 viewer / 检查 assetId / getSplatLODConfig 检查 / getRecommendedPreset 默认
+- tilesetLoader.js 静态扫描（9 项）：KNOWN_GAUSSIAN_EXTS / KNOWN_VECTOR_EXTS / KNOWN_VOXEL_EXTS / classifyTileset / chooseRenderMode / isFeatureSupported / isTileset2x / 常量导出 / 默认导出
+- tilesetLoader.js 逻辑验证（13 项）：classifyTileset 输入检查 / root 或 asset 检查 / gltfUpAxis 检测 / version 2.1 检测 / Gaussian splat 检测 / vector tiles 检测 / voxel 检测 / chooseRenderMode 优先级 / isFeatureSupported 类型检查 / gaussian-splat / vector-tiles / voxel / isTileset2x
+- classifyTileset 实际测试（6 项）：1.x tileset / 2.0 tileset / 2.1 tileset / Gaussian splat / Vector tiles / 无效输入
+- chooseRenderMode 实际测试（5 项）：无 cls / 1.x / Gaussian splat / Vector tiles / Hybrid
+
+**子断言**：47 PASS / 0 FAIL
+
+**回归验证**：
+- ai-guardrails: 39 PASS ✅
+- ai-guardrails-deep: 38 PASS ✅
+- server-import-completeness: 12 PASS ✅
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## 总计
 
 - **R1**：38 PASS / 0 FAIL（P1-1）
 - **R2**：43 PASS / 0 FAIL（P1-2）
 - **R3**：44 PASS / 0 FAIL（P1-3）
-- **Commits**：3 个
-- **新增 spec**：3 个（viewstate-url-serialization + asyncguard-error-handling + sessionkeys-management）
+- **R4**：47 PASS / 0 FAIL（P1-4）
+- **Commits**：4 个
+- **新增 spec**：4 个（viewstate-url-serialization + asyncguard-error-handling + sessionkeys-management + tileset-loaders）
 - **新增文档**：4 个（cycle-17-execution-plan + cycle-17-dev-log + cycle-17-test-report + cycle-17-self-check）
 
-**Cycle 17 进度**：3/4 轮完成，P1 3/4，共 125 PASS / 0 FAIL
+**Cycle 17 完成**：4 轮全部完成，P1 4/4，共 172 PASS / 0 FAIL

@@ -63,6 +63,74 @@
 
 ---
 
+## R4: tileset-loaders.cjs
+
+```
+=== tileset-loaders ===
+  [PASS] A1: 定义 SPLAT_QUALITY_PRESETS
+  [PASS] A2: 导出 classifySplatQuality 函数
+  [PASS] A3: 导出 loadGaussianSplatTileset 函数
+  [PASS] A4: 导出 getSplatLODConfig 函数
+  [PASS] A5: 导出 getRecommendedPreset 函数
+  [PASS] A6: 导出 SPLAT_QUALITY_PRESETS 常量
+  [PASS] A7: 导出默认对象
+  [PASS] B1: SPLAT_QUALITY_PRESETS 含 5 个预设
+  [PASS] B2: classifySplatQuality 检查 sse 类型
+  [PASS] B3: classifySplatQuality 返回 unknown 当无效
+  [PASS] B4: loadGaussianSplatTileset 检查 viewer
+  [PASS] B5: loadGaussianSplatTileset 检查 assetId 类型
+  [PASS] B6: getSplatLODConfig 检查 viewer._splatTileset
+  [PASS] B7: getRecommendedPreset 默认 balanced
+  [PASS] C1: 定义 KNOWN_GAUSSIAN_EXTS
+  [PASS] C2: 定义 KNOWN_VECTOR_EXTS
+  [PASS] C3: 定义 KNOWN_VOXEL_EXTS
+  [PASS] C4: 导出 classifyTileset 函数
+  [PASS] C5: 导出 chooseRenderMode 函数
+  [PASS] C6: 导出 isFeatureSupported 函数
+  [PASS] C7: 导出 isTileset2x 函数
+  [PASS] C8: 导出 KNOWN_*_EXTS 常量
+  [PASS] C9: 导出默认对象
+  [PASS] D1: classifyTileset 检查输入类型
+  [PASS] D2: classifyTileset 检查 root 或 asset 字段
+  [PASS] D3: classifyTileset 检测 gltfUpAxis
+  [PASS] D4: classifyTileset 检测 version 2.1
+  [PASS] D5: classifyTileset 检测 Gaussian splat
+  [PASS] D6: classifyTileset 检测 vector tiles
+  [PASS] D7: classifyTileset 检测 voxel
+  [PASS] D8: chooseRenderMode 优先级 hybrid > gaussian > vector > legacy
+  [PASS] D9: isFeatureSupported 检查 feature 类型
+  [PASS] D10: isFeatureSupported 检查 gaussian-splat
+  [PASS] D11: isFeatureSupported 检查 vector-tiles
+  [PASS] D12: isFeatureSupported 检查 voxel
+  [PASS] D13: isTileset2x 检查 gltfVersion 2.1
+  [PASS] E1: 1.x tileset (仅 root)
+  [PASS] E2: 2.0 tileset (asset.gltfUpAxis)
+  [PASS] E3: 2.1 tileset (asset.version)
+  [PASS] E4: Gaussian splat tileset
+  [PASS] E5: Vector tiles tileset
+  [PASS] E6: 无效输入返回空对象
+  [PASS] F1: 无 cls 返回 legacy
+  [PASS] F2: 1.x 返回 legacy
+  [PASS] F3: Gaussian splat 返回 gaussian-splat
+  [PASS] F4: Vector tiles 返回 vector-tiles
+  [PASS] F5: Hybrid 返回 hybrid
+--- summary: pass=47 fail=0 ---
+```
+
+---
+
+## 回归测试（R4）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## R3: sessionkeys-management.cjs
 
 ```
@@ -117,6 +185,74 @@
 ---
 
 ## 回归测试（R3）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
+## R4: tileset-loaders.cjs
+
+```
+=== tileset-loaders ===
+  [PASS] A1: 定义 SPLAT_QUALITY_PRESETS
+  [PASS] A2: 导出 classifySplatQuality 函数
+  [PASS] A3: 导出 loadGaussianSplatTileset 函数
+  [PASS] A4: 导出 getSplatLODConfig 函数
+  [PASS] A5: 导出 getRecommendedPreset 函数
+  [PASS] A6: 导出 SPLAT_QUALITY_PRESETS 常量
+  [PASS] A7: 导出默认对象
+  [PASS] B1: SPLAT_QUALITY_PRESETS 含 5 个预设
+  [PASS] B2: classifySplatQuality 检查 sse 类型
+  [PASS] B3: classifySplatQuality 返回 unknown 当无效
+  [PASS] B4: loadGaussianSplatTileset 检查 viewer
+  [PASS] B5: loadGaussianSplatTileset 检查 assetId 类型
+  [PASS] B6: getSplatLODConfig 检查 viewer._splatTileset
+  [PASS] B7: getRecommendedPreset 默认 balanced
+  [PASS] C1: 定义 KNOWN_GAUSSIAN_EXTS
+  [PASS] C2: 定义 KNOWN_VECTOR_EXTS
+  [PASS] C3: 定义 KNOWN_VOXEL_EXTS
+  [PASS] C4: 导出 classifyTileset 函数
+  [PASS] C5: 导出 chooseRenderMode 函数
+  [PASS] C6: 导出 isFeatureSupported 函数
+  [PASS] C7: 导出 isTileset2x 函数
+  [PASS] C8: 导出 KNOWN_*_EXTS 常量
+  [PASS] C9: 导出默认对象
+  [PASS] D1: classifyTileset 检查输入类型
+  [PASS] D2: classifyTileset 检查 root 或 asset 字段
+  [PASS] D3: classifyTileset 检测 gltfUpAxis
+  [PASS] D4: classifyTileset 检测 version 2.1
+  [PASS] D5: classifyTileset 检测 Gaussian splat
+  [PASS] D6: classifyTileset 检测 vector tiles
+  [PASS] D7: classifyTileset 检测 voxel
+  [PASS] D8: chooseRenderMode 优先级 hybrid > gaussian > vector > legacy
+  [PASS] D9: isFeatureSupported 检查 feature 类型
+  [PASS] D10: isFeatureSupported 检查 gaussian-splat
+  [PASS] D11: isFeatureSupported 检查 vector-tiles
+  [PASS] D12: isFeatureSupported 检查 voxel
+  [PASS] D13: isTileset2x 检查 gltfVersion 2.1
+  [PASS] E1: 1.x tileset (仅 root)
+  [PASS] E2: 2.0 tileset (asset.gltfUpAxis)
+  [PASS] E3: 2.1 tileset (asset.version)
+  [PASS] E4: Gaussian splat tileset
+  [PASS] E5: Vector tiles tileset
+  [PASS] E6: 无效输入返回空对象
+  [PASS] F1: 无 cls 返回 legacy
+  [PASS] F2: 1.x 返回 legacy
+  [PASS] F3: Gaussian splat 返回 gaussian-splat
+  [PASS] F4: Vector tiles 返回 vector-tiles
+  [PASS] F5: Hybrid 返回 hybrid
+--- summary: pass=47 fail=0 ---
+```
+
+---
+
+## 回归测试（R4）
 
 | Spec | 结果 |
 |---|---|
@@ -192,6 +328,74 @@
 
 ---
 
+## R4: tileset-loaders.cjs
+
+```
+=== tileset-loaders ===
+  [PASS] A1: 定义 SPLAT_QUALITY_PRESETS
+  [PASS] A2: 导出 classifySplatQuality 函数
+  [PASS] A3: 导出 loadGaussianSplatTileset 函数
+  [PASS] A4: 导出 getSplatLODConfig 函数
+  [PASS] A5: 导出 getRecommendedPreset 函数
+  [PASS] A6: 导出 SPLAT_QUALITY_PRESETS 常量
+  [PASS] A7: 导出默认对象
+  [PASS] B1: SPLAT_QUALITY_PRESETS 含 5 个预设
+  [PASS] B2: classifySplatQuality 检查 sse 类型
+  [PASS] B3: classifySplatQuality 返回 unknown 当无效
+  [PASS] B4: loadGaussianSplatTileset 检查 viewer
+  [PASS] B5: loadGaussianSplatTileset 检查 assetId 类型
+  [PASS] B6: getSplatLODConfig 检查 viewer._splatTileset
+  [PASS] B7: getRecommendedPreset 默认 balanced
+  [PASS] C1: 定义 KNOWN_GAUSSIAN_EXTS
+  [PASS] C2: 定义 KNOWN_VECTOR_EXTS
+  [PASS] C3: 定义 KNOWN_VOXEL_EXTS
+  [PASS] C4: 导出 classifyTileset 函数
+  [PASS] C5: 导出 chooseRenderMode 函数
+  [PASS] C6: 导出 isFeatureSupported 函数
+  [PASS] C7: 导出 isTileset2x 函数
+  [PASS] C8: 导出 KNOWN_*_EXTS 常量
+  [PASS] C9: 导出默认对象
+  [PASS] D1: classifyTileset 检查输入类型
+  [PASS] D2: classifyTileset 检查 root 或 asset 字段
+  [PASS] D3: classifyTileset 检测 gltfUpAxis
+  [PASS] D4: classifyTileset 检测 version 2.1
+  [PASS] D5: classifyTileset 检测 Gaussian splat
+  [PASS] D6: classifyTileset 检测 vector tiles
+  [PASS] D7: classifyTileset 检测 voxel
+  [PASS] D8: chooseRenderMode 优先级 hybrid > gaussian > vector > legacy
+  [PASS] D9: isFeatureSupported 检查 feature 类型
+  [PASS] D10: isFeatureSupported 检查 gaussian-splat
+  [PASS] D11: isFeatureSupported 检查 vector-tiles
+  [PASS] D12: isFeatureSupported 检查 voxel
+  [PASS] D13: isTileset2x 检查 gltfVersion 2.1
+  [PASS] E1: 1.x tileset (仅 root)
+  [PASS] E2: 2.0 tileset (asset.gltfUpAxis)
+  [PASS] E3: 2.1 tileset (asset.version)
+  [PASS] E4: Gaussian splat tileset
+  [PASS] E5: Vector tiles tileset
+  [PASS] E6: 无效输入返回空对象
+  [PASS] F1: 无 cls 返回 legacy
+  [PASS] F2: 1.x 返回 legacy
+  [PASS] F3: Gaussian splat 返回 gaussian-splat
+  [PASS] F4: Vector tiles 返回 vector-tiles
+  [PASS] F5: Hybrid 返回 hybrid
+--- summary: pass=47 fail=0 ---
+```
+
+---
+
+## 回归测试（R4）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## R3: sessionkeys-management.cjs
 
 ```
@@ -246,6 +450,74 @@
 ---
 
 ## 回归测试（R3）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
+## R4: tileset-loaders.cjs
+
+```
+=== tileset-loaders ===
+  [PASS] A1: 定义 SPLAT_QUALITY_PRESETS
+  [PASS] A2: 导出 classifySplatQuality 函数
+  [PASS] A3: 导出 loadGaussianSplatTileset 函数
+  [PASS] A4: 导出 getSplatLODConfig 函数
+  [PASS] A5: 导出 getRecommendedPreset 函数
+  [PASS] A6: 导出 SPLAT_QUALITY_PRESETS 常量
+  [PASS] A7: 导出默认对象
+  [PASS] B1: SPLAT_QUALITY_PRESETS 含 5 个预设
+  [PASS] B2: classifySplatQuality 检查 sse 类型
+  [PASS] B3: classifySplatQuality 返回 unknown 当无效
+  [PASS] B4: loadGaussianSplatTileset 检查 viewer
+  [PASS] B5: loadGaussianSplatTileset 检查 assetId 类型
+  [PASS] B6: getSplatLODConfig 检查 viewer._splatTileset
+  [PASS] B7: getRecommendedPreset 默认 balanced
+  [PASS] C1: 定义 KNOWN_GAUSSIAN_EXTS
+  [PASS] C2: 定义 KNOWN_VECTOR_EXTS
+  [PASS] C3: 定义 KNOWN_VOXEL_EXTS
+  [PASS] C4: 导出 classifyTileset 函数
+  [PASS] C5: 导出 chooseRenderMode 函数
+  [PASS] C6: 导出 isFeatureSupported 函数
+  [PASS] C7: 导出 isTileset2x 函数
+  [PASS] C8: 导出 KNOWN_*_EXTS 常量
+  [PASS] C9: 导出默认对象
+  [PASS] D1: classifyTileset 检查输入类型
+  [PASS] D2: classifyTileset 检查 root 或 asset 字段
+  [PASS] D3: classifyTileset 检测 gltfUpAxis
+  [PASS] D4: classifyTileset 检测 version 2.1
+  [PASS] D5: classifyTileset 检测 Gaussian splat
+  [PASS] D6: classifyTileset 检测 vector tiles
+  [PASS] D7: classifyTileset 检测 voxel
+  [PASS] D8: chooseRenderMode 优先级 hybrid > gaussian > vector > legacy
+  [PASS] D9: isFeatureSupported 检查 feature 类型
+  [PASS] D10: isFeatureSupported 检查 gaussian-splat
+  [PASS] D11: isFeatureSupported 检查 vector-tiles
+  [PASS] D12: isFeatureSupported 检查 voxel
+  [PASS] D13: isTileset2x 检查 gltfVersion 2.1
+  [PASS] E1: 1.x tileset (仅 root)
+  [PASS] E2: 2.0 tileset (asset.gltfUpAxis)
+  [PASS] E3: 2.1 tileset (asset.version)
+  [PASS] E4: Gaussian splat tileset
+  [PASS] E5: Vector tiles tileset
+  [PASS] E6: 无效输入返回空对象
+  [PASS] F1: 无 cls 返回 legacy
+  [PASS] F2: 1.x 返回 legacy
+  [PASS] F3: Gaussian splat 返回 gaussian-splat
+  [PASS] F4: Vector tiles 返回 vector-tiles
+  [PASS] F5: Hybrid 返回 hybrid
+--- summary: pass=47 fail=0 ---
+```
+
+---
+
+## 回归测试（R4）
 
 | Spec | 结果 |
 |---|---|
