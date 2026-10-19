@@ -72,6 +72,57 @@
 
 ---
 
+## R3: aiagent-structure.cjs
+
+```
+=== aiagent-structure ===
+  [PASS] A1: aiAgent.js 文件存在
+  [PASS] A2: aiAgent.js 行数 > 400
+  [PASS] A3: aiAgent.js 行数 < 500
+  [PASS] B1: 定义 MAX_TURNS 常量
+  [PASS] B2: 定义 MAX_TRANSCRIPT_CHARS 常量
+  [PASS] B3: 定义 CONFIRM_TIMEOUT_MS 常量
+  [PASS] B4: 定义 THINK_TAG_RE 正则
+  [PASS] C1: 定义 formatToolResult 函数
+  [PASS] C2: 定义 completedTools 函数
+  [PASS] C3: 定义 streamOnceWithEndpoint 函数
+  [PASS] C4: 定义 streamOnce 函数
+  [PASS] C5: 定义 trimTranscript 函数
+  [PASS] C6: 定义 runAgentLoop 导出函数
+  [PASS] D1: 导入 aiApi
+  [PASS] D2: 导入 parseToolTags
+  [PASS] D3: 导入 executeTool
+  [PASS] D4: 导入 executeWriteToolPayload
+  [PASS] D5: 导入 describeWriteTool
+  [PASS] D6: 导入 shouldFallbackToLegacy
+  [PASS] E1: 含 TOOL_RESULT 哨兵格式
+  [PASS] E2: 含 SYSTEM_NOTE 哨兵格式
+  [PASS] E3: 含 SSE event 解析（delta/tool_calls/usage/done/error）
+  [PASS] E4: 含 fallback 逻辑（agent → chat/stream）
+  [PASS] E5: 含工具去重逻辑
+  [PASS] E6: 含写工具确认逻辑
+  [PASS] E7: 含 transcript 裁剪逻辑
+  [PASS] F1: 拆分方案文档存在
+  [PASS] F2: 拆分方案含 3 个方案
+  [PASS] F3: 拆分方案含优先级表
+  [PASS] F4: 拆分方案含风险评估
+--- summary: pass=30 fail=0 ---
+```
+
+---
+
+## 回归测试（R3）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## R2: protocol-sync-unified.cjs
 
 ```
@@ -110,6 +161,57 @@
 ---
 
 ## 回归测试
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
+## R3: aiagent-structure.cjs
+
+```
+=== aiagent-structure ===
+  [PASS] A1: aiAgent.js 文件存在
+  [PASS] A2: aiAgent.js 行数 > 400
+  [PASS] A3: aiAgent.js 行数 < 500
+  [PASS] B1: 定义 MAX_TURNS 常量
+  [PASS] B2: 定义 MAX_TRANSCRIPT_CHARS 常量
+  [PASS] B3: 定义 CONFIRM_TIMEOUT_MS 常量
+  [PASS] B4: 定义 THINK_TAG_RE 正则
+  [PASS] C1: 定义 formatToolResult 函数
+  [PASS] C2: 定义 completedTools 函数
+  [PASS] C3: 定义 streamOnceWithEndpoint 函数
+  [PASS] C4: 定义 streamOnce 函数
+  [PASS] C5: 定义 trimTranscript 函数
+  [PASS] C6: 定义 runAgentLoop 导出函数
+  [PASS] D1: 导入 aiApi
+  [PASS] D2: 导入 parseToolTags
+  [PASS] D3: 导入 executeTool
+  [PASS] D4: 导入 executeWriteToolPayload
+  [PASS] D5: 导入 describeWriteTool
+  [PASS] D6: 导入 shouldFallbackToLegacy
+  [PASS] E1: 含 TOOL_RESULT 哨兵格式
+  [PASS] E2: 含 SYSTEM_NOTE 哨兵格式
+  [PASS] E3: 含 SSE event 解析（delta/tool_calls/usage/done/error）
+  [PASS] E4: 含 fallback 逻辑（agent → chat/stream）
+  [PASS] E5: 含工具去重逻辑
+  [PASS] E6: 含写工具确认逻辑
+  [PASS] E7: 含 transcript 裁剪逻辑
+  [PASS] F1: 拆分方案文档存在
+  [PASS] F2: 拆分方案含 3 个方案
+  [PASS] F3: 拆分方案含优先级表
+  [PASS] F4: 拆分方案含风险评估
+--- summary: pass=30 fail=0 ---
+```
+
+---
+
+## 回归测试（R3）
 
 | Spec | 结果 |
 |---|---|
