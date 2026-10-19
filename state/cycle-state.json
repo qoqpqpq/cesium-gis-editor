@@ -2,13 +2,13 @@
   "current_cycle": 21,
   "previous_cycle": 20,
   "last_run_status": "in_progress",
-  "last_run_at": "2026-10-16T19:00:00+08:00",
+  "last_run_at": "2026-10-16T20:00:00+08:00",
   "cycle_started_at": "2026-10-16T19:00:00+08:00",
   "cycle_completed_at": null,
-  "current_round": 1,
+  "current_round": 2,
   "round_status": "completed",
-  "round_completed_at": "2026-10-16T20:00:00+08:00",
-  "round_summary": "P1-1: protocol/format.js protocol format tests - 46/46 PASS",
+  "round_completed_at": "2026-10-16T21:00:00+08:00",
+  "round_summary": "P1-2: protocol/parse.js protocol parse tests - 70/70 PASS",
   "model": "MiniMax-M3",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -449,14 +449,14 @@
       "p1_planned": 4,
       "p2_done": 0,
       "p2_planned": 0,
-      "commits": 1,
+      "commits": 2,
       "commits_max": 12,
-      "specs_added": 1,
+      "specs_added": 2,
       "research_topics": 0,
       "research_links": 0,
       "bugs_open": 10,
       "self_check_score": "40/40",
-      "notes": "R1: P1-1 protocol/format.js 协议格式化测试—— protocol-format.cjs 46 PASS（A组 4 导出验证 + B组 6 TOOL_RESULT_RE 正则 + C组 8 formatToolResult 逻辑 + D组 2 formatSystemNote 逻辑 + E组 4 lastToolSignature 逻辑 + F组 7 formatToolResult 实际测试 + G组 3 formatSystemNote 实际测试 + H组 6 lastToolSignature 实际测试 + I组 6 TOOL_RESULT_RE 实际测试）；覆盖 format.js 41 行核心函数；3 spec 零回归。L21 教训：Agent 协议格式 / TOOL_RESULT 标记 / SYSTEM_NOTE 标记 / 正则表达式锚定 / 工具结果回灌 / 重复工具调用检测 / 签名检测。R2 待办：P1-2 protocol/parse.js 协议解析测试"
+      "notes": "R1: P1-1 protocol/format.js 协议格式化测试—— protocol-format.cjs 46 PASS（A组 4 导出验证 + B组 6 TOOL_RESULT_RE 正则 + C组 8 formatToolResult 逻辑 + D组 2 formatSystemNote 逻辑 + E组 4 lastToolSignature 逻辑 + F组 7 formatToolResult 实际测试 + G组 3 formatSystemNote 实际测试 + H组 6 lastToolSignature 实际测试 + I组 6 TOOL_RESULT_RE 实际测试）；覆盖 format.js 41 行核心函数；3 spec 零回归。L21 教训：Agent 协议格式 / TOOL_RESULT 标记 / SYSTEM_NOTE 标记 / 正则表达式锚定 / 工具结果回灌 / 重复工具调用检测 / 签名检测。R2: P1-2 protocol/parse.js 协议解析测试—— protocol-parse.cjs 70 PASS（A组 10 re-export 验证 + B组 7 constants 常量 + C组 9 parseArgs 逻辑 + D组 5 unquote 逻辑 + E组 12 parseToolTags 逻辑 + F组 9 parseArgs 实际测试 + G组 5 unquote 实际测试 + H组 10 parseToolTags 实际测试 + I组 3 常量实际测试）；覆盖 parse.js 17 行 + index.js 182 行 + constants.js 33 行核心函数；3 spec 零回归。L21 教训：Agent 协议解析 / <tool> 标签格式 / OpenAI tool_calls JSON / 流式 pending 检测 / 参数解析 JSON 优先 / 引号嵌套处理 / 正则大小写敏感 / re-export 模式。R3 待办：P1-3 protocol/constants.js 协议常量测试"
     }
   ]
 }
