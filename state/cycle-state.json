@@ -5,6 +5,10 @@
   "last_run_at": "2026-09-09T12:30:00+08:00",
   "cycle_started_at": "2026-10-15T17:00:00+08:00",
   "cycle_completed_at": null,
+  "current_round": 1,
+  "round_status": "completed",
+  "round_completed_at": "2026-10-15T18:00:00+08:00",
+  "round_summary": "P0-1: hybrid-retrieval-rrf.cjs 6 FAIL regression fix (L14-1) - 37/37 PASS",
   "model": "MiniMax-M3",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -292,6 +296,29 @@
       "bugs_open": 10,
       "self_check_score": "95/100",
       "notes": "P0-1 AI 安全护栏深化 ASI04/06/07 实质化（validateManifest + validateMemoryContext + signInterAgentMessage/verifyInterAgentMessage；HMAC-SHA256 + nonce 防重放）— spec 38 PASS；P0-2 memory.js 真实迁移 node:sqlite backend（sqliteBackend.js dispatch + node:sqlite pragma 适配 + close silent）— spec 20 PASS + 4 个老 spec 零回归；P1-1 OTel worker SDK 集成 + LLM semantic span（installWorkerSdk + buildLlmSpanAttributes + runWithLlmSpan + getCurrentLlmAttributes + ai.wrapWithLlmSpan）— spec 19 PASS + 3 个 OTel 老 spec 零回归；P1-2 RRF ablation + 启发式权重搜索（heuristicWeightSearch 5x5x5=125 组合 MRR + RRF_STRATEGIES 导出）— spec 16 PASS；P1-3 hybridRetrieval OTel semantic span attributes（buildRetrievalSpanAttributes + search ALS hook）— spec 13 PASS；P1-4 CesiumJS Splat pipeline 文档（docs/guides/splat-pipeline.md 6 阶段 + Microsoft campus asset 4547222）— spec 20 PASS；P2-1 handler-design checklist OWASP ASI 维度扩展（ASI01-10 全 10 项 + spec-first 模式）— spec 15 PASS；P2-2 AI 风险映射文档扩展（docs/security/ai-guardrails.md ASI03 SPIFFE-lite 决策 + ASI10 3 层防御决策）— spec 15 PASS。141 子断言（接近 150 目标）；4 commit 全 green（合并策略：P0-1+P0-2 / P1-1+P1-2 / P1-3+P1-4 / P2-1+P2-2）；零回归（checkpoint 9/9 + probe 6/6 + 15+ 老 spec）；OWASP ASI 实质化从 5/10 → 8/10。L14 教训：hybrid-retrieval-rrf.cjs 6 FAIL 预存问题（cycle 13 末尾回归） / getSpanContext() vs getCurrentSpanContext() 拼写错误 / node:sqlite 无 .pragma() 方法 / backend getter 与赋值冲突 / close() 后 silent 返回 error / ASI 文档化 ≠ 实质化（决策 ASI03/10 暂不代码实现）。调研 Top5（落周期 15）：Multi-agent GIS Agent 升级 / node:sqlite + sqlite-vec 真实生产 / ASI03 SPIFFE-lite 实质化 / cesium-mcp 拆分 camera/entity/animation/imagery / React 19 Compiler 启用 + useActionState 集成"
+    },
+    {
+      "cycle": 15,
+      "status": "in_progress",
+      "started_at": "2026-10-15T17:00:00+08:00",
+      "completed_at": null,
+      "current_round": 1,
+      "rounds_planned": 6,
+      "rounds_completed": 1,
+      "p0_done": 1,
+      "p0_planned": 1,
+      "p1_done": 0,
+      "p1_planned": 5,
+      "p2_done": 0,
+      "p2_planned": 4,
+      "commits": 1,
+      "commits_max": 12,
+      "specs_added": 0,
+      "research_topics": 0,
+      "research_links": 0,
+      "bugs_open": 10,
+      "self_check_score": "40/40",
+      "notes": "R1: P0-1 hybrid-retrieval-rrf.cjs 6 FAIL 回归修复（L14-1）—— FTS5→LIKE 自动回退（unicode61 不支持 CJK）+ LIKE 多词 AND + CJK 2 字拆分 + halfLifeMs 守卫。37/37 PASS（原 31/6）；11 spec 零回归（194 PASS）；清理 11 项过期 upcoming-work。L15 教训：FTS5 unicode61 CJK 限制 / LIKE 多词分词策略 / halfLifeMs 除零守卫。R2 待办：P0-2 node:sqlite + sqlite-vec 真实生产验证"
     }
   ]
 }
