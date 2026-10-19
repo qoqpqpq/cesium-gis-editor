@@ -1,11 +1,10 @@
-# Cycle 15 Test Report（Round 1）
+# Cycle 15 Test Report
 
-> 周期 15 R1 测试报告（2026-10-15）
-> 任务：修复 hybrid-retrieval-rrf.cjs 6 FAIL 回归（L14-1）
+> 周期 15 测试报告（2026-10-15）
 
 ---
 
-## 1. 主测试：hybrid-retrieval-rrf.cjs
+## R1: hybrid-retrieval-rrf.cjs
 
 ```
 === hybrid-retrieval-rrf ===
@@ -79,3 +78,56 @@
 - **回归**：11 个 spec 全部通过
 - **零回归**：确认
 - **修复项**：L14-1 预存回归全部关闭
+
+---
+
+## R2: sqlite-production-vec.cjs
+
+```
+=== sqlite-production-vec ===
+  [PASS] A1: Node 24+ node:sqlite 可用
+  [PASS] A2: node:sqlite DatabaseSync 加载成功
+  [PASS] A3: node:sqlite 真实文件 DB 创建成功
+  [PASS] A4: node:sqlite 数据持久化（close + reopen）
+  [PASS] A5: node:sqlite WAL 模式可用（真实文件）
+  [PASS] A6: node:sqlite 生产 PRAGMA 全部应用
+  [PASS] A7: node:sqlite SQLite 版本检查
+  [PASS] A8: node:sqlite FTS5 虚拟表可用
+  [PASS] B1: 1000 行批插入 < 200ms
+  [PASS] B2: 1000 行全表查询 < 100ms
+  [PASS] B3: 1000 行 + 索引查询 < 50ms
+  [PASS] C1: MemoryStore 真实文件 DB + WAL
+  [PASS] C2: MemoryStore 数据持久化（close + reopen）
+  [PASS] C3: MemoryStore FTS5 + LIKE CJK fallback
+  [PASS] C4: MemoryStore 多词 CJK LIKE 搜索（AND 语义）
+  [PASS] D1: sqlite-vec npm 包不可用（需原生编译）
+  [PASS] D2: node:sqlite 不支持 loadExtension（需 better-sqlite3）
+  [PASS] D3: better-sqlite3 支持 loadExtension（若安装）
+  [PASS] D4: 当前环境向量搜索使用 memoryVectorPrototype（内存级）
+  [PASS] D5: sqlite-vec 决策：暂不引入（当前向量规模 < 10K）
+  [PASS] E1: 事务包裹批操作（成功/回滚）
+  [PASS] E2: 多连接并发读（WAL 模式）
+  [PASS] F1: MemoryStore driverPref=node 强制 node:sqlite
+  [PASS] F2: MemoryStore driverPref=better 强制 better-sqlite3
+  [PASS] F3: MemoryStore driverPref=bun graceful fallback
+--- summary: pass=25 fail=0 ---
+```
+
+**结论**：25/25 PASS。node:sqlite 生产验证通过，sqlite-vec 决策产出。
+
+### R2 回归验证
+
+| Spec | 结果 |
+|---|---|
+| memory-node-sqlite-migration.cjs | 20 PASS ✅ |
+| sqlite-backend-dispatch.cjs | 19 PASS ✅ |
+| memory-fts5.cjs | 18 PASS ✅ |
+| hybrid-retrieval-rrf.cjs | 37 PASS ✅ |
+| memory-wal-pragma.cjs | 14 PASS ✅ |
+| memory-als-sqlite.cjs | 20 PASS ✅ |
+| sqlite-production-pragmas.cjs | 26 PASS ✅ |
+| memory-vector-prototype.cjs | 32 PASS ✅ |
+| server-import-completeness.cjs | 12 PASS ✅ |
+| memory-middleware.cjs | 12 PASS ✅ |
+
+**合计**：210 PASS / 0 FAIL（10 个 spec）

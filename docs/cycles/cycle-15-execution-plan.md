@@ -51,11 +51,35 @@
 
 | 轮次 | 优先级 | 任务 |
 |---|---|---|
-| R2 | P0 | node:sqlite + sqlite-vec 生产验证 |
+| R2 | P1 | node:sqlite + sqlite-vec 生产验证（本周期 P1-1） |
 | R3 | P1 | ASI03 SPIFFE-lite workloadIdentity |
 | R4 | P1 | Multi-agent GIS Agent 升级 |
 | R5 | P1 | cesium-mcp 拆分 4 个 server |
 | R6 | P1 | React 19 Compiler 启用 |
+
+---
+
+## R2 详案：P1-1 node:sqlite + sqlite-vec 真实生产验证
+
+**背景**：
+- 周期 13 P0-2 已落 sqliteBackend.js dispatch（node:sqlite / better-sqlite3 / bun:sqlite / memory）
+- 周期 14 P0-2 已落 memory.js 真实迁移 node:sqlite
+- 周期 14 P1-1 已落 sqlitePragmas.js（8 PRAGMA + passive checkpoint loop）
+- 周期 15 R1 已落 FTS5→LIKE CJK fallback
+
+**本轮目标**：
+1. 验证 node:sqlite 在生产场景下的稳定性（真实文件 DB、WAL、并发、持久化）
+2. 评估 sqlite-vec 向量扩展的可行性（安装成本 vs 收益）
+3. 产出决策文档：sqlite-vec 是否值得引入
+
+**修改文件**：
+- `tests/specs/sqlite-production-vec.cjs`（新建）：≥ 20 PASS
+- `docs/evaluation/sqlite-vec-decision.md`（新建）：决策文档
+
+**验收**：
+- `tests/specs/sqlite-production-vec.cjs` ≥ 20 PASS
+- node:sqlite 生产场景验证通过
+- sqlite-vec 决策文档产出
 
 ---
 

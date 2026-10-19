@@ -2,11 +2,10 @@
 
 > 周期 15 实施日志（2026-10-15）
 > 节奏：1h/轮，每轮一个任务
-> 本轮：R1 —— 修复 hybrid-retrieval-rrf.cjs 6 FAIL 回归（L14-1）
 
 ---
 
-## P0-1: 修复 hybrid-retrieval-rrf.cjs 6 FAIL 回归
+## R1: P0-1 修复 hybrid-retrieval-rrf.cjs 6 FAIL 回归
 
 **来源**：周期 14 L14-1 反思记录（预存回归，6 项 FAIL 跨周期未修复）
 
@@ -59,8 +58,52 @@
 
 ---
 
+## R2: P1-1 node:sqlite + sqlite-vec 真实生产验证
+
+**来源**：周期 14 调研 Top5 #2
+
+**修复内容**：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `tests/specs/sqlite-production-vec.cjs` | 新建 | 25 PASS：node:sqlite 生产验证 + sqlite-vec 评估 |
+| `docs/evaluation/sqlite-vec-decision.md` | 新建 | sqlite-vec 决策文档（暂不引入） |
+
+**验证内容**：
+- A组（8项）：node:sqlite 可用性、真实文件 DB、持久化、WAL、PRAGMA、版本检查、FTS5
+- B组（3项）：1000行批插入/查询/索引查询性能基准
+- C组（4项）：MemoryStore 集成（WAL、持久化、FTS5 CJK fallback、多词 LIKE）
+- D组（5项）：sqlite-vec 评估（不可用、node:sqlite 限制、better-sqlite3、决策记录）
+- E组（2项）：事务、并发读
+- F组（3项）：driverPref 强制 node/better/bun fallback
+
+**子断言**：25 PASS / 0 FAIL
+
+**sqlite-vec 决策**：
+- 暂不引入（当前向量规模 < 10K，memoryVectorPrototype 足够）
+- 触发条件：向量规模 > 50K 或搜索延迟 > 100ms
+- node:sqlite 不支持 loadExtension，需 better-sqlite3
+
+**回归验证**：
+- memory-node-sqlite-migration: 20 PASS ✅
+- sqlite-backend-dispatch: 19 PASS ✅
+- memory-fts5: 18 PASS ✅
+- hybrid-retrieval-rrf: 37 PASS ✅
+- memory-wal-pragma: 14 PASS ✅
+- memory-als-sqlite: 20 PASS ✅
+- sqlite-production-pragmas: 26 PASS ✅
+- memory-vector-prototype: 32 PASS ✅
+- server-import-completeness: 12 PASS ✅
+- memory-middleware: 12 PASS ✅
+
+**零回归确认**：10 个 spec 全部通过。
+
+---
+
 ## 总计
 
-- **子断言**：37 PASS / 0 FAIL
-- **Commits**：1 个
-- **文件改动**：4 个修改 + 1 个新增（execution-plan）+ 4 个新增（dev-log / lessons / test-report / self-check）
+- **R1**：37 PASS / 0 FAIL（P0-1）
+- **R2**：25 PASS / 0 FAIL（P1-1）
+- **Commits**：2 个
+- **新增 spec**：1 个（sqlite-production-vec）
+- **新增文档**：2 个（execution-plan 更新 + sqlite-vec-decision）
