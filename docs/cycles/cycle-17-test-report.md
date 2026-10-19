@@ -60,3 +60,67 @@
 | server-import-completeness | 12 PASS ✅ |
 
 **零回归确认**：3 个 spec 全部通过。
+
+---
+
+## R2: asyncguard-error-handling.cjs
+
+```
+=== asyncguard-error-handling ===
+  [PASS] A1: 导出 installAsyncGuard 函数
+  [PASS] A2: 导出 uninstallAsyncGuard 函数
+  [PASS] A3: 导出 isAsyncGuardInstalled 函数
+  [PASS] A4: 导出 wrapAsyncHandler 函数
+  [PASS] A5: 导出默认对象
+  [PASS] A6: 默认导出包含所有函数
+  [PASS] B1: 定义 _installed 标记
+  [PASS] B2: 定义 _currentListener 标记
+  [PASS] B3: 定义 _telemetryUrl 标记
+  [PASS] C1: 检查 window 环境
+  [PASS] C2: 防止重复安装
+  [PASS] C3: 注册 unhandledrejection 监听
+  [PASS] C4: 注册 error 监听
+  [PASS] C5: 设置 _installed = true
+  [PASS] C6: 返回卸载函数
+  [PASS] D1: 提取 rejection reason
+  [PASS] D2: 转换为 Error 实例
+  [PASS] D3: console.error 输出（非 silent）
+  [PASS] D4: 上报 telemetry
+  [PASS] D5: 调用 onError 回调
+  [PASS] D6: preventDefault 防止浏览器 banner
+  [PASS] E1: 提取 event.error
+  [PASS] E2: 转换为 Error 实例
+  [PASS] E3: console.error 输出
+  [PASS] E4: 上报 telemetry
+  [PASS] F1: 检查 fn 类型
+  [PASS] F2: 返回包装函数
+  [PASS] F3: try-catch 捕获错误
+  [PASS] F4: 转换为 Error 实例
+  [PASS] F5: 上报 telemetry
+  [PASS] F6: 调用 onError 回调
+  [PASS] F7: 不 rethrow（return undefined）
+  [PASS] G1: 检查 _telemetryUrl
+  [PASS] G2: 检查 navigator 环境
+  [PASS] G3: 使用 sendBeacon 优先
+  [PASS] G4: fallback 到 fetch
+  [PASS] G5: 错误静默处理
+  [PASS] G6: console.warn 输出
+  [PASS] H1: 调用 _currentListener
+  [PASS] H2: 卸载时清除 _installed
+  [PASS] H3: 卸载时清除 _currentListener
+  [PASS] H4: 卸载时清除 _telemetryUrl
+  [PASS] I1: 返回 _installed 状态
+--- summary: pass=43 fail=0 ---
+```
+
+---
+
+## 回归测试（R2）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
