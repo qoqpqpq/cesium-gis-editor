@@ -100,10 +100,41 @@
 
 ---
 
+## R3: P1-2 ASI03 SPIFFE-lite workloadIdentity
+
+**来源**：周期 14 调研 Top5 #3
+
+**新增文件**：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `server/middleware/aiGuardrails.js` | +180 行 | ASI03 workload identity 实现 |
+| `tests/specs/asi03-workload-identity.cjs` | 新建 | 39 PASS spec |
+
+**实现内容**：
+- `createWorkloadIdentity(opts)` — 三元组创建（toolName + userId + sessionId + privilege）
+- `signWorkloadIdentity(identity, secret)` — HMAC-SHA256 签名
+- `verifyWorkloadIdentity(signed, secret, opts)` — 签名验证 + ts 过期 + nonce 防重放
+- `checkIdentityPrivilege(identity, requiredPrivilege)` — 权限级别检查（viewer < editor < admin < superadmin）
+- `withWorkloadIdentity(toolFn, opts)` — 工具包装（身份验证 + 权限检查 + 执行）
+
+**子断言**：39 PASS / 0 FAIL
+
+**回归验证**：
+- ai-guardrails: 39 PASS ✅
+- ai-guardrails-deep: 38 PASS ✅
+- server-import-completeness: 12 PASS ✅
+- memory-fts5: 18 PASS ✅
+
+**零回归确认**：4 个 spec 全部通过。
+
+---
+
 ## 总计
 
 - **R1**：37 PASS / 0 FAIL（P0-1）
 - **R2**：25 PASS / 0 FAIL（P1-1）
-- **Commits**：2 个
-- **新增 spec**：1 个（sqlite-production-vec）
-- **新增文档**：2 个（execution-plan 更新 + sqlite-vec-decision）
+- **R3**：39 PASS / 0 FAIL（P1-2）
+- **Commits**：3 个
+- **新增 spec**：2 个（sqlite-production-vec + asi03-workload-identity）
+- **新增文档**：3 个（execution-plan 更新 + sqlite-vec-decision + execution-plan 更新）

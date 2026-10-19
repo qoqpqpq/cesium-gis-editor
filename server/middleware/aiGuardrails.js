@@ -453,6 +453,219 @@ function withGuardrail(toolFn, opts = {}) {
   return wrapped;
 }
 
+// ---- 周期 15 R3: ASI03 Identity & Privilege Abuse — SPIFFE-lite Workload Identity ----
+// ASI03: Identity & Privilege Abuse — 防止 agent/tool 身份伪造 + 权限提升
+// 设计（SPIFFE-lite 最小可行）：
+//   - 三元组签名：tool-name + userId + sessionId → HMAC-SHA256 签名
+//   - 权限级别：viewer < editor < admin < superadmin
+//   - 防重放：nonce + ts（默认 5 分钟过期）
+//   - 防伪造：timing-safe HMAC 验证
+
+const PRIVILEGE_LEVELS = ['viewer', 'editor', 'admin', 'superadmin'];
+
+const PRIVILEGE_RANK = {};
+for (let i = 0; i < PRIVILEGE_LEVELS.length; i++) {
+  PRIVILEGE_RANK[PRIVILEGE_LEVELS[i]] = i;
+}
+
+/**
+ * 创建 workload identity
+ * @param {object} opts
+ * @param {string} opts.toolName - 工具名
+ * @param {string} opts.userId - 用户 ID
+ * @param {string} opts.sessionId - 会话 ID
+ * @param {string} [opts.privilege='viewer'] - 权限级别
+ * @param {number} [opts.ts] - 时间戳（默认 Date.now()）
+ * @param {string} [opts.nonce] - 防重放 nonce
+ * @returns {object} identity
+ */
+function createWorkloadIdentity(opts = {}) {
+  const toolName = opts.toolName || 'unknown';
+  const userId = opts.userId || 'anonymous';
+  const sessionId = opts.sessionId || 'default';
+  const privilege = opts.privilege || 'viewer';
+  const ts = typeof opts.ts === 'number' ? opts.ts : Date.now();
+  const nonce = opts.nonce || _generateNonce();
+
+  // 验证 privilege 合法性
+  if (!PRIVILEGE_LEVELS.includes(privilege)) {
+    return {
+      ok: false,
+      reason: `invalid_privilege:${privilege}`,
+      identity: null,
+    };
+  }
+
+  return {
+    ok: true,
+    reason: null,
+    identity: {
+      toolName,
+      userId,
+      sessionId,
+      privilege,
+      ts,
+      nonce,
+    },
+  };
+}
+
+/**
+ * 签名 workload identity
+ * @param {object} identity - { toolName, userId, sessionId, privilege, ts, nonce }
+ * @param {string} secret - HMAC 密钥
+ * @returns {{ ok: boolean, signed: object|null, reason: string|null }}
+ */
+function signWorkloadIdentity(identity, secret) {
+  if (!identity || typeof identity !== 'object') {
+    return { ok: false, reason: 'identity_not_object', signed: null };
+  }
+  if (!secret || typeof secret !== 'string') {
+    return { ok: false, reason: 'secret_required', signed: null };
+  }
+  // 验证必填字段
+  for (const field of ['toolName', 'userId', 'sessionId', 'privilege', 'ts', 'nonce']) {
+    if (!identity[field]) {
+      return { ok: false, reason: `identity_missing_${field}`, signed: null };
+    }
+  }
+  // 验证 privilege 合法性
+  if (!PRIVILEGE_LEVELS.includes(identity.privilege)) {
+    return { ok: false, reason: `invalid_privilege:${identity.privilege}`, signed: null };
+  }
+  // 签名：HMAC-SHA256(secret, stableStringify(identity))
+  const payload = _stableStringify(identity);
+  const signature = _hmacSha256Hex(secret, payload);
+  if (!signature) {
+    return { ok: false, reason: 'hmac_failed', signed: null };
+  }
+  return {
+    ok: true,
+    reason: null,
+    signed: { ...identity, signature },
+  };
+}
+
+/**
+ * 验证 workload identity 签名
+ * @param {object} signed - { toolName, userId, sessionId, privilege, ts, nonce, signature }
+ * @param {string} secret - HMAC 密钥
+ * @param {object} [opts]
+ * @param {number} [opts.maxAgeMs=300000] - 签名最大有效期（5 分钟）
+ * @param {Set} [opts.seenNonces] - 已使用 nonce 集合
+ * @returns {{ valid: boolean, reason: string|null, identity: object|null }}
+ */
+function verifyWorkloadIdentity(signed, secret, opts = {}) {
+  if (!signed || typeof signed !== 'object') {
+    return { valid: false, reason: 'signed_not_object', identity: null };
+  }
+  if (!secret || typeof secret !== 'string') {
+    return { valid: false, reason: 'secret_required', identity: null };
+  }
+  // 验证必填字段
+  for (const field of ['toolName', 'userId', 'sessionId', 'privilege', 'ts', 'nonce', 'signature']) {
+    if (!signed[field]) {
+      return { valid: false, reason: `signed_missing_${field}`, identity: null };
+    }
+  }
+  // 验证 privilege 合法性
+  if (!PRIVILEGE_LEVELS.includes(signed.privilege)) {
+    return { valid: false, reason: `invalid_privilege:${signed.privilege}`, identity: null };
+  }
+  // 验证签名
+  const { signature, ...identity } = signed;
+  const payload = _stableStringify(identity);
+  const expected = _hmacSha256Hex(secret, payload);
+  if (!expected || !_timingSafeEqualHex(expected, signature)) {
+    return { valid: false, reason: 'signature_mismatch', identity: null };
+  }
+  // 验证 ts 未过期
+  const maxAgeMs = typeof opts.maxAgeMs === 'number' ? opts.maxAgeMs : 300000;
+  if (signed.ts + maxAgeMs < Date.now()) {
+    return { valid: false, reason: 'ts_expired', identity: null };
+  }
+  // 验证 nonce 未重用
+  if (opts.seenNonces && opts.seenNonces.has(signed.nonce)) {
+    return { valid: false, reason: 'nonce_replay', identity: null };
+  }
+  return {
+    valid: true,
+    reason: null,
+    identity: { toolName: identity.toolName, userId: identity.userId, sessionId: identity.sessionId, privilege: identity.privilege, ts: identity.ts, nonce: identity.nonce },
+  };
+}
+
+/**
+ * 检查 identity 权限是否满足要求
+ * @param {object} identity - workload identity
+ * @param {string} requiredPrivilege - 需要的权限级别
+ * @returns {{ allowed: boolean, reason: string|null }}
+ */
+function checkIdentityPrivilege(identity, requiredPrivilege) {
+  if (!identity || typeof identity !== 'object') {
+    return { allowed: false, reason: 'identity_not_object' };
+  }
+  if (!requiredPrivilege) {
+    return { allowed: true, reason: null };
+  }
+  const identityRank = PRIVILEGE_RANK[identity.privilege];
+  const requiredRank = PRIVILEGE_RANK[requiredPrivilege];
+  if (identityRank === undefined) {
+    return { allowed: false, reason: `invalid_privilege:${identity.privilege}` };
+  }
+  if (requiredRank === undefined) {
+    return { allowed: false, reason: `invalid_required_privilege:${requiredPrivilege}` };
+  }
+  if (identityRank >= requiredRank) {
+    return { allowed: true, reason: null };
+  }
+  return { allowed: false, reason: `insufficient_privilege:${identity.privilege} < ${requiredPrivilege}` };
+}
+
+/**
+ * 包装工具函数（带 workload identity 验证）
+ * @param {Function} toolFn - async (payload, ctx) => Promise<result>
+ * @param {object} opts
+ * @param {string} opts.secret - HMAC 密钥
+ * @param {string} [opts.requiredPrivilege='viewer'] - 需要的最低权限
+ * @param {number} [opts.maxAgeMs=300000] - 签名最大有效期
+ * @returns {Function} wrappedTool(payload, ctx) → Promise<result>
+ */
+function withWorkloadIdentity(toolFn, opts = {}) {
+  if (typeof toolFn !== 'function') {
+    throw new TypeError('withWorkloadIdentity: toolFn must be a function');
+  }
+  const secret = opts.secret;
+  const requiredPrivilege = opts.requiredPrivilege || 'viewer';
+  const maxAgeMs = opts.maxAgeMs || 300000;
+
+  async function wrapped(payload, ctx = {}) {
+    // 1. 从 ctx 获取 signed identity
+    const signed = ctx.identity || ctx.workloadIdentity;
+    if (!signed) {
+      throw new Error('workload_identity_required');
+    }
+
+    // 2. 验证签名
+    const verifyResult = verifyWorkloadIdentity(signed, secret, { maxAgeMs });
+    if (!verifyResult.valid) {
+      throw new Error(`identity_verification_failed:${verifyResult.reason}`);
+    }
+
+    // 3. 检查权限
+    const privCheck = checkIdentityPrivilege(verifyResult.identity, requiredPrivilege);
+    if (!privCheck.allowed) {
+      throw new Error(`identity_privilege_denied:${privCheck.reason}`);
+    }
+
+    // 4. 执行工具
+    return toolFn(payload, { ...ctx, identity: verifyResult.identity });
+  }
+
+  wrapped.identityMeta = { requiredPrivilege, maxAgeMs };
+  return wrapped;
+}
+
 module.exports = {
   withGuardrail,
   sanitizeInput,
@@ -462,6 +675,13 @@ module.exports = {
   validateMemoryContext,   // 周期 14 P0-1: ASI06
   signInterAgentMessage,   // 周期 14 P0-1: ASI07
   verifyInterAgentMessage, // 周期 14 P0-1: ASI07
+  // 周期 15 R3: ASI03 Identity & Privilege Abuse — SPIFFE-lite Workload Identity
+  createWorkloadIdentity,
+  signWorkloadIdentity,
+  verifyWorkloadIdentity,
+  checkIdentityPrivilege,
+  withWorkloadIdentity,
+  PRIVILEGE_LEVELS,
   INJECTION_PATTERNS,
   DEFAULT_OPTIONS,
   MANIFEST_ALLOWED_SOURCES_DEFAULT,

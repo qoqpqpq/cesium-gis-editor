@@ -104,7 +104,7 @@
 ### P1（高优先级，至少完成 3 项）
 
 - [x] **P1-1** node:sqlite + sqlite-vec 真实生产验证（周期 14 已落 dispatch；本轮验证 Node 24+ 真实运行 + sqlite-vec 评估触发）。验收：spec ≥ 20 PASS。✅ 2026-10-15 R2
-- [ ] **P1-2** ASI03 SPIFFE-lite workloadIdentity（workload identity：tool-name + userId + sessionId 三元组签名）。文件：`server/middleware/aiGuardrails.js`。验收：spec ≥ 18 PASS。
+- [x] **P1-2** ASI03 SPIFFE-lite workloadIdentity（workload identity：tool-name + userId + sessionId 三元组签名）。文件：`server/middleware/aiGuardrails.js`。验收：spec ≥ 18 PASS。✅ 2026-10-15 R3
 - [ ] **P1-3** Multi-agent GIS Agent 升级（planner + executor + verifier 架构）。文件：`server/services/ai.js`。验收：spec ≥ 25 PASS。
 - [ ] **P1-4** cesium-mcp 拆分 4 个 server（camera / entity / animation / imagery）。文件：`client/src/pages/gis/mcpManifest.js`。验收：spec ≥ 20 PASS。
 - [ ] **P1-5** React 19 Compiler 启用 + useActionState 真实集成。文件：`client/package.json` + `client/vite.config.js`。验收：spec ≥ 15 PASS。
