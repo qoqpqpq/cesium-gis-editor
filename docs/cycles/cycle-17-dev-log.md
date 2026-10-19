@@ -69,12 +69,46 @@
 
 ---
 
+## R3: P1-3 sessionKeys.js 会话密钥管理测试
+
+**来源**：周期 17 新增 P1 任务
+
+**新增文件**：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `tests/specs/sessionkeys-management.cjs` | 新建 | 44 PASS spec |
+
+**实现内容**：
+- 静态扫描 - 导出验证（7 项）：getAll / get / set / remove / clearAll / hasAny / maskKey
+- 静态扫描 - 内部结构（4 项）：store 对象 / notify 函数 / dispatchEvent / CustomEvent
+- getAll 逻辑验证（9 项）：opts 参数 / withRemark 选项 / Object.entries / platform 字段 / apiKey 字段 / baseUrl 字段 / modelName 字段 / savedAt 字段 / 条件返回 remark
+- get 逻辑验证（3 项）：检查 store[platform] / 返回 null 当不存在 / 返回包含 platform 的对象
+- set 逻辑验证（6 项）：存储 apiKey / baseUrl（默认空字符串）/ modelName（默认空字符串）/ remark（默认空字符串）/ savedAt（默认当前时间）/ 调用 notify
+- remove 逻辑验证（3 项）：检查 store[platform] / 删除 store[platform] / 调用 notify
+- clearAll 逻辑验证（3 项）：遍历 store 键 / 删除每个键 / 调用 notify
+- hasAny 逻辑验证（1 项）：检查 store 键数量
+- maskKey 逻辑验证（3 项）：空值返回空字符串 / 短字符串返回 **** / 长字符串返回前4后4
+- maskKey 实际测试（5 项）：空字符串 / null / 短字符串 / 长字符串 / 边界值（9字符）
+
+**子断言**：44 PASS / 0 FAIL
+
+**回归验证**：
+- ai-guardrails: 39 PASS ✅
+- ai-guardrails-deep: 38 PASS ✅
+- server-import-completeness: 12 PASS ✅
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## 总计
 
 - **R1**：38 PASS / 0 FAIL（P1-1）
 - **R2**：43 PASS / 0 FAIL（P1-2）
-- **Commits**：2 个
-- **新增 spec**：2 个（viewstate-url-serialization + asyncguard-error-handling）
+- **R3**：44 PASS / 0 FAIL（P1-3）
+- **Commits**：3 个
+- **新增 spec**：3 个（viewstate-url-serialization + asyncguard-error-handling + sessionkeys-management）
 - **新增文档**：4 个（cycle-17-execution-plan + cycle-17-dev-log + cycle-17-test-report + cycle-17-self-check）
 
-**Cycle 17 进度**：2/4 轮完成，P1 2/4，共 81 PASS / 0 FAIL
+**Cycle 17 进度**：3/4 轮完成，P1 3/4，共 125 PASS / 0 FAIL

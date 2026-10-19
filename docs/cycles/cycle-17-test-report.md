@@ -63,6 +63,71 @@
 
 ---
 
+## R3: sessionkeys-management.cjs
+
+```
+=== sessionkeys-management ===
+  [PASS] A1: 导出 getAll 函数
+  [PASS] A2: 导出 get 函数
+  [PASS] A3: 导出 set 函数
+  [PASS] A4: 导出 remove 函数
+  [PASS] A5: 导出 clearAll 函数
+  [PASS] A6: 导出 hasAny 函数
+  [PASS] A7: 导出 maskKey 函数
+  [PASS] B1: 定义 store 对象
+  [PASS] B2: 定义 notify 函数
+  [PASS] B3: notify 使用 dispatchEvent
+  [PASS] B4: notify 使用 CustomEvent
+  [PASS] C1: getAll 接受 opts 参数
+  [PASS] C2: getAll 支持 withRemark 选项
+  [PASS] C3: getAll 使用 Object.entries
+  [PASS] C4: getAll 返回 platform 字段
+  [PASS] C5: getAll 返回 apiKey 字段
+  [PASS] C6: getAll 返回 baseUrl 字段
+  [PASS] C7: getAll 返回 modelName 字段
+  [PASS] C8: getAll 返回 savedAt 字段
+  [PASS] C9: getAll 条件返回 remark 字段
+  [PASS] D1: get 检查 store[platform]
+  [PASS] D2: get 返回 null 当不存在
+  [PASS] D3: get 返回包含 platform 的对象
+  [PASS] E1: set 存储 apiKey
+  [PASS] E2: set 存储 baseUrl（默认空字符串）
+  [PASS] E3: set 存储 modelName（默认空字符串）
+  [PASS] E4: set 存储 remark（默认空字符串）
+  [PASS] E5: set 存储 savedAt（默认当前时间）
+  [PASS] E6: set 调用 notify
+  [PASS] F1: remove 检查 store[platform]
+  [PASS] F2: remove 删除 store[platform]
+  [PASS] F3: remove 调用 notify
+  [PASS] G1: clearAll 遍历 store 键
+  [PASS] G2: clearAll 删除每个键
+  [PASS] G3: clearAll 调用 notify
+  [PASS] H1: hasAny 检查 store 键数量
+  [PASS] I1: maskKey 空值返回空字符串
+  [PASS] I2: maskKey 短字符串（≤8）返回 ****
+  [PASS] I3: maskKey 长字符串返回前4后4
+  [PASS] J1: maskKey 空字符串返回空
+  [PASS] J2: maskKey null 返回空
+  [PASS] J3: maskKey 短字符串返回 ****
+  [PASS] J4: maskKey 长字符串返回前4后4
+  [PASS] J5: maskKey 边界值（9字符）
+--- summary: pass=44 fail=0 ---
+```
+
+---
+
+## 回归测试（R3）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## R2: asyncguard-error-handling.cjs
 
 ```
@@ -116,6 +181,71 @@
 ---
 
 ## 回归测试（R2）
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
+## R3: sessionkeys-management.cjs
+
+```
+=== sessionkeys-management ===
+  [PASS] A1: 导出 getAll 函数
+  [PASS] A2: 导出 get 函数
+  [PASS] A3: 导出 set 函数
+  [PASS] A4: 导出 remove 函数
+  [PASS] A5: 导出 clearAll 函数
+  [PASS] A6: 导出 hasAny 函数
+  [PASS] A7: 导出 maskKey 函数
+  [PASS] B1: 定义 store 对象
+  [PASS] B2: 定义 notify 函数
+  [PASS] B3: notify 使用 dispatchEvent
+  [PASS] B4: notify 使用 CustomEvent
+  [PASS] C1: getAll 接受 opts 参数
+  [PASS] C2: getAll 支持 withRemark 选项
+  [PASS] C3: getAll 使用 Object.entries
+  [PASS] C4: getAll 返回 platform 字段
+  [PASS] C5: getAll 返回 apiKey 字段
+  [PASS] C6: getAll 返回 baseUrl 字段
+  [PASS] C7: getAll 返回 modelName 字段
+  [PASS] C8: getAll 返回 savedAt 字段
+  [PASS] C9: getAll 条件返回 remark 字段
+  [PASS] D1: get 检查 store[platform]
+  [PASS] D2: get 返回 null 当不存在
+  [PASS] D3: get 返回包含 platform 的对象
+  [PASS] E1: set 存储 apiKey
+  [PASS] E2: set 存储 baseUrl（默认空字符串）
+  [PASS] E3: set 存储 modelName（默认空字符串）
+  [PASS] E4: set 存储 remark（默认空字符串）
+  [PASS] E5: set 存储 savedAt（默认当前时间）
+  [PASS] E6: set 调用 notify
+  [PASS] F1: remove 检查 store[platform]
+  [PASS] F2: remove 删除 store[platform]
+  [PASS] F3: remove 调用 notify
+  [PASS] G1: clearAll 遍历 store 键
+  [PASS] G2: clearAll 删除每个键
+  [PASS] G3: clearAll 调用 notify
+  [PASS] H1: hasAny 检查 store 键数量
+  [PASS] I1: maskKey 空值返回空字符串
+  [PASS] I2: maskKey 短字符串（≤8）返回 ****
+  [PASS] I3: maskKey 长字符串返回前4后4
+  [PASS] J1: maskKey 空字符串返回空
+  [PASS] J2: maskKey null 返回空
+  [PASS] J3: maskKey 短字符串返回 ****
+  [PASS] J4: maskKey 长字符串返回前4后4
+  [PASS] J5: maskKey 边界值（9字符）
+--- summary: pass=44 fail=0 ---
+```
+
+---
+
+## 回归测试（R3）
 
 | Spec | 结果 |
 |---|---|
