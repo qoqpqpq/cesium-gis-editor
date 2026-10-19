@@ -92,25 +92,40 @@
 | 4 | **CesiumJS 1.144+ 升级 + Splat pipeline 文档**（CesiumJS 1.145 vector drape + Microsoft campus 110M splats） | 周期 14 落地：升级 client Cesium 1.113 → 1.144+ + Microsoft Redmond campus Gaussian splat demo + docs/guides/splat-pipeline.md；spec ≥15 PASS | 升级 viewer |
 | 5 | **RRF ablation + 自动权重调优**（AILS-NTUA nested RRF + Dell RAG Fusion Industry + Google RRF Tuning） | 周期 14 落地：ablation spec 对比 standard / best-rank / linear / diminishing + heuristic weight search；spec ≥20 PASS | 升级 hybridRetrieval |
 
-## P0（必须下周期完成）
+## 周期 15 待办（2026-10-15 起，1h/轮）
 
-- [ ] **P0-1** SSRF metadata IP 同步：写"从 cloud-metadata.com 自动同步新 IP"脚本 + 季度 cron + spec。文件：`server/services/ssrf-guard.js` + `scripts/sync-metadata-ips.cjs`（new）+ `docs/security/metadata-ips.md` 维护。验收：新增 `tests/specs/metadata-ip-sync.cjs` PASS。
-- [ ] **P0-2** 限流算法升级（周期 6 已落 Token Bucket + IETF header + 路由集成；本周期确认无回归即可）
+> 周期 15 按"每轮一个任务"节奏推进；P0 优先，其次 P1。
+> 来源：周期 14 调研 Top5 + L14-1 回归修复 + 反思驱动。
 
-## P1（高优先级，至少完成 3 项）
+### P0（必须本轮完成）
 
-- [ ] **P1-1** SQLite FTS5 memory 检索：在 `server/agent/memory.js` 加 `_fts` 虚拟表 + `bm25()` 排序。验收：`tests/specs/memory-fts5.cjs` PASS。
-- [ ] **P1-2** MCP 实际接入（browser-agent 模式）：嵌入 `cesium-mcp-bridge` 到 Viewer，零后端。验收：浏览器内 `/mcp/manifest` 端点 + 截图验证。
-- [ ] **P1-3** DecompressionStream 替代 pako：客户端 `viewState.js` 优先 `new DecompressionStream('gzip')`，pako 仅做老浏览器兜底。验收：`tests/specs/viewstate-decompression-stream.cjs` PASS。
-- [ ] **P1-4** 沙箱 heap-snapshot 自动 dump（周期 6 已做 worker.error / cpu_abort / ok finish 三处触发 + 节流 1s + 保留 5 个 LIFO）。验收：现有 `tests/specs/sandbox-heap-snapshot.cjs` PASS。
+- [x] **P0-1** 修复 hybrid-retrieval-rrf.cjs 6 FAIL 回归（L14-1）—— FTS5 node:sqlite 兼容 + halfLifeDays 边界。文件：`server/agent/hybridRetrieval.js` + `tests/specs/hybrid-retrieval-rrf.cjs`。验收：`tests/specs/hybrid-retrieval-rrf.cjs` 37 PASS（原 6 FAIL → 0 FAIL）。✅ 2026-10-15 R1
 
-## P2（中低优先级，按预算与时间允许）
+### P1（高优先级，至少完成 3 项）
 
-- [ ] **P2-1** helmet 8.x 内置 Permissions-Policy 替代手写 20 项。文件：`server/index.js`。验收：与 `tests/specs/csp-permissions-policy.cjs` 行为一致 + 静态扫描源文件移除手写 middleware。
-- [ ] **P2-2** `_sse.js` Last-Event-ID buffer 续传（已完成 by 94c3622）。验收：现有 `tests/specs/sse-last-event-id-buffer.cjs` PASS（不再 0/0）。
-- [ ] **P2-3** `client/src/pages/gis/editor/utils/*.js` 中 9 个工具类文件（`coords / measure / picking / snap / analysis / ...`）有 3-4 处与 turf 互操作缺乏单元测试。
-- [ ] **P2-4** `client/src/pages/gis/sandbox.js` 与 `server/agent/protocol/parse.js` 协议字符串 `<tool>name(args)</tool>` 重复实现，注释里也提示"修改时务必同步"。需求：把"协议字面 + 解析"统一从 `client/src/pages/gis/protocol.js` 导出，server 用 ESM 风格 require 该模块（或保留双份但加 npm script 同步检查）。
-- [ ] **P2-5** `client/src/pages/gis/aiAgent.js` 体积大且无注释（待通读），P2 阶段拆分候选。
-- [ ] **P2-6** OTel SDK 评估（接 MetricsRegistry / OTLP exporter）。需求：spike `@opentelemetry/sdk-node` + 自动注入 traceId，文档化决策。
-- [ ] **P2-7** mem0 self-host 评估（Postgres + pgvector）。需求：写 `docs/evaluation/mem0-postgres.md`，含 docker-compose 草稿。
-- [ ] **P2-8** AI Agent 长期记忆三层架构评估（episodic + semantic + procedural）。需求：写 `docs/evaluation/agent-memory-3layer.md`，对应 `memory.js` 升级路径。
+- [ ] **P1-1** node:sqlite + sqlite-vec 真实生产验证（周期 14 已落 dispatch；本轮验证 Node 24+ 真实运行 + sqlite-vec 评估触发）。验收：spec ≥ 20 PASS。
+- [ ] **P1-2** ASI03 SPIFFE-lite workloadIdentity（workload identity：tool-name + userId + sessionId 三元组签名）。文件：`server/middleware/aiGuardrails.js`。验收：spec ≥ 18 PASS。
+- [ ] **P1-3** Multi-agent GIS Agent 升级（planner + executor + verifier 架构）。文件：`server/services/ai.js`。验收：spec ≥ 25 PASS。
+- [ ] **P1-4** cesium-mcp 拆分 4 个 server（camera / entity / animation / imagery）。文件：`client/src/pages/gis/mcpManifest.js`。验收：spec ≥ 20 PASS。
+- [ ] **P1-5** React 19 Compiler 启用 + useActionState 真实集成。文件：`client/package.json` + `client/vite.config.js`。验收：spec ≥ 15 PASS。
+
+### P2（中低优先级，按预算与时间允许）
+
+- [ ] **P2-1** `client/src/pages/gis/editor/utils/*.js` 中 9 个工具类文件与 turf 互操作缺乏单元测试。
+- [ ] **P2-2** `client/src/pages/gis/sandbox.js` 与 `server/agent/protocol/parse.js` 协议字符串重复实现 → 统一从 protocol.js 导出 + npm script 同步检查。
+- [ ] **P2-3** `client/src/pages/gis/aiAgent.js` 体积大且无注释（待通读），P2 阶段拆分候选。
+- [ ] **P2-4** 限流算法无回归验证（周期 6 已落 Token Bucket；确认 checkpoint 零回归）。
+
+### 已交付但仍在 upcoming 中（清理项）
+
+- ✅ P0 SSRF metadata IP 同步（周期 6 P0-1 续）→ 移至周期 6 已交付
+- ✅ P0 限流算法（周期 6）→ 移至周期 6 已交付
+- ✅ P1 SQLite FTS5（周期 8）→ 移至周期 8 已交付
+- ✅ P1 MCP 实际接入（周期 9）→ 移至周期 9 已交付
+- ✅ P1 DecompressionStream（周期 8）→ 移至周期 8 已交付
+- ✅ P1 Sandbox heap-snapshot（周期 6）→ 移至周期 6 已交付
+- ✅ P2 helmet 8.x Permissions-Policy（周期 9）→ 移至周期 9 已交付
+- ✅ P2 SSE Last-Event-ID buffer（周期 9 by 94c3622）→ 移至周期 9 已交付
+- ✅ P2 OTel SDK 评估（周期 14）→ 移至周期 14 已交付
+- ✅ P2 mem0 self-host 评估（周期 10）→ 移至周期 10 已交付
+- ✅ P2 AI Agent 3-layer memory（周期 10）→ 移至周期 10 已交付

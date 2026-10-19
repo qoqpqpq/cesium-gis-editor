@@ -329,15 +329,23 @@ class MemoryStore {
   search(query, opts = {}) {
     const limit = opts.limit || 10;
     const userId = opts.userId || null;
+    // 周期 15 L14-1: 允许强制 LIKE 路径（绕过 FTS5）
+    // 场景：FTS5 unicode61 分词器不支持 CJK 时，调用方可用 engine='like' 强制降级
+    const forceLike = opts.engine === 'like';
     // 转义 FTS5 特殊字符（防止用户输入破坏 MATCH 语法）
     const safeQuery = this._sanitizeFtsQuery(query);
-    if (this.driver && this._ftsEnabled && safeQuery) {
+    if (!forceLike && this.driver && this._ftsEnabled && safeQuery) {
       // 周期 8 P0-1: FTS5 路径（bm25 排序）
       this._backendDriver = 'sqlite';
       try {
         const rows = userId
           ? this._stmtFtsSearchByUser.all(safeQuery, userId, limit)
           : this._stmtFtsSearch.all(safeQuery, limit);
+        // 周期 15 L14-1: FTS5 返回空但表中有数据 → 回退 LIKE
+        // 根因：node:sqlite unicode61 分词器不支持 CJK，MATCH 对中文返回 0 行
+        if (rows.length === 0 && this.ftsCount() > 0) {
+          return this.search(query, { ...opts, engine: 'like' });
+        }
         return rows.map((r) => ({
           key: r.key,
           value: r.value,
@@ -355,10 +363,40 @@ class MemoryStore {
       }
     }
     // 回退：LIKE 路径（兼容老逻辑）
+    // 周期 15 L14-1: 多词 + CJK 查询支持 —— 按空格分词，CJK 逐字拆分，AND LIKE 条件组合
+    // 根因：单条 LIKE '%query%' 对多词 CJK 查询（如 "北京首都"）返回 0 行
+    // CJK 根因：node:sqlite unicode61 分词器不支持 CJK，LIKE '%北京首都%' 无空格不匹配
     if (this.driver) {
       this._backendDriver = 'sqlite';
       let rows;
-      if (userId) {
+      // 分词：先按空格，再对 CJK 单词逐字拆分
+      let words = (query || '').trim().split(/\s+/).filter(Boolean);
+      // CJK 检测：如果单词长度 > 1 且包含 CJK 字符，拆为逐字
+      const cjkRegex = /[\u4e00-\u9fff\u3400-\u4dbf]/;
+      words = words.flatMap(w => {
+        if (w.length > 1 && cjkRegex.test(w)) {
+          // CJK 单词：拆为逐字（如 "北京首都" → ["北京", "首都"] 或 ["北","京","首","都"]）
+          // 策略：按 2 字一组拆分，保持词义完整性
+          const chars = [...w];
+          const pairs = [];
+          for (let i = 0; i < chars.length; i += 2) {
+            pairs.push(chars.slice(i, i + 2).join(''));
+          }
+          return pairs.length > 0 ? pairs : [w];
+        }
+        return [w];
+      });
+      // 多词：AND LIKE 条件
+      if (words.length > 1) {
+        const likeParts = words.map(() => 'value LIKE ?').join(' AND ');
+        const params = words.map(w => `%${w}%`);
+        const baseParams = userId ? [...params, userId] : params;
+        const limitParam = baseParams.length + 1;
+        const sql = userId
+          ? `SELECT key, value, tags, userId, ts FROM ${this.table} WHERE ${likeParts} AND userId = ? ORDER BY ts DESC LIMIT ?`
+          : `SELECT key, value, tags, userId, ts FROM ${this.table} WHERE ${likeParts} ORDER BY ts DESC LIMIT ?`;
+        rows = this.driver.prepare(sql).all(...baseParams, limit);
+      } else if (userId) {
         const stmt = this.driver.prepare(
           `SELECT key, value, tags, userId, ts FROM ${this.table} WHERE value LIKE ? AND userId = ? ORDER BY ts DESC LIMIT ?`
         );

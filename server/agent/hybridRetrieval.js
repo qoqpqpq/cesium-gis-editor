@@ -117,7 +117,12 @@ function createHybridRetriever(store, vectorMem) {
     if (channel === 'fts5') {
       if (!store.ftsEnabled) return [];
       try {
-        const rows = store.search(query, { limit: opts.ftsK || 50, userId: opts.userId || null });
+        let rows = store.search(query, { limit: opts.ftsK || 50, userId: opts.userId || null });
+        // 周期 15 L14-1: FTS5 返回空但表中有数据 → LIKE 回退
+        // 根因：node:sqlite unicode61 分词器不支持 CJK，MATCH 对中文返回 0 行
+        if (rows.length === 0 && store.ftsCount && store.ftsCount() > 0) {
+          rows = store.search(query, { limit: opts.ftsK || 50, userId: opts.userId || null, engine: 'like' });
+        }
         // bm25 数值越小越好（更相关）；转成"越大越好"用于 RRF
         return rows.map((r) => ({
           key: r.key,
@@ -157,6 +162,8 @@ function createHybridRetriever(store, vectorMem) {
    */
   function computeRecencyScores(candidateKeys, opts) {
     const halfLifeMs = (opts.recencyHalfLifeDays || DEFAULT_HALF_LIFE_DAYS) * DAY_MS;
+    // 周期 15 L14-1: 守卫 halfLifeMs <= 0（防止除零/溢出）
+    if (halfLifeMs <= 0) return new Map();
     const now = Date.now();
     const out = new Map();
     for (const key of candidateKeys) {
