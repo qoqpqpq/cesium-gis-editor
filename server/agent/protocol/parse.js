@@ -12,6 +12,6 @@
 // - 流式未闭合时返回 pending（让 caller 决定要不要等）
 // - 流式已完成部分也可能含 pending + 已完成 tools 的混合
 
-const { parseToolTags, parseArgs, TOOL_RE, TOOL_OPEN, TOOL_CLOSE } = require('./index');
+const { parseToolTags, parseArgs, TOOL_RE, TOOL_OPEN, TOOL_CLOSE, TOOL_CALLS_JSON_RE, TOOL_CALLS_INLINE_RE, TOOL_CALL_JSON_RE } = require('./index');
 
-module.exports = { parseToolTags, parseArgs, TOOL_RE, TOOL_OPEN, TOOL_CLOSE };
+module.exports = { parseToolTags, parseArgs, TOOL_RE, TOOL_OPEN, TOOL_CLOSE, TOOL_CALLS_JSON_RE, TOOL_CALLS_INLINE_RE, TOOL_CALL_JSON_RE };

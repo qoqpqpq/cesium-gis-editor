@@ -34,9 +34,47 @@
 
 ---
 
+## R2: P2-2 协议字符串统一 + 同步检查
+
+**来源**：周期 15 遗留 P2 项
+
+**新增文件**：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `server/agent/protocol/constants.js` | 新建 | 协议常量统一导出 |
+| `tests/specs/protocol-sync-unified.cjs` | 新建 | 28 PASS spec |
+
+**修改文件**：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `server/agent/protocol/index.js` | 修改 | 常量从 ./constants.js 导入 |
+| `server/agent/protocol/parse.js` | 修改 | re-export 新常量 |
+| `scripts/check-protocol-sync.cjs` | 修改 | 增加 constants.js 检查 |
+
+**实现内容**：
+- 创建 `server/agent/protocol/constants.js`：统一导出 7 个协议常量（TOOL_OPEN / TOOL_CLOSE / TOOL_RE / TOOL_NAME_RE / TOOL_CALLS_JSON_RE / TOOL_CALLS_INLINE_RE / TOOL_CALL_JSON_RE）
+- 更新 `server/agent/protocol/index.js`：从 ./constants.js 导入常量
+- 更新 `server/agent/protocol/parse.js`：re-export 新常量
+- 更新 `scripts/check-protocol-sync.cjs`：增加 constants.js 6 个常量检查
+- 创建 `tests/specs/protocol-sync-unified.cjs`：28 PASS spec
+
+**子断言**：28 PASS / 0 FAIL
+
+**回归验证**：
+- ai-guardrails: 39 PASS ✅
+- ai-guardrails-deep: 38 PASS ✅
+- server-import-completeness: 12 PASS ✅
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## 总计
 
 - **R1**：47 PASS / 0 FAIL（P2-1）
-- **Commits**：1 个
-- **新增 spec**：1 个（editor-utils-turf）
-- **新增文档**：1 个（cycle-16-execution-plan）
+- **R2**：28 PASS / 0 FAIL（P2-2）
+- **Commits**：2 个
+- **新增 spec**：2 个（editor-utils-turf + protocol-sync-unified）
+- **新增文档**：4 个（cycle-16-execution-plan + cycle-16-dev-log + cycle-16-test-report + cycle-16-self-check）

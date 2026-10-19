@@ -69,3 +69,52 @@
 | server-import-completeness | 12 PASS ✅ |
 
 **零回归确认**：3 个 spec 全部通过。
+
+---
+
+## R2: protocol-sync-unified.cjs
+
+```
+=== protocol-sync-unified ===
+  [PASS] A1: constants.js 导出 TOOL_OPEN
+  [PASS] A2: constants.js 导出 TOOL_CLOSE
+  [PASS] A3: constants.js 导出 TOOL_RE
+  [PASS] A4: constants.js 导出 TOOL_NAME_RE
+  [PASS] A5: constants.js 导出 TOOL_CALLS_JSON_RE
+  [PASS] A6: constants.js 导出 TOOL_CALLS_INLINE_RE
+  [PASS] A7: constants.js 导出 TOOL_CALL_JSON_RE
+  [PASS] B1: index.js re-export TOOL_OPEN
+  [PASS] B2: index.js re-export TOOL_CLOSE
+  [PASS] B3: index.js re-export TOOL_RE
+  [PASS] B4: index.js re-export parseToolTags
+  [PASS] B5: index.js re-export parseArgs
+  [PASS] B6: index.js re-export unquote
+  [PASS] C1: parse.js re-export parseToolTags
+  [PASS] C2: parse.js re-export parseArgs
+  [PASS] C3: parse.js re-export TOOL_RE
+  [PASS] C4: parse.js re-export TOOL_OPEN
+  [PASS] C5: parse.js re-export TOOL_CLOSE
+  [PASS] D1: 同步检查脚本存在
+  [PASS] D2: 同步检查脚本含 constants.js 检查
+  [PASS] D3: 同步检查脚本含 6 个常量检查
+  [PASS] D4: 同步检查脚本含 JSON 输出支持
+  [PASS] E1: parseToolTags 解析 <tool>name(args)</tool>
+  [PASS] E2: parseToolTags 解析多个工具调用
+  [PASS] E3: parseToolTags 检测 pending
+  [PASS] E4: parseArgs 解析 JSON 数组
+  [PASS] E5: parseArgs 解析单 token
+  [PASS] E6: parseArgs 解析带引号字符串
+--- summary: pass=28 fail=0 ---
+```
+
+---
+
+## 回归测试
+
+| Spec | 结果 |
+|---|---|
+| ai-guardrails | 39 PASS ✅ |
+| ai-guardrails-deep | 38 PASS ✅ |
+| server-import-completeness | 12 PASS ✅ |
+
+**零回归确认**：3 个 spec 全部通过。

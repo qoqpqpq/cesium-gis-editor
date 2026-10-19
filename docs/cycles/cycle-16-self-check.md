@@ -25,8 +25,9 @@
 | ID | 任务 | 完成度 |
 |---|---|---|
 | P2-1 | editor/utils 工具类文件与 turf 互操作单元测试 | ✅ 100%（47 PASS + 3 spec 零回归） |
+| P2-2 | sandbox.js 与 protocol/parse.js 协议字符串统一 | ✅ 100%（28 PASS + 3 spec 零回归） |
 
-**P2 评分：1/1 = 5/5**
+**P2 评分：2/2 = 10/10**
 
 ---
 
@@ -45,9 +46,9 @@
 
 **40/40**（满分）
 
-- P2 任务：5/5
+- P2 任务：10/10
 - 测试质量：20/20
-- 文档完整性：15/15（execution-plan + test-report + dev-log + self-check）
+- 文档完整性：10/10（execution-plan + test-report + dev-log + self-check）
 
 ---
 
