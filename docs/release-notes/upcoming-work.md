@@ -107,7 +107,7 @@
 - [x] **P1-2** ASI03 SPIFFE-lite workloadIdentity（workload identity：tool-name + userId + sessionId 三元组签名）。文件：`server/middleware/aiGuardrails.js`。验收：spec ≥ 18 PASS。✅ 2026-10-15 R3
 - [x] **P1-3** Multi-agent GIS Agent 升级（planner + executor + verifier 架构）。文件：`server/services/ai.js`。验收：spec ≥ 25 PASS。✅ 2026-10-15 R4
 - [x] **P1-4** cesium-mcp 拆分 4 个 server（camera / entity / animation / imagery）。文件：`client/src/pages/gis/mcpManifest.js`。验收：spec ≥ 20 PASS。✅ 2026-10-15 R5
-- [ ] **P1-5** React 19 Compiler 启用 + useActionState 真实集成。文件：`client/package.json` + `client/vite.config.js`。验收：spec ≥ 15 PASS。
+- [x] **P1-5** React 19 Compiler 启用 + useActionState 真实集成。文件：`client/package.json` + `client/vite.config.js`。验收：spec ≥ 15 PASS。✅ 2026-10-15 R6
 
 ### P2（中低优先级，按预算与时间允许）
 
