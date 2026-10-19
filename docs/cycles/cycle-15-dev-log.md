@@ -160,12 +160,49 @@
 
 ---
 
+## R5: P1-4 cesium-mcp 拆分 4 个 server
+
+**来源**：周期 14 调研 Top5 #4
+
+**新增文件**：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `server/services/mcpServers/base.js` | 新建 | MCP Server 基类（manifest / callTool / listTools） |
+| `server/services/mcpServers/cameraServer.js` | 新建 | Camera MCP Server（4 工具） |
+| `server/services/mcpServers/entityServer.js` | 新建 | Entity MCP Server（4 工具） |
+| `server/services/mcpServers/animationServer.js` | 新建 | Animation MCP Server（5 工具） |
+| `server/services/mcpServers/imageryServer.js` | 新建 | Imagery MCP Server（5 工具） |
+| `server/services/mcpServers/registry.js` | 新建 | MCP Server 注册表 |
+| `server/services/mcpServers/index.js` | 新建 | 统一导出 |
+| `tests/specs/cesium-mcp-servers.cjs` | 新建 | 36 PASS spec |
+
+**实现内容**：
+- `createMcpServer(opts)` — MCP Server 基类（tools 注册 / manifest / callTool / listTools）
+- `createCameraServer(deps)` — Camera MCP Server（getCameraState / flyTo / getCameraHeading / setCameraMode）
+- `createEntityServer(deps)` — Entity MCP Server（addMarker / removeMarker / listMarkers / spatialQuery）
+- `createAnimationServer(deps)` — Animation MCP Server（playAnimation / pauseAnimation / stopAnimation / setAnimationSpeed / recordTimeline）
+- `createImageryServer(deps)` — Imagery MCP Server（addImageryLayer / removeImageryLayer / listImageryLayers / screenshot / setImageryStyle）
+- `createRegistry(deps)` — 注册表（4 server + 聚合 manifest + 总工具数 18）
+
+**子断言**：36 PASS / 0 FAIL
+
+**回归验证**：
+- ai-guardrails: 39 PASS ✅
+- ai-guardrails-deep: 38 PASS ✅
+- server-import-completeness: 12 PASS ✅
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
 ## 总计
 
 - **R1**：37 PASS / 0 FAIL（P0-1）
 - **R2**：25 PASS / 0 FAIL（P1-1）
 - **R3**：39 PASS / 0 FAIL（P1-2）
 - **R4**：42 PASS / 0 FAIL（P1-3）
-- **Commits**：4 个
-- **新增 spec**：3 个（sqlite-production-vec + asi03-workload-identity + agent-multi-agent）
-- **新增文档**：4 个（execution-plan 更新 + sqlite-vec-decision + execution-plan 更新 + execution-plan 更新）
+- **R5**：36 PASS / 0 FAIL（P1-4）
+- **Commits**：5 个
+- **新增 spec**：4 个（sqlite-production-vec + asi03-workload-identity + agent-multi-agent + cesium-mcp-servers）
+- **新增文档**：5 个（execution-plan 更新 + sqlite-vec-decision + execution-plan 更新 + execution-plan 更新 + execution-plan 更新）
