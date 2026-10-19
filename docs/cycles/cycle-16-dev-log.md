@@ -1,0 +1,42 @@
+# Cycle 16 Dev Log
+
+> 周期 16 开发日志（2026-10-15）
+
+---
+
+## R1: P2-1 editor/utils 工具类文件与 turf 互操作单元测试
+
+**来源**：周期 15 遗留 P2 项
+
+**新增文件**：
+
+| 文件 | 改动 | 说明 |
+|---|---|---|
+| `tests/specs/editor-utils-turf.cjs` | 新建 | 47 PASS spec |
+| `docs/cycles/cycle-16-execution-plan.md` | 新建 | 周期 16 执行计划 |
+
+**实现内容**：
+- 静态扫描：analysis.js / threeCheck.js / geometry.js / measure.js / simplify.js / importer.js / exporter.js 导出验证
+- 行为测试：cartesiansToLngLatHeights / lngLatHeightsToCartesians / polylineLengthMeters / polygonAreaM2
+- 格式化测试：formatDistance / formatArea（米/公里/平方米/平方公里/小距离/小面积）
+- 简化测试：simplifyPolyline（Douglas-Peucker 算法）
+- turf 互操作测试：feature / featureCollection / buffer / centroid / coordAll / area / length / bbox / booleanValid
+- 导入导出测试：importGeoJSON / entityToGeometry
+
+**子断言**：47 PASS / 0 FAIL
+
+**回归验证**：
+- ai-guardrails: 39 PASS ✅
+- ai-guardrails-deep: 38 PASS ✅
+- server-import-completeness: 12 PASS ✅
+
+**零回归确认**：3 个 spec 全部通过。
+
+---
+
+## 总计
+
+- **R1**：47 PASS / 0 FAIL（P2-1）
+- **Commits**：1 个
+- **新增 spec**：1 个（editor-utils-turf）
+- **新增文档**：1 个（cycle-16-execution-plan）
