@@ -358,8 +358,11 @@ function parsePlan(content) {
 function parseExecutorResult(content) {
   try {
     const json = extractJson(content);
+    // 修复: 原 `json.toolCall || null` 对 `{}` 返回 null（JS 中 {} 是 truthy 但被 || 误判）
+    // 正确语义: toolCall 保留原值（包括 {}、""、0、null），仅 undefined 转 null
+    // output 保留原 fallback 语义: 缺 output 或空字符串时 fallback 到 content
     return {
-      toolCall: json.toolCall || null,
+      toolCall: json.toolCall !== undefined ? json.toolCall : null,
       output: json.output || content,
     };
   } catch (_) {
