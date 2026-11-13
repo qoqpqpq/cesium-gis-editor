@@ -36,14 +36,29 @@
 
 const _tools = new Map();
 
+// 周期 19 P0-1: 工具分类元数据层（camera / entity / animation / imagery）
+//   供上层按类拆分 MCP server（cesiumjs-ai-starter-app 架构对齐）。
+//   纯增量：不改变既有 registerTool/manifest/listTools 语义与导出。
+const TOOL_CATEGORIES = Object.freeze({
+  CAMERA: 'camera',       // 相机：状态/飞行/视角
+  ENTITY: 'entity',       // 实体：marker/空间对象/查询
+  ANIMATION: 'animation', // 动画：时间轴/路径动画/时钟
+  IMAGERY: 'imagery',     // 影像：截图/图层/底图
+  GENERAL: 'general',     // 未分类兜底
+});
+
+/** toolName -> category */
+const _toolCategories = new Map();
+
 /**
  * 注册 MCP 工具
  * @param {string} name
  * @param {string} description
  * @param {object} inputSchema - JSON Schema
  * @param {Function} handler - async (args) => result
+ * @param {string} [category] - 周期 19: 工具分类（默认 'general'）
  */
-function registerTool(name, description, inputSchema, handler) {
+function registerTool(name, description, inputSchema, handler, category) {
   if (!name || typeof name !== 'string') {
     console.warn('[mcp] registerTool: name 必须是非空字符串');
     return false;
@@ -52,13 +67,21 @@ function registerTool(name, description, inputSchema, handler) {
     console.warn(`[mcp] registerTool: 工具 ${name} 已存在，覆盖`);
   }
   _tools.set(name, { name, description, inputSchema, handler });
+  _toolCategories.set(name, _normalizeCategory(category));
   return true;
 }
 
+/** 分类规范化：非法值回落 'general' */
+function _normalizeCategory(category) {
+  const valid = Object.values(TOOL_CATEGORIES);
+  return valid.includes(category) ? category : TOOL_CATEGORIES.GENERAL;
+}
+
 /**
- * 注销 MCP 工具
+ * 周期 19 P0-1: 注销 MCP 工具（同时清理分类）
  */
 function unregisterTool(name) {
+  _toolCategories.delete(name);
   return _tools.delete(name);
 }
 
@@ -152,6 +175,7 @@ function uninstallBrowserGlobal() {
  */
 function _resetAll() {
   _tools.clear();
+  _toolCategories.clear();
 }
 
 /**
@@ -171,6 +195,7 @@ function _defaultToolHandlers(viewer, sandbox) {
   return {
     getCameraState: {
       name: 'getCameraState',
+      category: 'camera',
       description: '获取当前 Cesium 相机位置（longitude/latitude/height/heading/pitch）',
       inputSchema: { type: 'object', properties: {}, additionalProperties: false },
       handler: async () => {
@@ -182,6 +207,7 @@ function _defaultToolHandlers(viewer, sandbox) {
     },
     flyTo: {
       name: 'flyTo',
+      category: 'camera',
       description: '飞到指定经纬度（弧度/度数可）+ 高度（米）',
       inputSchema: {
         type: 'object',
@@ -202,6 +228,7 @@ function _defaultToolHandlers(viewer, sandbox) {
     },
     addMarker: {
       name: 'addMarker',
+      category: 'entity',
       description: '在指定经纬度加一个 marker（id 可选）',
       inputSchema: {
         type: 'object',
@@ -222,6 +249,7 @@ function _defaultToolHandlers(viewer, sandbox) {
     },
     spatialQuery: {
       name: 'spatialQuery',
+      category: 'entity',
       description: '调用 sandbox.js 协议做空间查询（buffer/centroid/distance 等）',
       inputSchema: {
         type: 'object',
@@ -244,6 +272,7 @@ function _defaultToolHandlers(viewer, sandbox) {
     },
     screenshot: {
       name: 'screenshot',
+      category: 'imagery',
       description: '返回当前 Cesium canvas dataURL（PNG）',
       inputSchema: { type: 'object', properties: { quality: { type: 'number', default: 0.9 } } },
       handler: async (args) => {
@@ -275,11 +304,52 @@ function registerCoreGisTools() {
   const registered = [];
   for (const k of Object.keys(handlers)) {
     const t = handlers[k];
-    if (registerTool(t.name, t.description, t.inputSchema, t.handler)) {
+    // 周期 19 P0-1: 透传 category（默认工具已在定义里标注）
+    if (registerTool(t.name, t.description, t.inputSchema, t.handler, t.category)) {
       registered.push(t.name);
     }
   }
   return registered;
+}
+
+/**
+ * 周期 19 P0-1: 按分类列出工具名
+ * @param {string} [category] - 省略则返回 { category: [toolName...] } 全量分组
+ * @returns {Record<string, string[]> | string[]}
+ */
+function listToolsByCategory(category) {
+  if (category === undefined || category === null) {
+    const groups = {};
+    for (const cat of Object.values(TOOL_CATEGORIES)) groups[cat] = [];
+    for (const [name, cat] of _toolCategories.entries()) {
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(name);
+    }
+    return groups;
+  }
+  const want = _normalizeCategory(category);
+  const out = [];
+  for (const [name, cat] of _toolCategories.entries()) {
+    if (cat === want) out.push(name);
+  }
+  return out;
+}
+
+/**
+ * 周期 19 P0-1: 按分类生成子 manifest（供按类拆分 MCP server）
+ * @param {string} category
+ * @returns {{protocolVersion:string, serverInfo:object, capabilities:object, category:string, tools:Array}}
+ */
+function manifestByCategory(category) {
+  const want = _normalizeCategory(category);
+  const base = manifest();
+  const tools = base.tools.filter((t) => _toolCategories.get(t.name) === want);
+  return {
+    ...base,
+    category: want,
+    serverInfo: { ...base.serverInfo, name: `cesium-gis-editor-${want}` },
+    tools,
+  };
 }
 
 /**
@@ -359,6 +429,9 @@ export {
   installBridgeTransport,
   uninstallBridgeTransport,
   isBridgeInstalled,
+  TOOL_CATEGORIES,
+  listToolsByCategory,
+  manifestByCategory,
 };
 export default {
   registerTool,
@@ -374,4 +447,7 @@ export default {
   installBridgeTransport,
   uninstallBridgeTransport,
   isBridgeInstalled,
+  TOOL_CATEGORIES,
+  listToolsByCategory,
+  manifestByCategory,
 };
