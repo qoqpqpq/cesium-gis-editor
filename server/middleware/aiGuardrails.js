@@ -340,6 +340,141 @@ function verifyInterAgentMessage(signed, secret, opts = {}) {
   return { valid: true, reason: null };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 周期 17 P0-1: ASI03 Identity & Privilege Abuse — SPIFFE-lite workload identity
+//   以 (toolName, userId, sessionId) 三元组派生 workload 身份，并用 HMAC 签名 + nonce 防重放。
+//   目的：给「某工具调用确由某用户在某会话内发起」提供可验证的轻量工作负载身份证明，
+//   缓解身份/权限滥用（ASI03）与跨会话/跨用户冒用。
+//   复用本模块既有 _hmacSha256Hex / _stableStringify / _generateNonce / _timingSafeEqualHex。
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** SPIFFE-lite ID 前缀 */
+const WORKLOAD_ID_PREFIX = 'spiffe-lite://gis-agent/workload';
+
+/**
+ * 校验三元组字段合法性
+ * @returns {{ ok: boolean, reason: string|null }}
+ */
+function _validateWorkloadTuple(toolName, userId, sessionId) {
+  if (typeof toolName !== 'string' || !toolName) return { ok: false, reason: 'tool_name_required' };
+  if (typeof userId !== 'string' || !userId) return { ok: false, reason: 'user_id_required' };
+  if (typeof sessionId !== 'string' || !sessionId) return { ok: false, reason: 'session_id_required' };
+  return { ok: true, reason: null };
+}
+
+/**
+ * 派生 SPIFFE-lite workload ID（三元组 → 稳定字符串 ID）
+ * 格式：spiffe-lite://gis-agent/workload/{toolName}/{userId}/{sessionId}
+ * 字段做 encodeURIComponent 以避免分隔符注入。
+ * @param {string} toolName
+ * @param {string} userId
+ * @param {string} sessionId
+ * @returns {{ ok: boolean, reason: string|null, workloadId: string|null }}
+ */
+function deriveWorkloadId(toolName, userId, sessionId) {
+  const v = _validateWorkloadTuple(toolName, userId, sessionId);
+  if (!v.ok) return { ok: false, reason: v.reason, workloadId: null };
+  const workloadId = `${WORKLOAD_ID_PREFIX}/${encodeURIComponent(toolName)}/${encodeURIComponent(userId)}/${encodeURIComponent(sessionId)}`;
+  return { ok: true, reason: null, workloadId };
+}
+
+/**
+ * 为 workload 身份签发 HMAC-SHA256 证明（attestation）。
+ * 证明载荷 = stableStringify({ workloadId, toolName, userId, sessionId, ts, nonce })。
+ * @param {object} identity { toolName, userId, sessionId }
+ * @param {string} secret HMAC 密钥
+ * @param {object} [opts] { ts, nonce }（测试可注入固定值）
+ * @returns {{ ok: boolean, reason: string|null, attestation: object|null }}
+ */
+function signWorkloadAttestation(identity, secret, opts = {}) {
+  if (!identity || typeof identity !== 'object') {
+    return { ok: false, reason: 'identity_not_object', attestation: null };
+  }
+  if (!secret || typeof secret !== 'string') {
+    return { ok: false, reason: 'secret_required', attestation: null };
+  }
+  const { toolName, userId, sessionId } = identity;
+  const derived = deriveWorkloadId(toolName, userId, sessionId);
+  if (!derived.ok) return { ok: false, reason: derived.reason, attestation: null };
+
+  const ts = opts.ts || Date.now();
+  const nonce = opts.nonce || _generateNonce();
+  const payload = _stableStringify({
+    workloadId: derived.workloadId,
+    toolName, userId, sessionId, ts, nonce,
+  });
+  const signature = _hmacSha256Hex(secret, payload);
+  if (!signature) return { ok: false, reason: 'hmac_failed', attestation: null };
+
+  return {
+    ok: true,
+    reason: null,
+    attestation: {
+      workloadId: derived.workloadId,
+      toolName, userId, sessionId, ts, nonce,
+      signature,
+    },
+  };
+}
+
+/**
+ * 验证 workload 证明：签名 + nonce 防重放 + ts 过期 + 身份字段一致性。
+ * @param {object} attestation signWorkloadAttestation 的输出
+ * @param {string} secret HMAC 密钥
+ * @param {object} [opts] { seenNonces:Set, maxAgeMs, expectedIdentity:{toolName,userId,sessionId} }
+ * @returns {{ valid: boolean, reason: string|null }}
+ */
+function verifyWorkloadAttestation(attestation, secret, opts = {}) {
+  if (!attestation || typeof attestation !== 'object') {
+    return { valid: false, reason: 'attestation_not_object' };
+  }
+  const required = ['workloadId', 'toolName', 'userId', 'sessionId', 'ts', 'nonce', 'signature'];
+  for (const k of required) {
+    if (attestation[k] === undefined || attestation[k] === null) {
+      return { valid: false, reason: `attestation_missing_field:${k}` };
+    }
+  }
+  if (!secret || typeof secret !== 'string') {
+    return { valid: false, reason: 'secret_required' };
+  }
+  // 身份字段一致性（可选绑定校验）
+  if (opts.expectedIdentity && typeof opts.expectedIdentity === 'object') {
+    for (const k of ['toolName', 'userId', 'sessionId']) {
+      if (opts.expectedIdentity[k] !== undefined && opts.expectedIdentity[k] !== attestation[k]) {
+        return { valid: false, reason: `identity_mismatch:${k}` };
+      }
+    }
+  }
+  // workloadId 与三元组重派生一致（防 workloadId 被篡改）
+  const rederived = deriveWorkloadId(attestation.toolName, attestation.userId, attestation.sessionId);
+  if (!rederived.ok || rederived.workloadId !== attestation.workloadId) {
+    return { valid: false, reason: 'workload_id_mismatch' };
+  }
+  // 签名
+  const payload = _stableStringify({
+    workloadId: attestation.workloadId,
+    toolName: attestation.toolName,
+    userId: attestation.userId,
+    sessionId: attestation.sessionId,
+    ts: attestation.ts,
+    nonce: attestation.nonce,
+  });
+  const expected = _hmacSha256Hex(secret, payload);
+  if (!expected || !_timingSafeEqualHex(expected, attestation.signature)) {
+    return { valid: false, reason: 'signature_mismatch' };
+  }
+  // nonce 防重放
+  if (opts.seenNonces && opts.seenNonces.has(attestation.nonce)) {
+    return { valid: false, reason: 'nonce_replay' };
+  }
+  // ts 过期
+  const maxAgeMs = opts.maxAgeMs || 300000; // 5 min default
+  if (typeof attestation.ts !== 'number' || attestation.ts + maxAgeMs < Date.now()) {
+    return { valid: false, reason: 'ts_expired' };
+  }
+  return { valid: true, reason: null };
+}
+
 /**
  * Circuit breaker（窗口内 N 次失败 → open cooldownMs）
  * @param {object} opts
@@ -462,6 +597,10 @@ module.exports = {
   validateMemoryContext,   // 周期 14 P0-1: ASI06
   signInterAgentMessage,   // 周期 14 P0-1: ASI07
   verifyInterAgentMessage, // 周期 14 P0-1: ASI07
+  deriveWorkloadId,          // 周期 17 P0-1: ASI03 SPIFFE-lite
+  signWorkloadAttestation,   // 周期 17 P0-1: ASI03 SPIFFE-lite
+  verifyWorkloadAttestation, // 周期 17 P0-1: ASI03 SPIFFE-lite
+  WORKLOAD_ID_PREFIX,        // 周期 17 P0-1: ASI03
   INJECTION_PATTERNS,
   DEFAULT_OPTIONS,
   MANIFEST_ALLOWED_SOURCES_DEFAULT,
