@@ -28,3 +28,28 @@
 - 提交情况：feat/auto-cycle 小粒度提交（模块+spec / 文档台账），未推 main、未合并 PR
 - 状态：completed
 - 告警：无
+---
+
+## cycle 16 | 2026-11-13T18:10+08:00 触发
+
+- 触发方式：cron `10 * * * *`（Asia/Hong_Kong），自动调度第二轮
+- 锁状态：启动时空闲 → 持有 → 收尾释放
+- 上一轮状态：cycle 15 = completed → 开启 cycle 16
+- 模型：sensenova-6.8-flash；降级原因：无；上下文压缩：未触发
+- 本轮任务（P0）：P0-1 续（R-1501）LLM planner 适配层
+- 改动文件：
+  - 新增 `server/agent/llmPlannerAdapter.js`
+  - 新增 `tests/specs/multi-agent-llm-planner.cjs`
+  - 新增 `docs/cycles/cycle-16-dev-log.md`
+  - 修改 `docs/cycles/cycle-15-audit.md`（本文件追加 cycle 16 条目）
+  - 修改 `docs/cycles/risk-ledger.md`（R-1501 → resolved；新增 R-1601）
+  - 修改 `docs/cycles/cycle-15-multiagent-integration.md`（标记 LLM 路径已落）
+  - 修改 `docs/release-notes/upcoming-work.md`（增量记 cycle 16）
+  - 修改 `state/cycle-state.json`（cycle=16, status, lock 释放）
+- 门禁：本轮 spec 31/31 PASS；回归 multi-agent-planner 46 + guardrails 39 + deep 38 零失败；静态扫描无密钥/本地路径/调试
+- 开发缺陷：C16-B01（阻断，已修）require 顺序 ReferenceError → path 提前引入
+- 风险台账新增：R-1601（真实 LLM 端到端待有 Key+网络验证）
+- 异常：无阻断；checkpoint/probe 离线跳过（承 R-1502）
+- 提交情况：feat/auto-cycle 小粒度提交，未推 main、未合并 PR
+- 状态：completed
+- 告警：无

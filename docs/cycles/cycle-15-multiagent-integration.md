@@ -24,3 +24,8 @@
 
 ## 下一轮接 LLM planner 的路径
 当前 planner 为确定性规则（capability/phase）。接入真实 LLM 时：保留 `execute`/`verify` 不变，仅把 `plan(goal)` 换成「LLM 产出 steps JSON → `normalizeStep` + `detectCycle` + 白名单校验」的适配层，即可复用既有门禁与 HITL，无需改动 executor/verifier。
+
+> ✅ **已落地（cycle 16）**：见 `server/agent/llmPlannerAdapter.js` + `createLlmPlannerAdapter`。
+> 注入 `llmChat` 抽象（不硬编码平台/密钥），`extractSteps` 健壮解析围栏/散文/包裹，
+> 复用 `normalizeStep + detectCycle + allowlist` 门禁；危险操作仍由 executor HITL 拦截。
+> spec `tests/specs/multi-agent-llm-planner.cjs` 31 PASS。真实平台端到端待有 Key+网络（R-1601）。

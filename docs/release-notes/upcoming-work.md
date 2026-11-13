@@ -3,6 +3,10 @@
 > 所有周期按"清除已完成的条目"的方式收敛。
 > 顶部为最高优先级 P0，自上而下递减；周期结束后由对应周期把"已交付"项移到 commits 区。
 
+## 周期 16 已交付（2026-11-13，自动周期第二轮）
+
+- ✅ **P0-1 续（R-1501）** LLM planner 适配层 —— `server/agent/llmPlannerAdapter.js`：注入 `llmChat` 抽象（不硬编码平台/密钥）+ `extractSteps` 健壮解析（围栏/散文/纯数组/单步对象/{steps} 包裹）+ 复用 multiAgentPlanner 的 `normalizeStep + detectCycle + allowlist` 门禁；危险操作仍由 executor HITL 拦截；`ai.js` require 延迟加载提升可选依赖健壮性。spec `multi-agent-llm-planner.cjs` **31 PASS**；回归 multi-agent-planner 46 + guardrails 39 + deep 38 零失败。修复 C16-B01（require 顺序 ReferenceError）
+
 ## 周期 15 已交付（2026-11-13，自动周期首轮）
 
 - ✅ **P0-1** Multi-agent GIS Agent 骨架（planner + executor + verifier）—— `server/agent/multiAgentPlanner.js`：planner 按 capability/phase 编排 DAG（环检测 + 白名单 fail-fast）+ executor 依赖感知并行 + 危险操作 HITL 门（复用 aiGuardrails ASI09）+ verifier 契约校验（type/required/equals）；spec `multi-agent-planner.cjs` **46 PASS**（目标 ≥25）；回归 guardrails 39 + deep 38 + strategies 18 + fts5 18 零失败。集成路径见 `docs/cycles/cycle-15-multiagent-integration.md`
