@@ -79,3 +79,28 @@
 - 提交情况：feat/auto-cycle 小粒度提交，未推 main、未合并 PR
 - 状态：completed
 - 告警：无
+
+---
+
+## cycle 18 | 2026-11-13T20:10+08:00 触发
+
+- 触发方式：cron `10 * * * *`（Asia/Hong_Kong），自动调度第四轮
+- 锁状态：启动时空闲 → 持有 → 收尾释放
+- 上一轮状态：cycle 17 = completed → 开启 cycle 18
+- 模型：sensenova-6.8-flash；降级原因：无；上下文压缩：未触发
+- 本轮任务（P0，续 R-1701）：ASI03 workload identity 接入 withGuardrail 主链（opt-in）
+- 变更准入：勘察确认 withGuardrail 签名不变 + opt-in 默认关闭 → 既有调用方行为零变化 → **非高风险，通过准入**（未阻塞 await_confirm）
+- 改动文件：
+  - 修改 `server/middleware/aiGuardrails.js`（withGuardrail 第5步 opt-in 校验 + DEFAULT_OPTIONS.workloadIdentity 默认关闭）
+  - 新增 `tests/specs/workload-guardrail-integration.cjs`
+  - 新增 `docs/cycles/cycle-18-dev-log.md`
+  - 修改 `docs/cycles/cycle-15-audit.md`（本文件追加 cycle 18）
+  - 修改 `docs/cycles/risk-ledger.md`（R-1701 → resolved）
+  - 修改 `docs/release-notes/upcoming-work.md`（增量记 cycle 18）
+  - 修改 `state/cycle-state.json`（cycle=18, status, lock 释放）
+- 门禁：本轮 spec 19/19 PASS（目标≥18）；回归 guardrails 39 + deep 38 + asi03 29 零失败（默认关闭保证既有路径不变）；静态扫描干净
+- 风险台账：R-1701 → resolved（已接入主链，opt-in）
+- 异常：无阻断；checkpoint/probe 离线跳过（承 R-1502）
+- 提交情况：feat/auto-cycle 小粒度提交，未推 main、未合并 PR
+- 状态：completed
+- 告警：无

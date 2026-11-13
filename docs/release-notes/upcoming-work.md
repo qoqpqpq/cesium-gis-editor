@@ -3,6 +3,10 @@
 > 所有周期按"清除已完成的条目"的方式收敛。
 > 顶部为最高优先级 P0，自上而下递减；周期结束后由对应周期把"已交付"项移到 commits 区。
 
+## 周期 18 已交付（2026-11-13，自动周期第四轮）
+
+- ✅ **P0-1 续（R-1701）** ASI03 workload identity 接入 `withGuardrail` 主链（**opt-in 默认关闭**）—— `server/middleware/aiGuardrails.js`：`DEFAULT_OPTIONS.workloadIdentity={enabled:false,...}` + `withGuardrail` 第 5 步（sanitize 后、execute 前）从 `ctx.workloadAttestation` 经 `verifyWorkloadAttestation` 强制校验（secret/seenNonces/maxAgeMs/expectedIdentity 透传），失败 `onRejected` + 抛 `workload_identity_rejected:<reason>`，缺失抛 `workload_identity_attestation_missing`。**签名不变 + 默认关闭 → 既有调用方行为零变化，判定非高风险通过准入**；与 allowlist/HITL/CB/sanitize 共存不抢优先级。spec `workload-guardrail-integration.cjs` **19 PASS**；回归 guardrails 39 + deep 38 + asi03 29 零失败
+
 ## 周期 17 已交付（2026-11-13，自动周期第三轮）
 
 - ✅ **P0-1（进度池 Top3）** ASI03 SPIFFE-lite workload identity 实质化 —— `server/middleware/aiGuardrails.js` 增量新增 `deriveWorkloadId`（toolName+userId+sessionId 三元组 → SPIFFE-lite ID，字段编码防分隔符注入）+ `signWorkloadAttestation`（HMAC-SHA256 + nonce + ts）+ `verifyWorkloadAttestation`（缺字段→secret→expectedIdentity 绑定→workloadId 重派生一致性→签名→nonce 防重放→ts 过期）；复用既有 `_hmac*`/`_stableStringify`/`_generateNonce` 助手，不改既有导出/中间件签名。spec `workload-identity-asi03.cjs` **29 PASS**（目标≥18）；回归 guardrails 39 + deep 38 零失败。修复 C17-B01（自引入：插入截断 JSDoc → SyntaxError）

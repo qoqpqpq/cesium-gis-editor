@@ -8,7 +8,7 @@
 | R-1502 | 已知缺陷 | checkpoint.cjs / probe-real-ai-tool-first.cjs 需运行中 server；自动周期离线环境无法跑，存在回归盲区 | 中 | open | cycle 15 | 下一轮在有 server 环境时补跑 |
 | R-1503 | 外部依赖 | 自动周期多模型故障转移（sensenova/deepseek/kimi）无法在 Agent 运行时自动切换，需 Harness 层配置 | 中 | open | cycle 15 | 降级时仅同模型内应对，已在 runbook 标注边界 |
 | R-1601 | 技术债 | llmPlannerAdapter 仅以注入 llmChat + mock 验证；真实平台端到端（真实 LLM 产出 steps）待有 API Key + 网络时验证 | 中 | open | cycle 16 | 离线环境无法跑真实 LLM 路径 |
-| R-1701 | 技术债 | workload identity 三函数已落但未接入 withGuardrail 主链；接入需评估对既有调用方/对外接口影响，可能触发变更准入评审 | 中 | open | cycle 17 | 本轮仅增量函数 + 单测，未改主链 |
+| R-1701 | 技术债 | workload identity 三函数已落但未接入 withGuardrail 主链；接入需评估对既有调用方/对外接口影响，可能触发变更准入评审 | 中 | **resolved (cycle 18)** | cycle 17 | 已 opt-in 接入主链（默认关闭，签名不变，既有调用方零影响）；spec 19 PASS |
 
 ## 已知开放缺陷（承继历史）
 - 历史周期累计 bugs_open 计数见 `state/cycle-state.json` history；本轮未新增阻断/严重缺陷。
