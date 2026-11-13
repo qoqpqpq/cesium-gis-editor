@@ -53,3 +53,29 @@
 - 提交情况：feat/auto-cycle 小粒度提交，未推 main、未合并 PR
 - 状态：completed
 - 告警：无
+
+---
+
+## cycle 17 | 2026-11-13T19:10+08:00 触发
+
+- 触发方式：cron `10 * * * *`（Asia/Hong_Kong），自动调度第三轮
+- 锁状态：启动时空闲 → 持有 → 收尾释放
+- 上一轮状态：cycle 16 = completed → 开启 cycle 17
+- 模型：sensenova-6.8-flash；降级原因：无；上下文压缩：未触发
+- 本轮任务（P0）：ASI03 SPIFFE-lite workload identity 实质化（进度池 Top3）
+- 改动文件：
+  - 修改 `server/middleware/aiGuardrails.js`（+139 行：deriveWorkloadId / signWorkloadAttestation / verifyWorkloadAttestation / WORKLOAD_ID_PREFIX + 导出）
+  - 新增 `tests/specs/workload-identity-asi03.cjs`
+  - 新增 `docs/cycles/cycle-17-dev-log.md`
+  - 修改 `docs/cycles/cycle-15-audit.md`（本文件追加 cycle 17）
+  - 修改 `docs/cycles/risk-ledger.md`（新增 R-1701）
+  - 修改 `docs/release-notes/upcoming-work.md`（增量记 cycle 17）
+  - 修改 `state/cycle-state.json`（cycle=17, status, lock 释放）
+- 门禁：本轮 spec 29/29 PASS（目标≥18）；回归 guardrails 39 + deep 38 零失败；静态扫描无密钥/本地路径/调试
+- 开发缺陷：C17-B01（阻断，自引入，已修）插入截断 circuit breaker JSDoc → SyntaxError，恢复注释块
+- spec 修正：C4/C11 期望与 verify 校验顺序对齐（workloadId 重派生 / 签名载荷先命中）
+- 风险台账新增：R-1701（接入 withGuardrail 主链待评估对外接口影响）
+- 异常：无阻断；checkpoint/probe 离线跳过（承 R-1502）
+- 提交情况：feat/auto-cycle 小粒度提交，未推 main、未合并 PR
+- 状态：completed
+- 告警：无

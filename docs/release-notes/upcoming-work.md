@@ -3,6 +3,10 @@
 > 所有周期按"清除已完成的条目"的方式收敛。
 > 顶部为最高优先级 P0，自上而下递减；周期结束后由对应周期把"已交付"项移到 commits 区。
 
+## 周期 17 已交付（2026-11-13，自动周期第三轮）
+
+- ✅ **P0-1（进度池 Top3）** ASI03 SPIFFE-lite workload identity 实质化 —— `server/middleware/aiGuardrails.js` 增量新增 `deriveWorkloadId`（toolName+userId+sessionId 三元组 → SPIFFE-lite ID，字段编码防分隔符注入）+ `signWorkloadAttestation`（HMAC-SHA256 + nonce + ts）+ `verifyWorkloadAttestation`（缺字段→secret→expectedIdentity 绑定→workloadId 重派生一致性→签名→nonce 防重放→ts 过期）；复用既有 `_hmac*`/`_stableStringify`/`_generateNonce` 助手，不改既有导出/中间件签名。spec `workload-identity-asi03.cjs` **29 PASS**（目标≥18）；回归 guardrails 39 + deep 38 零失败。修复 C17-B01（自引入：插入截断 JSDoc → SyntaxError）
+
 ## 周期 16 已交付（2026-11-13，自动周期第二轮）
 
 - ✅ **P0-1 续（R-1501）** LLM planner 适配层 —— `server/agent/llmPlannerAdapter.js`：注入 `llmChat` 抽象（不硬编码平台/密钥）+ `extractSteps` 健壮解析（围栏/散文/纯数组/单步对象/{steps} 包裹）+ 复用 multiAgentPlanner 的 `normalizeStep + detectCycle + allowlist` 门禁；危险操作仍由 executor HITL 拦截；`ai.js` require 延迟加载提升可选依赖健壮性。spec `multi-agent-llm-planner.cjs` **31 PASS**；回归 multi-agent-planner 46 + guardrails 39 + deep 38 零失败。修复 C16-B01（require 顺序 ReferenceError）
