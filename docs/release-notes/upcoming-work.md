@@ -3,6 +3,10 @@
 > 所有周期按"清除已完成的条目"的方式收敛。
 > 顶部为最高优先级 P0，自上而下递减；周期结束后由对应周期把"已交付"项移到 commits 区。
 
+## 周期 23 已交付（2026-11-14，自动周期第九轮）
+
+- ✅ **P2-3 第二批** editor/utils 纯函数补单测（attrs + attrTableUtils）—— 新增 `tests/specs/editor-utils-attrs-attrtable.mjs` **30 PASS**（readAttrs PropertyBag 契约/数组防御、writeAttrs/updateAttr 不可变+置空删除、coerce number/boolean/null、pickAttrs 过滤保留字段、collectFields 类型推断升序、compareValues null 恒最后/类型序、sortFeatures asc/desc/不改原数组、matchesFilter 大小写不敏感、featuresToCsv BOM+CRLF+RFC4180 转义）；**仅新增 spec 无源码改动**。回归 coords-classify 24/24 + fallback-clear 9/9 零失败。`analysis.js` 因 `@turf/turf` 未安装离线跳过
+
 ## 周期 21 已交付（2026-11-13，自动周期第七轮）
 
 - ✅ **P2-3 首批** editor/utils 纯函数补单测（coords + classify）—— 新增 `tests/specs/editor-utils-coords-classify.mjs` **24 PASS**（decToDMS 半球/UTM/MGRS/formatCoord 回落、equal/quantile 断点、unique 去重、classifyValue/UniqueIndex、rampColor/RAMPS/classifyFeatures）；**顺带修复 C21-B01**：`classify.js` `rampColor(i,n)` 当 `i>n-1` 越界致 `lerpHex` TypeError → clamp `i`/`lo`，内部路径零影响（spec D3/D4 固化）。回归 editor-fallback-clear 9/9 零失败

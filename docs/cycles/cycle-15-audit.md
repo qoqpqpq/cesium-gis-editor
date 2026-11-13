@@ -193,3 +193,27 @@
 - 风险台账新增：R-2201（远端分叉，需人工决策合并策略）
 - 状态：interrupted（等待人工介入）
 - 告警：**是** —— 远端分叉冲突 + 推送网络挂起
+
+---
+
+## cycle 23 | 2026-11-14T01:10+08:00 触发
+
+- 触发方式：cron `10 * * * *`（Asia/Hong_Kong），自动调度第九轮
+- 锁状态：启动时空闲 → 持有 → 收尾释放
+- 上一轮状态：cycle 22 = interrupted（R-2201 远端分叉，推送阻塞）→ 开启 cycle 23
+- 模型：sensenova-6.8-flash；降级原因：无；上下文压缩：未触发
+- 推送策略：**仅本地提交，不推送**（R-2201 未解决前不触碰远端，遵守 runbook 第四节第2条）
+- 本轮任务（P2-3 第二批）：editor/utils 纯函数补单测（attrs + attrTableUtils）
+- 改动文件：
+  - 新增 `tests/specs/editor-utils-attrs-attrtable.mjs`（**仅新增 spec，无源码改动**）
+  - 新增 `docs/cycles/cycle-23-dev-log.md`
+  - 修改 `docs/cycles/cycle-15-audit.md`（本文件追加 cycle 23）
+  - 修改 `docs/release-notes/upcoming-work.md`（增量记 cycle 23）
+  - 修改 `state/cycle-state.json`（cycle=23, status, lock 释放）
+- 门禁：本轮 spec 30/30 PASS（目标≥18）；回归 coords-classify 24/24 + fallback-clear 9/9 零失败；静态扫描干净
+- 契约纠偏：初版探针误用 entity.attrs，实际 readAttrs 读 entity.properties.attrs → 读实现后按真实契约写断言
+- 风险台账新增：无（R-2201 仍 open，阻塞推送）
+- 异常：无阻断；analysis.js 因 @turf/turf 未安装离线不可测，本轮跳过；checkpoint/probe 离线跳过（承 R-1502）
+- 提交情况：feat/auto-cycle 本地小粒度提交，**不推送**（R-2201）
+- 状态：completed
+- 告警：无（R-2201 持续 open，已在上轮告警）
