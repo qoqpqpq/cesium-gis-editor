@@ -70,9 +70,11 @@ export function rampColor(i, n, name = 'Blues', alpha = 0.7) {
   const palette = RAMP[name] || RAMP.Blues;
   // palette 是 9 色；线性映射 n → 9
   if (n <= 1) return toRgba(palette[Math.floor(palette.length / 2)], alpha);
-  const t = i / (n - 1);
+  // 周期 21 C21-B01 修复: clamp i 到 [0, n-1]，防越界索引导致 lerpHex 崩溃
+  const clamped = Math.max(0, Math.min(n - 1, i));
+  const t = clamped / (n - 1);
   const idx = t * (palette.length - 1);
-  const lo = Math.floor(idx);
+  const lo = Math.max(0, Math.min(palette.length - 1, Math.floor(idx)));
   const hi = Math.min(palette.length - 1, lo + 1);
   const ratio = idx - lo;
   return lerpHex(palette[lo], palette[hi], ratio, alpha);
