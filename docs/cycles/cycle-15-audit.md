@@ -147,3 +147,28 @@
 - 提交情况：无（skipped，0 commit）
 - 状态：skipped
 - 告警：无（连续 skipped 本身不构成告警；若下轮仍 skipped 将在周报提示"离线环境待办饱和"）
+
+---
+
+## cycle 21 | 2026-11-13T23:10+08:00 触发
+
+- 触发方式：cron `10 * * * *`（Asia/Hong_Kong），自动调度第七轮
+- 锁状态：启动时空闲 → 持有 → 收尾释放
+- 上一轮状态：cycle 20 = skipped → 开启 cycle 21
+- 模型：sensenova-6.8-flash；降级原因：无；上下文压缩：未触发
+- 本轮任务（P2-3 首批）：editor/utils 纯函数补单测（coords + classify）
+- 改动文件：
+  - 修改 `client/src/pages/gis/editor/utils/classify.js`（C21-B01 修复：rampColor clamp 越界索引）
+  - 新增 `tests/specs/editor-utils-coords-classify.mjs`
+  - 新增 `docs/cycles/cycle-21-dev-log.md`
+  - 修改 `docs/cycles/cycle-15-audit.md`（本文件追加 cycle 21）
+  - 修改 `docs/cycles/risk-ledger.md`（新增 C21-B01，已修）
+  - 修改 `docs/release-notes/upcoming-work.md`（增量记 cycle 21）
+  - 修改 `state/cycle-state.json`（cycle=21, status, lock 释放）
+- 门禁：本轮 spec 24/24 PASS（目标≥18）；回归 editor-fallback-clear 9/9；静态扫描干净
+- 开发缺陷：C21-B01（边界崩溃，已修）rampColor i>n-1 越界 → lerpHex TypeError；clamp 修复，内部路径零影响
+- 风险台账新增：C21-B01（resolved）
+- 异常：无阻断；checkpoint/probe 离线跳过（承 R-1502）
+- 提交情况：feat/auto-cycle 小粒度提交，未推 main、未合并 PR
+- 状态：completed
+- 告警：无
