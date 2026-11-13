@@ -3,6 +3,10 @@
 > 所有周期按"清除已完成的条目"的方式收敛。
 > 顶部为最高优先级 P0，自上而下递减；周期结束后由对应周期把"已交付"项移到 commits 区。
 
+## 周期 19 已交付（2026-11-13，自动周期第五轮）
+
+- ✅ **P1（进度池 Top4）** MCP 工具分类元数据层（camera/entity/animation/imagery）—— `client/src/pages/gis/mcpManifest.js`：冻结常量 `TOOL_CATEGORIES`（camera/entity/animation/imagery/general 兜底）+ `registerTool` 可选第 5 参 category（`_normalizeCategory` 非法回落 general）+ `listToolsByCategory(category?)` 全量分组/单组查询 + `manifestByCategory(category)` 按类子 manifest（serverInfo.name 带 `-<category>` 后缀）；默认 5 工具打标（getCameraState/flyTo→camera、addMarker/spatialQuery→entity、screenshot→imagery；animation 暂空，不凭空造）；unregister/_resetAll 同步清理。**纯增量**：manifest()/listTools()/registerTool 前参语义与既有导出全不变。spec `mcp-tool-categories.mjs` **22 PASS**；server 侧回归 46+29+19 零失败
+
 ## 周期 18 已交付（2026-11-13，自动周期第四轮）
 
 - ✅ **P0-1 续（R-1701）** ASI03 workload identity 接入 `withGuardrail` 主链（**opt-in 默认关闭**）—— `server/middleware/aiGuardrails.js`：`DEFAULT_OPTIONS.workloadIdentity={enabled:false,...}` + `withGuardrail` 第 5 步（sanitize 后、execute 前）从 `ctx.workloadAttestation` 经 `verifyWorkloadAttestation` 强制校验（secret/seenNonces/maxAgeMs/expectedIdentity 透传），失败 `onRejected` + 抛 `workload_identity_rejected:<reason>`，缺失抛 `workload_identity_attestation_missing`。**签名不变 + 默认关闭 → 既有调用方行为零变化，判定非高风险通过准入**；与 allowlist/HITL/CB/sanitize 共存不抢优先级。spec `workload-guardrail-integration.cjs` **19 PASS**；回归 guardrails 39 + deep 38 + asi03 29 零失败
