@@ -217,3 +217,27 @@
 - 提交情况：feat/auto-cycle 本地小粒度提交，**不推送**（R-2201）
 - 状态：completed
 - 告警：无（R-2201 持续 open，已在上轮告警）
+
+---
+
+## cycle 24 | 2026-11-14T02:10+08:00 触发
+
+- 触发方式：cron `10 * * * *`（Asia/Hong_Kong），自动调度第十轮
+- 锁状态：启动时空闲 → 持有 → 收尾释放
+- 上一轮状态：cycle 23 = completed → 开启 cycle 24
+- 模型：sensenova-6.8-flash；降级原因：无；上下文压缩：未触发
+- 推送策略：**仅本地提交，不推送**（R-2201 未解决，遵守 runbook 第四节第2条）
+- 本轮任务（P2-3 第三批）：checkpoint 存取清 + 列显隐 resolve 纯逻辑补单测
+- 改动文件：
+  - 新增 `tests/specs/editor-utils-checkpoint-colvis.mjs`（**仅新增 spec，无源码改动**；注入全局 localStorage mock 离线可测）
+  - 新增 `docs/cycles/cycle-24-dev-log.md`
+  - 修改 `docs/cycles/cycle-15-audit.md`（本文件追加 cycle 24）
+  - 修改 `docs/release-notes/upcoming-work.md`（增量记 cycle 24）
+  - 修改 `state/cycle-state.json`（cycle=24, status, lock 释放）
+- 门禁：本轮 spec 18/18 PASS（目标≥18）；回归 coords-classify 24 + attrs-attrtable 30 + fallback-clear 9 零失败；静态扫描干净
+- P2-3 累计：三批合计 72 子断言覆盖 editor/utils 纯函数；余 analysis.js（需 turf）/downloadCsv/applyCheckpoint（强 DOM/api）离线不覆盖
+- 风险台账新增：无（R-2201 仍 open，阻塞推送）
+- 异常：无阻断；集成 checkpoint/probe 离线跳过（承 R-1502）
+- 提交情况：feat/auto-cycle 本地小粒度提交，**不推送**（R-2201）
+- 状态：completed
+- 告警：无（R-2201 持续 open，已在上轮告警）

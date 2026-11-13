@@ -3,6 +3,10 @@
 > 所有周期按"清除已完成的条目"的方式收敛。
 > 顶部为最高优先级 P0，自上而下递减；周期结束后由对应周期把"已交付"项移到 commits 区。
 
+## 周期 24 已交付（2026-11-14，自动周期第十轮）
+
+- ✅ **P2-3 第三批** checkpoint + 列显隐纯逻辑补单测 —— 新增 `tests/specs/editor-utils-checkpoint-colvis.mjs` **18 PASS**（注入全局 localStorage mock 离线可测：saveCheckpoint 返回/持久化/layerId 默认/attrs 深拷贝防御、loadCheckpoint 容错非法 JSON/无 items/items 非数组、clearCheckpoint、save→load→clear 往返、resolveVisibleColumns 全可见/过滤保序/忽略失效列/返回新数组）；**仅新增 spec 无源码改动**。回归 coords-classify 24 + attrs-attrtable 30 + fallback-clear 9 零失败。**P2-3 三批累计 72 子断言覆盖 editor/utils 纯函数**
+
 ## 周期 23 已交付（2026-11-14，自动周期第九轮）
 
 - ✅ **P2-3 第二批** editor/utils 纯函数补单测（attrs + attrTableUtils）—— 新增 `tests/specs/editor-utils-attrs-attrtable.mjs` **30 PASS**（readAttrs PropertyBag 契约/数组防御、writeAttrs/updateAttr 不可变+置空删除、coerce number/boolean/null、pickAttrs 过滤保留字段、collectFields 类型推断升序、compareValues null 恒最后/类型序、sortFeatures asc/desc/不改原数组、matchesFilter 大小写不敏感、featuresToCsv BOM+CRLF+RFC4180 转义）；**仅新增 spec 无源码改动**。回归 coords-classify 24/24 + fallback-clear 9/9 零失败。`analysis.js` 因 `@turf/turf` 未安装离线跳过
