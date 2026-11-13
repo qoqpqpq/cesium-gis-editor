@@ -1,10 +1,10 @@
 {
-  "current_cycle": 24,
-  "previous_cycle": 23,
-  "last_run_status": "completed",
-  "last_run_at": "2026-11-14T02:10:00+08:00",
-  "cycle_started_at": "2026-11-14T02:10:00+08:00",
-  "cycle_completed_at": "2026-11-14T02:25:00+08:00",
+  "current_cycle": 25,
+  "previous_cycle": 24,
+  "last_run_status": "skipped",
+  "last_run_at": "2026-11-14T04:10:00+08:00",
+  "cycle_started_at": "2026-11-14T04:10:00+08:00",
+  "cycle_completed_at": "2026-11-14T04:14:00+08:00",
   "model": "sensenova-6.8-flash",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -492,6 +492,26 @@
       "bugs_open": 10,
       "self_check_score": "18/18",
       "notes": "P2-3 第三批 checkpoint+列显隐纯逻辑补单测 — 仅新增 spec 无源码改动 — spec 18 PASS（注入全局 localStorage mock 离线可测：saveCheckpoint 持久化/深拷贝防御、loadCheckpoint 容错、clearCheckpoint、resolveVisibleColumns 过滤保序）。回归 coords-classify 24 + attrs-attrtable 30 + fallback-clear 9 零失败。**仅本地提交不推送**（R-2201）。P2-3 三批累计 72 子断言"
+    },
+    {
+      "cycle": 25,
+      "status": "skipped",
+      "started_at": "2026-11-14T04:10:00+08:00",
+      "completed_at": "2026-11-14T04:14:00+08:00",
+      "p0_done": 0,
+      "p0_planned": 0,
+      "p1_done": 0,
+      "p1_planned": 0,
+      "p2_done": 0,
+      "p2_planned": 0,
+      "commits": 0,
+      "commits_max": 12,
+      "specs_added": 0,
+      "research_topics": 0,
+      "research_links": 0,
+      "bugs_open": 10,
+      "self_check_score": "n/a",
+      "notes": "skipped：逐项核查剩余 P2 积压，离线可执行可验证任务已枯竭——P2-1 已由自研 permissionsPolicy 替代/P2-2 SSE 已完成/P2-3 三批 72 断言完成余项需 turf+DOM/P2-4 check-protocol-sync 4/4 PASS 已满足/P2-5 aiAgent 拆分无可验证验收项(按规则不启动)/P2-6-7-8 评估文档均已存在。P0-P1 Top5 全离线阻塞。R-2201 远端分叉仍待人工决策(阻塞推送)。按 runbook 第3节第5条诚实标记 skipped，不凭空造需求"
     }
   ],
   "lock": {
@@ -501,5 +521,5 @@
     "acquired_at": null,
     "cycle": null
   },
-  "status": "completed"
+  "status": "skipped"
 }
