@@ -51,6 +51,14 @@ const DEFAULT_OPTIONS = {
   dangerousActionsRequireHITL: ['delete', 'drop', 'dropTable', 'execute', 'rm', 'payment'],
   onRejected: null,           // (reason, payload) => void
   enableMetrics: true,
+  // 周期 18 P0-1: ASI03 workload identity（opt-in，默认关闭以保持既有调用方行为不变）
+  workloadIdentity: {
+    enabled: false,           // true 时强制要求 ctx.workloadAttestation 通过验证
+    secret: null,             // HMAC 密钥（启用时必填）
+    seenNonces: null,         // Set<string> 防重放（可选）
+    maxAgeMs: 300000,         // 证明有效期（默认 5 min）
+    expectedIdentity: null,   // { toolName?, userId?, sessionId? } 绑定校验（可选）
+  },
 };
 
 // ---- 注入模式检测（周期 12 调研 #9 OWASPLA + AgentWorks） ----
@@ -572,7 +580,29 @@ function withGuardrail(toolFn, opts = {}) {
       payload = sanitizeResult.clean;
     }
 
-    // 5. execute + 失败记录
+    // 5. workload identity（ASI03，周期 18 P0-1，opt-in 默认关闭）
+    //    仅当 o.workloadIdentity.enabled=true 时强制：要求 ctx.workloadAttestation 通过验证，
+    //    且（可选）绑定到 expectedIdentity。默认关闭 → 既有调用方行为零变化。
+    if (o.workloadIdentity && o.workloadIdentity.enabled) {
+      const att = ctx && ctx.workloadAttestation;
+      if (!att) {
+        if (o.onRejected) o.onRejected('workload_identity:attestation_missing', payload);
+        throw new Error('workload_identity_attestation_missing');
+      }
+      const vopts = {
+        secret: o.workloadIdentity.secret,
+        seenNonces: o.workloadIdentity.seenNonces,
+        maxAgeMs: o.workloadIdentity.maxAgeMs,
+        expectedIdentity: o.workloadIdentity.expectedIdentity,
+      };
+      const vres = verifyWorkloadAttestation(att, vopts.secret, vopts);
+      if (!vres.valid) {
+        if (o.onRejected) o.onRejected(`workload_identity:${vres.reason}`, payload);
+        throw new Error(`workload_identity_rejected:${vres.reason}`);
+      }
+    }
+
+    // 6. execute + 失败记录
     try {
       const result = await toolFn(payload, ctx);
       cb.record(); // 成功也走一次，record 内部去重
