@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 39 已交付（2026-11-15，自动周期第二轮）
+
+- ✅ **UI-REFACTOR UR-1 第二步** 迁移高频硬编码色值到语义 token（styles.css）—— `#f87171`×13→`var(--danger-soft-fg)`(新增 token) / `#4ade80`×10→`var(--success)` / `#fbbf24`×6→`var(--warn)` / `#c8d3ff`×7→`var(--primary-soft-fg)` / `#5ad1ff`×5→`var(--accent-500)`；**componentTotal 366→325（−41，−11%）**，等值替换零视觉变化、双主题未破（5 个 token 全已定义、CSS 括号平衡、未引入新未定义 var）；`--max` 闸门验证 325 PASS/324 FAIL。回归 design-token-audit 13 + coords-classify 24 + attrs-attrtable 30 零失败。发现既存 10 个未定义 var()（技术债，非本轮引入）
+
 ## 周期 38 已交付（2026-11-15，自动周期重启首轮）
 
 - ✅ **UI-REFACTOR UR-1 第一步** 设计 token 审计工具 + 可量化基线 —— 新增 `scripts/design-token-audit.cjs`（可复用，支持 `--json`/`--max` 阈值；关键口径：区分「token 定义」vs「组件硬编码用法」，避免误判 theme.css 的 token 源）；基线 **token 定义 165 / 组件硬编码 366（hex 233+rgb 133）**，Top 热点=渐变与状态色；迁移验收闸门 `--max`（目标降到 ≤~180，−50%+）。spec `design-token-audit.cjs` **13 PASS**。基线报告 `docs/guides/ui-refactor-ur1-baseline.md`。**纯审计+度量，未改业务 CSS/JSX（零视觉风险）**
