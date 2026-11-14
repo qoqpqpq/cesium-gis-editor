@@ -67,8 +67,12 @@ function analyzeFile(filePath) {
     // 组件规则（token 块外）——统计硬编码颜色
     // 跳过纯注释行
     if (trimmed.startsWith('/*') || trimmed.startsWith('*')) continue;
-    const hexes = line.match(HEX_RE) || [];
-    const rgbs = line.match(RGB_RE) || [];
+    // 周期 43 技术债偿还: 排除 var(--tok, #fallback) 内的 fallback 颜色。
+    //   fallback 是「token 缺失时的兜底」，本身已在用 token，不应计为硬编码。
+    //   做法: 先摘掉所有 var(...) 整段，再统计剩余的真硬编码颜色。
+    const strippedLine = line.replace(/var\(\s*--[a-zA-Z0-9-]+[^)]*\)/g, '');
+    const hexes = strippedLine.match(HEX_RE) || [];
+    const rgbs = strippedLine.match(RGB_RE) || [];
     if (hexes.length || rgbs.length) {
       componentHex += hexes.length;
       componentRgb += rgbs.length;
