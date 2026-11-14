@@ -370,3 +370,21 @@
 - 现场无变化：R-2201 open / turf 未装 / server 未运行 / 本地待推 30
 - 离线任务已枯竭（cycle 25 逐项核查）；按 runbook 第3节第5条诚实 skipped
 - 状态：skipped；告警：**是（连续第 14 轮）** —— 等待人工 A/B/C 决策
+
+---
+
+## cycle 38 | 2026-11-14 合并收尾（人工决策驱动，非整点触发）
+
+- 触发方式：**人工决策**（用户 2026-11-14 回答三问后驱动，非 cron）
+- 用户决策：①R-2201 合并策略 = **merge 远端到本地** ②**暂停整点调度** ③将提供运行中 server（解锁 R-1502）
+- 已执行：
+  1. 删除整点 cron `schedule-04de1d09`（停止空转）✅
+  2. merge 远端 FETCH_HEAD(58 commit) 到本地(31 commit)：
+     - `aiGuardrails.js` 代码冲突 1 hunk → 两套 ASI03 workload identity 实现并存（本地 deriveWorkloadId/signWorkloadAttestation + 远端 createWorkloadIdentity/signWorkloadIdentity/PRIVILEGE_LEVELS），module.exports 两套导出都保留
+     - dev-log cycle-15/16/17 add/add 冲突 → 两侧内容都保留（标记区分本地/远端实例）
+     - `cycle-state.json` → 程序化合并为合法 JSON（history 按 cycle 去重，current_cycle=37）
+  3. 门禁：ai-guardrails 39 + ai-guardrails-deep 38 + workload-identity-asi03 29 + workload-guardrail-integration 19 全绿（两套 ASI03 共存零回归）
+  4. 推送 `feat/auto-cycle` → **PUSH_OK（首次尝试成功）**，R-2201 解除 ✅
+- 风险台账：R-2201 → **resolved (cycle 38)**
+- 状态：completed（合并+推送收尾）
+- 告警：无
