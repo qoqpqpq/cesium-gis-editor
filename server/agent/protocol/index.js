@@ -1,6 +1,7 @@
 // server/agent/protocol/index.js
 // 周期 6 P2-4: 协议共享常量 + 工具调用统一
 // 周期 6 P2-6: OpenAI tool_calls[] 双格式（与 <tool>name(args)</tool> 共存）
+// 周期 16 R2: 常量抽到 ./constants.js，供 client/server 共享
 //
 // 背景：周期 1-3 协议字符串 `<tool>name(args)</tool>` 在三处独立实现：
 //   - server/agent/protocol/parse.js (Node CommonJS)
@@ -18,17 +19,15 @@
 'use strict';
 
 const { randomUUID } = require('node:crypto');
-
-// ---- 协议字面常量（修改时务必同步 client/src/pages/gis/sandbox.js） ----
-const TOOL_OPEN = '<tool>';
-const TOOL_CLOSE = '</tool>';
-// 工具名允许 [a-z_][a-z0-9_]*（与 aiAgent.js:parseToolTags 正则一致）
-const TOOL_NAME_RE = /[a-z_][a-z0-9_]*/;
-const TOOL_RE = /<tool>([a-z_][a-z0-9_]*)\(([^)]*)\)<\/tool>/gi;
-
-// OpenAI 风格 tool_calls JSON 块（```json ... ``` 包裹）
-const TOOL_CALLS_JSON_RE = /```(?:json)?\s*(\{[\s\S]*?"tool_calls"[\s\S]*?\})\s*```/gi;
-const TOOL_CALLS_INLINE_RE = /\{"tool_calls"\s*:\s*\[[\s\S]*?\}\s*\]\s*\}/g;
+const {
+  TOOL_OPEN,
+  TOOL_CLOSE,
+  TOOL_NAME_RE,
+  TOOL_RE,
+  TOOL_CALLS_JSON_RE,
+  TOOL_CALLS_INLINE_RE,
+  TOOL_CALL_JSON_RE,
+} = require('./constants');
 
 /**
  * 解析 args 字符串。
@@ -177,7 +176,7 @@ function parseToolTags(text) {
 module.exports = {
   // 常量
   TOOL_OPEN, TOOL_CLOSE, TOOL_NAME_RE, TOOL_RE,
-  TOOL_CALLS_JSON_RE, TOOL_CALLS_INLINE_RE,
+  TOOL_CALLS_JSON_RE, TOOL_CALLS_INLINE_RE, TOOL_CALL_JSON_RE,
   // 函数
   parseToolTags, parseArgs, unquote,
 };

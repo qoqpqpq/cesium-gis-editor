@@ -29,6 +29,7 @@ const ROOT = path.resolve(__dirname, '..');
 const CLIENT_FILE = path.join(ROOT, 'client/src/pages/gis/sandbox.js');
 const SERVER_FILE = path.join(ROOT, 'server/agent/protocol/index.js');
 const SERVER_PARSE_FILE = path.join(ROOT, 'server/agent/protocol/parse.js');
+const SERVER_CONSTANTS_FILE = path.join(ROOT, 'server/agent/protocol/constants.js');
 
 const JSON_OUTPUT = process.argv.includes('--json');
 
@@ -92,6 +93,7 @@ function main() {
   const clientSrc = readSafe(CLIENT_FILE);
   const serverSrc = readSafe(SERVER_FILE);
   const serverParseSrc = readSafe(SERVER_PARSE_FILE);
+  const serverConstantsSrc = readSafe(SERVER_CONSTANTS_FILE);
 
   if (!clientSrc) {
     if (JSON_OUTPUT) {
@@ -106,6 +108,14 @@ function main() {
       console.log(JSON.stringify({ ok: false, error: `server file not found: ${SERVER_FILE}` }));
     } else {
       console.error(`[FAIL] server file not found: ${SERVER_FILE}`);
+    }
+    process.exit(2);
+  }
+  if (!serverConstantsSrc) {
+    if (JSON_OUTPUT) {
+      console.log(JSON.stringify({ ok: false, error: `server constants file not found: ${SERVER_CONSTANTS_FILE}` }));
+    } else {
+      console.error(`[FAIL] server constants file not found: ${SERVER_CONSTANTS_FILE}`);
     }
     process.exit(2);
   }
@@ -169,13 +179,32 @@ function main() {
     });
   }
 
+  // Check 5: server/agent/protocol/constants.js 含完整常量
+  if (serverConstantsSrc) {
+    const constChecks = [
+      { name: 'TOOL_OPEN', pattern: /TOOL_OPEN\s*=\s*['"]<tool>['"]/ },
+      { name: 'TOOL_CLOSE', pattern: /TOOL_CLOSE\s*=\s*['"]<\/tool>['"]/ },
+      { name: 'TOOL_RE', pattern: /TOOL_RE\s*=\s*\/[^/]+\/gi/ },
+      { name: 'TOOL_CALLS_JSON_RE', pattern: /TOOL_CALLS_JSON_RE\s*=\s*\/[^/]+\/gi/ },
+      { name: 'TOOL_CALLS_INLINE_RE', pattern: /TOOL_CALLS_INLINE_RE\s*=\s*\/[^/]+\/g/ },
+      { name: 'TOOL_CALL_JSON_RE', pattern: /TOOL_CALL_JSON_RE\s*=\s*\/[^/]+\/gi/ },
+    ];
+    for (const cc of constChecks) {
+      checks.push({
+        name: `server/agent/protocol/constants.js 含 ${cc.name}`,
+        pass: cc.pattern.test(serverConstantsSrc),
+        pattern: cc.pattern.toString(),
+      });
+    }
+  }
+
   const allPass = checks.every((c) => c.pass);
 
   if (JSON_OUTPUT) {
     console.log(JSON.stringify({
       ok: allPass,
       checks,
-      files: { client: CLIENT_FILE, server: SERVER_FILE, serverParse: SERVER_PARSE_FILE },
+      files: { client: CLIENT_FILE, server: SERVER_FILE, serverParse: SERVER_PARSE_FILE, serverConstants: SERVER_CONSTANTS_FILE },
     }, null, 2));
   } else {
     console.log('=== protocol-sync-check ===');
