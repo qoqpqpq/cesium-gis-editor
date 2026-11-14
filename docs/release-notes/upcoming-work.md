@@ -3,6 +3,22 @@
 > 所有周期按"清除已完成的条目"的方式收敛。
 > 顶部为最高优先级 P0，自上而下递减；周期结束后由对应周期把"已交付"项移到 commits 区。
 
+## 新增需求（用户 2026-11-14 指定，排在原有功能之后）
+
+### UI-REFACTOR：UI 设计重构（更好看 · 更简洁）
+
+> 用户 2026-11-14 新增，优先级 P2（排在原有 P0/P1 功能之后）。
+> 现状：已有设计 token 体系雏形（`client/src/theme.css` 248 变量、亮/暗双主题、语义别名），但仍有 **110 个硬编码色值**未迁移；主页面 `client/src/pages/gis/index.jsx` 1100 行；无 UI 框架（纯手写 CSS，6254 行）。
+> 目标：换一套**更好看、更简洁**的设计方案，在不破坏既有功能与双主题的前提下提升视觉一致性与简洁度。
+
+分阶段（每阶段可独立交付、可验证）：
+- **UR-1 设计审计与 token 收敛**：统计并迁移硬编码色值到语义 token；产出「颜色/间距/圆角/阴影/字号」token 清单。验收：硬编码色值数量显著下降（目标 −50%+），双主题下无视觉断裂。
+- **UR-2 布局与密度简化**：精简 `index.jsx`（1100 行）的视觉密度与嵌套，统一间距/圆角/阴影 scale；抽取可复用样式。验收：`index.jsx` 行数下降，样式重复消除；功能零回归。
+- **UR-3 组件视觉统一**：统一按钮/输入/卡片/弹窗/面板的视觉语言（一致内边距、边框、hover/active/focus 态）。验收：同类组件视觉参数一致；双主题各核对。
+- **UR-4 字体与层次**：统一字号阶梯、字重、行高，强化信息层次。验收：字号使用收敛到 token 阶梯。
+
+约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
+
 ## 周期 24 已交付（2026-11-14，自动周期第十轮）
 
 - ✅ **P2-3 第三批** checkpoint + 列显隐纯逻辑补单测 —— 新增 `tests/specs/editor-utils-checkpoint-colvis.mjs` **18 PASS**（注入全局 localStorage mock 离线可测：saveCheckpoint 返回/持久化/layerId 默认/attrs 深拷贝防御、loadCheckpoint 容错非法 JSON/无 items/items 非数组、clearCheckpoint、save→load→clear 往返、resolveVisibleColumns 全可见/过滤保序/忽略失效列/返回新数组）；**仅新增 spec 无源码改动**。回归 coords-classify 24 + attrs-attrtable 30 + fallback-clear 9 零失败。**P2-3 三批累计 72 子断言覆盖 editor/utils 纯函数**
