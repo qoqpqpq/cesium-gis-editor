@@ -1,10 +1,10 @@
 {
-  "current_cycle": 28,
-  "previous_cycle": 27,
+  "current_cycle": 29,
+  "previous_cycle": 28,
   "last_run_status": "skipped",
-  "last_run_at": "2026-11-14T07:10:00+08:00",
-  "cycle_started_at": "2026-11-14T07:10:00+08:00",
-  "cycle_completed_at": "2026-11-14T07:12:00+08:00",
+  "last_run_at": "2026-11-14T08:10:00+08:00",
+  "cycle_started_at": "2026-11-14T08:10:00+08:00",
+  "cycle_completed_at": "2026-11-14T08:12:00+08:00",
   "model": "sensenova-6.8-flash",
   "branch": "feat/auto-cycle",
   "origin": "https://github.com/qoqpqpq/cesium-gis-editor.git",
@@ -572,6 +572,26 @@
       "bugs_open": 10,
       "self_check_score": "n/a",
       "notes": "skipped：连续第5轮空转。现场无变化(R-2201 open/turf未装/server未运行/待推21)。离线任务已枯竭(cycle25核查)。等待 A/B/C 人工决策"
+    },
+    {
+      "cycle": 29,
+      "status": "skipped",
+      "started_at": "2026-11-14T08:10:00+08:00",
+      "completed_at": "2026-11-14T08:12:00+08:00",
+      "p0_done": 0,
+      "p0_planned": 0,
+      "p1_done": 0,
+      "p1_planned": 0,
+      "p2_done": 0,
+      "p2_planned": 0,
+      "commits": 0,
+      "commits_max": 12,
+      "specs_added": 0,
+      "research_topics": 0,
+      "research_links": 0,
+      "bugs_open": 10,
+      "self_check_score": "n/a",
+      "notes": "skipped：连续第6轮空转。现场无变化(R-2201 open/turf未装/server未运行/待推22)。离线任务已枯竭(cycle25核查)。等待 A/B/C 人工决策"
     }
   ],
   "lock": {
