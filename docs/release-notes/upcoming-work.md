@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 38 已交付（2026-11-15，自动周期重启首轮）
+
+- ✅ **UI-REFACTOR UR-1 第一步** 设计 token 审计工具 + 可量化基线 —— 新增 `scripts/design-token-audit.cjs`（可复用，支持 `--json`/`--max` 阈值；关键口径：区分「token 定义」vs「组件硬编码用法」，避免误判 theme.css 的 token 源）；基线 **token 定义 165 / 组件硬编码 366（hex 233+rgb 133）**，Top 热点=渐变与状态色；迁移验收闸门 `--max`（目标降到 ≤~180，−50%+）。spec `design-token-audit.cjs` **13 PASS**。基线报告 `docs/guides/ui-refactor-ur1-baseline.md`。**纯审计+度量，未改业务 CSS/JSX（零视觉风险）**
+
 ## 周期 24 已交付（2026-11-14，自动周期第十轮）
 
 - ✅ **P2-3 第三批** checkpoint + 列显隐纯逻辑补单测 —— 新增 `tests/specs/editor-utils-checkpoint-colvis.mjs` **18 PASS**（注入全局 localStorage mock 离线可测：saveCheckpoint 返回/持久化/layerId 默认/attrs 深拷贝防御、loadCheckpoint 容错非法 JSON/无 items/items 非数组、clearCheckpoint、save→load→clear 往返、resolveVisibleColumns 全可见/过滤保序/忽略失效列/返回新数组）；**仅新增 spec 无源码改动**。回归 coords-classify 24 + attrs-attrtable 30 + fallback-clear 9 零失败。**P2-3 三批累计 72 子断言覆盖 editor/utils 纯函数**
