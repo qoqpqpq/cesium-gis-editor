@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 41 已交付（2026-11-15，自动周期第四轮）
+
+- ✅ **UI-REFACTOR UR-1 第四步** `color:#fff`→`--on-accent-fg` + 品牌渐变去重（styles.css）—— 新增 2 token（`--on-accent-fg: #ffffff` 彩色底前景 / `--grad-brand` 品牌渐变）；`color:#fff`×12→`var(--on-accent-fg)` + `linear-gradient(135deg,#6366f1,#8b5cf6)`×3→`var(--grad-brand)` = **15 处**；**componentTotal 319→301（−18）**，UR-1 累计 **366→325→319→301（−17.8%）**；双主题未破（2 token 已定义、括号平衡、0 新增未定义 var）；`--max` 闸门 302 PASS。**刻意跳过** mask `#fff`×5（非前景文字）与 `var(--panel,#fff)` fallback。回归 13+24+30+18 零失败
+
 ## 周期 40 已交付（2026-11-15，自动周期第三轮）
 
 - ✅ **UI-REFACTOR UR-1 第三步** 迁移次高频硬编码到既有语义 token（styles.css，无新增 token）—— `#4f6cff`×2→`var(--primary-strong)` / `#a8b0c6`×1→`var(--text-soft)` / `#fecaca`×3→`var(--level-error-fg)`；**componentTotal 325→319（−6）**，累计 **366→325→319**；等值替换零视觉变化、双主题未破（3 token 全已定义、括号平衡、0 新增未定义 var）；`--max` 闸门 319 PASS。**刻意跳过** `#ffffff`×7（语义歧义，待厘清文字/背景/边框分别映射）与无精确 token 的渐变色。修正 C40-B01（迁移脚本反向扫描误判→改正向扫描）
