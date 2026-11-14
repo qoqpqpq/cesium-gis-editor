@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 43 已交付（2026-11-15，自动周期第六轮）
+
+- ✅ **技术债偿还 + UR-1 度量校准** 审计脚本排除 var() fallback hex —— `scripts/design-token-audit.cjs` 统计前先摘掉 `var(--tok, #fallback)` 整段，只计真硬编码（fallback 是 token 兜底，不应算硬编码）。**基线校准：289（旧虚高）→ 252（真实，styles 123 + theme 129，差值 37 即 fallback）**；spec 13/13 行为契约仍全绿（测结构/自洽非数字）；`--max` 闸门仍有效。后续迁移以 **252** 为准基线
+
 ## 周期 42 已交付（2026-11-15，自动周期第五轮）
 
 - ✅ **UI-REFACTOR UR-1 第五步** 灰阶/淡色前景硬编码迁移（styles.css）—— 新增 2 token（`--text-meta: #6b7280` 次要文字 / `--primary-tint-fg: #b6c4ff` primary 淡色前景）；`#6b7280`×6→`var(--text-meta)` + `#b6c4ff`×6→`var(--primary-tint-fg)` = **12 处**；**componentTotal 301→289（−12）**，UR-1 累计 **366→325→319→301→289（−21%）**；双主题未破（2 token 已定义、括号平衡、0 新增未定义 var）；`--max` 闸门 289 PASS。**关键判断**：`#94a3b8`×6 全为 `var(--muted,#94a3b8)` fallback（已在用 token）→跳过；并发现审计脚本把 fallback hex 也计入（脚本局限，记技术债）。回归 13+24+30+18 零失败
