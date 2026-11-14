@@ -23,6 +23,8 @@
   --danger: #ef4444;
   --danger-soft-fg: #f87171;   /* 软危险前景(UR-1 迁移: 原组件硬编码 #f87171) */
   --on-accent-fg: #ffffff;      /* 彩色/品牌底上的前景文字(UR-1 迁移: 原 color:#fff) */
+  --text-meta: #6b7280;         /* 次要/元信息文字(UR-1 迁移: 原 color:#6b7280) */
+  --primary-tint-fg: #b6c4ff;   /* primary 淡色前景(UR-1 迁移: 原 color:#b6c4ff) */
   --grad-brand: linear-gradient(135deg, #6366f1, #8b5cf6); /* 品牌渐变(UR-1 去重: 原 3 处重复) */
   /* 形状 */
   --radius-sm: 8px;
@@ -2620,7 +2622,7 @@ textarea.input {
   color: var(--danger-soft-fg);
 }
 .diff-stat-same {
-  color: #6b7280;
+  color: var(--text-meta);
 }
 .ai-diff-body {
   max-height: 320px;
@@ -2662,7 +2664,7 @@ textarea.input {
 .diff-lineno {
   width: 36px;
   padding: 1px 6px;
-  color: #6b7280;
+  color: var(--text-meta);
   text-align: right;
   font-size: 11px;
   user-select: none;
@@ -2867,7 +2869,7 @@ textarea.input {
 .diff-sign {
   width: 20px;
   text-align: center;
-  color: #6b7280;
+  color: var(--text-meta);
   user-select: none;
   flex-shrink: 0;
 }
@@ -3041,7 +3043,7 @@ textarea.input {
 .sandcastle-run-btn:disabled {
   background: #3a4252;
   border-color: #2a3142;
-  color: #6b7280;
+  color: var(--text-meta);
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -3370,7 +3372,7 @@ textarea.input {
   padding: 24px 20px;
   text-align: center;
   line-height: 1.7;
-  color: #6b7280;
+  color: var(--text-meta);
 }
 .output-list {
   flex: 1;
@@ -3393,7 +3395,7 @@ textarea.input {
   flex-shrink: 0;
   width: 78px;
   font-size: 10px;
-  color: #6b7280;
+  color: var(--text-meta);
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   letter-spacing: 0.2px;
   user-select: none;
@@ -4320,7 +4322,7 @@ textarea.input {
   min-width: 28px;
   padding: 0 4px;
   background: var(--primary-18);
-  color: #b6c4ff;
+  color: var(--primary-tint-fg);
   border-radius: 3px;
   font-size: 9px;
   text-align: center;
@@ -4516,7 +4518,7 @@ textarea.input {
   min-width: 36px;
   padding: 1px 4px;
   background: var(--primary-20);
-  color: #b6c4ff;
+  color: var(--primary-tint-fg);
   border-radius: 3px;
   font-size: 10px;
   text-align: center;
@@ -4774,7 +4776,7 @@ textarea.input {
 }
 .attr-table-btn {
   background: var(--primary-16);
-  color: #b6c4ff;
+  color: var(--primary-tint-fg);
   border: 1px solid var(--primary-30);
   border-radius: 6px;
   padding: 4px 10px;
@@ -5085,7 +5087,7 @@ textarea.input {
   min-width: 30px;
   padding: 1px 4px;
   background: var(--primary-18);
-  color: #b6c4ff;
+  color: var(--primary-tint-fg);
   border-radius: 3px;
   font-size: 10px;
   text-align: center;
@@ -5316,7 +5318,7 @@ textarea.input {
   background: var(--primary-12);
   border-radius: 6px;
   font-size: 11px;
-  color: #b6c4ff;
+  color: var(--primary-tint-fg);
   border: 1px solid var(--primary-25);
 }
 .analysis-hint {
@@ -5577,7 +5579,7 @@ textarea.input {
 }
 .style-panel-tab.active {
   background: var(--primary-20);
-  color: #b6c4ff;
+  color: var(--primary-tint-fg);
 }
 
 /* ===== ThreeCheckPanel ===== */
