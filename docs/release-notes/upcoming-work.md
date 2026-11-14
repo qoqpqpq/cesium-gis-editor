@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 40 已交付（2026-11-15，自动周期第三轮）
+
+- ✅ **UI-REFACTOR UR-1 第三步** 迁移次高频硬编码到既有语义 token（styles.css，无新增 token）—— `#4f6cff`×2→`var(--primary-strong)` / `#a8b0c6`×1→`var(--text-soft)` / `#fecaca`×3→`var(--level-error-fg)`；**componentTotal 325→319（−6）**，累计 **366→325→319**；等值替换零视觉变化、双主题未破（3 token 全已定义、括号平衡、0 新增未定义 var）；`--max` 闸门 319 PASS。**刻意跳过** `#ffffff`×7（语义歧义，待厘清文字/背景/边框分别映射）与无精确 token 的渐变色。修正 C40-B01（迁移脚本反向扫描误判→改正向扫描）
+
 ## 周期 39 已交付（2026-11-15，自动周期第二轮）
 
 - ✅ **UI-REFACTOR UR-1 第二步** 迁移高频硬编码色值到语义 token（styles.css）—— `#f87171`×13→`var(--danger-soft-fg)`(新增 token) / `#4ade80`×10→`var(--success)` / `#fbbf24`×6→`var(--warn)` / `#c8d3ff`×7→`var(--primary-soft-fg)` / `#5ad1ff`×5→`var(--accent-500)`；**componentTotal 366→325（−41，−11%）**，等值替换零视觉变化、双主题未破（5 个 token 全已定义、CSS 括号平衡、未引入新未定义 var）；`--max` 闸门验证 325 PASS/324 FAIL。回归 design-token-audit 13 + coords-classify 24 + attrs-attrtable 30 零失败。发现既存 10 个未定义 var()（技术债，非本轮引入）
