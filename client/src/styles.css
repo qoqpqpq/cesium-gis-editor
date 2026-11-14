@@ -22,6 +22,8 @@
   --warn: #fbbf24;
   --danger: #ef4444;
   --danger-soft-fg: #f87171;   /* 软危险前景(UR-1 迁移: 原组件硬编码 #f87171) */
+  --on-accent-fg: #ffffff;      /* 彩色/品牌底上的前景文字(UR-1 迁移: 原 color:#fff) */
+  --grad-brand: linear-gradient(135deg, #6366f1, #8b5cf6); /* 品牌渐变(UR-1 去重: 原 3 处重复) */
   /* 形状 */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -313,7 +315,7 @@ p {
 }
 .usage-panel-btn {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent-fg);
   border: 1px solid var(--accent);
   border-radius: var(--radius-sm);
   padding: 6px 12px;
@@ -1962,7 +1964,7 @@ textarea.input {
   font-size: 10px;
   flex-shrink: 0;
   background: linear-gradient(135deg, var(--primary-500), var(--primary-strong));
-  color: #fff;
+  color: var(--on-accent-fg);
 }
 .ai-msg.ai-msg-assistant .ai-msg-role {
   background: linear-gradient(135deg, var(--accent-500), var(--success));
@@ -2432,8 +2434,8 @@ textarea.input {
 
 /* 编辑器 → AI 按钮 */
 .sandcastle-ai-btn {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
+  background: var(--grad-brand);
+  color: var(--on-accent-fg);
   border: none;
   padding: 4px 12px;
   border-radius: 6px;
@@ -2489,7 +2491,7 @@ textarea.input {
 }
 .output-send-ai:hover {
   background: var(--indigo-40);
-  color: #fff;
+  color: var(--on-accent-fg);
   transform: translateY(-1px);
 }
 
@@ -2573,7 +2575,7 @@ textarea.input {
   text-decoration: line-through;
 }
 .ai-msg-actions .btn.primary.xsmall {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--grad-brand);
   border: none;
 }
 
@@ -2776,7 +2778,7 @@ textarea.input {
 .btn.warn {
   background: linear-gradient(135deg, #f59e0b, #ea580c);
   border: none;
-  color: #fff;
+  color: var(--on-accent-fg);
 }
 .btn.warn:hover {
   filter: brightness(1.1);
@@ -2956,7 +2958,7 @@ textarea.input {
 }
 .btn.danger {
   background: linear-gradient(135deg, #ef4444, #b91c1c);
-  color: #fff;
+  color: var(--on-accent-fg);
   border: none;
 }
 .btn.danger:hover {
@@ -3017,7 +3019,7 @@ textarea.input {
   gap: 5px;
   padding: 5px 12px;
   background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%);
-  color: #fff;
+  color: var(--on-accent-fg);
   border: 1px solid #229954;
   border-radius: 6px;
   font-size: 13px;
@@ -3467,7 +3469,7 @@ textarea.input {
   min-width: 16px;
   height: 16px;
   background: var(--primary);
-  color: #fff;
+  color: var(--on-accent-fg);
   font-size: 10px;
   font-weight: 700;
   border-radius: 999px;
@@ -3744,10 +3746,10 @@ textarea.input {
 }
 .col-picker-actions .btn-primary {
   padding: 5px 14px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: var(--grad-brand);
   border: none;
   border-radius: 4px;
-  color: #fff;
+  color: var(--on-accent-fg);
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
@@ -4130,7 +4132,7 @@ textarea.input {
 
 .btn-primary {
   background: var(--accent, var(--primary-500));
-  color: #fff;
+  color: var(--on-accent-fg);
   border: none;
   padding: 6px 14px;
   border-radius: 6px;
@@ -4592,7 +4594,7 @@ textarea.input {
 }
 .editor-coord-fmt-btn:hover {
   background: var(--white-08);
-  color: #fff;
+  color: var(--on-accent-fg);
 }
 .editor-coord-fmt-btn.active {
   background: var(--accent, var(--accent-500));
@@ -4604,7 +4606,7 @@ textarea.input {
   gap: 2px;
 }
 .editor-coord-text {
-  color: #fff;
+  color: var(--on-accent-fg);
   font-size: 12px;
 }
 .editor-coord-height {
