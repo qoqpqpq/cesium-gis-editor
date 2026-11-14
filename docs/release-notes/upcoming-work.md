@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 42 已交付（2026-11-15，自动周期第五轮）
+
+- ✅ **UI-REFACTOR UR-1 第五步** 灰阶/淡色前景硬编码迁移（styles.css）—— 新增 2 token（`--text-meta: #6b7280` 次要文字 / `--primary-tint-fg: #b6c4ff` primary 淡色前景）；`#6b7280`×6→`var(--text-meta)` + `#b6c4ff`×6→`var(--primary-tint-fg)` = **12 处**；**componentTotal 301→289（−12）**，UR-1 累计 **366→325→319→301→289（−21%）**；双主题未破（2 token 已定义、括号平衡、0 新增未定义 var）；`--max` 闸门 289 PASS。**关键判断**：`#94a3b8`×6 全为 `var(--muted,#94a3b8)` fallback（已在用 token）→跳过；并发现审计脚本把 fallback hex 也计入（脚本局限，记技术债）。回归 13+24+30+18 零失败
+
 ## 周期 41 已交付（2026-11-15，自动周期第四轮）
 
 - ✅ **UI-REFACTOR UR-1 第四步** `color:#fff`→`--on-accent-fg` + 品牌渐变去重（styles.css）—— 新增 2 token（`--on-accent-fg: #ffffff` 彩色底前景 / `--grad-brand` 品牌渐变）；`color:#fff`×12→`var(--on-accent-fg)` + `linear-gradient(135deg,#6366f1,#8b5cf6)`×3→`var(--grad-brand)` = **15 处**；**componentTotal 319→301（−18）**，UR-1 累计 **366→325→319→301（−17.8%）**；双主题未破（2 token 已定义、括号平衡、0 新增未定义 var）；`--max` 闸门 302 PASS。**刻意跳过** mask `#fff`×5（非前景文字）与 `var(--panel,#fff)` fallback。回归 13+24+30+18 零失败
