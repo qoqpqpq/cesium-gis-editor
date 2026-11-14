@@ -730,7 +730,7 @@ textarea.input {
   font-weight: 800;
   margin-bottom: 6px;
   letter-spacing: -0.4px;
-  background: linear-gradient(90deg, #f1f4ff 30%, #a8b0c6);
+  background: linear-gradient(90deg, #f1f4ff 30%, var(--text-soft));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1524,7 +1524,7 @@ textarea.input {
   flex-shrink: 0;
 }
 .msg-user .msg-role {
-  background: linear-gradient(135deg, var(--primary-500), #4f6cff);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-strong));
 }
 .msg-assistant .msg-role {
   background: linear-gradient(135deg, var(--accent-500), var(--success));
@@ -1961,7 +1961,7 @@ textarea.input {
   place-items: center;
   font-size: 10px;
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--primary-500), #4f6cff);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-strong));
   color: #fff;
 }
 .ai-msg.ai-msg-assistant .ai-msg-role {
@@ -2427,7 +2427,7 @@ textarea.input {
 }
 .ai-tool-error {
   padding: 6px 10px;
-  color: #fecaca;
+  color: var(--level-error-fg);
 }
 
 /* 编辑器 → AI 按钮 */
@@ -2463,7 +2463,7 @@ textarea.input {
   flex-shrink: 0;
   font-size: 10px;
   background: var(--danger-border);
-  color: #fecaca;
+  color: var(--level-error-fg);
   padding: 1px 6px;
   border-radius: 4px;
   font-family: "JetBrains Mono", monospace;
@@ -5422,7 +5422,7 @@ textarea.input {
 .print-export-result.error {
   background: var(--danger-bg, #7f1d1d);
   border-color: var(--danger-border, #b91c1c);
-  color: #fecaca;
+  color: var(--level-error-fg);
 }
 .print-export-header .close,
 .print-export-header .attr-table-btn.close {
