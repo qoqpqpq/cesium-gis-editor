@@ -14,4 +14,4 @@
 
 ## 已知开放缺陷（承继历史）
 - 历史周期累计 bugs_open 计数见 `state/cycle-state.json` history；本轮未新增阻断/严重缺陷。
-| R-5201 | CI-CD | GitHub 在 pr-review.yml 无 `push` 触发的情况下仍生成 `event:push` 失败 run（服务端触发评估异常，20+ 次） | 开放 | c52 已移除 pull_request 仅留 workflow_dispatch；待下一轮 push 实证是否止住 | 若仍触发→删除该 workflow（需审批）；CI baseline job 缺 server/turf/API key 依赖，需最小环境解锁或加门控 |
+| R-5201 | CI-CD | GitHub 在 pr-review.yml 无 `push` 触发的情况下仍生成 `event:push` 失败 run（服务端触发评估异常，20+ 次） | **已解决(c52)** | c52 先移除 pull_request(实测无效,b55de8ae 仍触发)；二次审批后删除 pr-review.yml，删除后的 push(265b42a) 触发 0 run，远端 .github/workflows 404 | 已闭环：删除 workflow 止住红叉；git 历史可找回。附带发现：文件层 on: 改动对 GitHub push 触发无效（服务端异常） |

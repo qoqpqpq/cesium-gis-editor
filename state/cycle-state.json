@@ -1069,7 +1069,7 @@
     {
       "cycle": 52,
       "status": "completed",
-      "summary": "删除 pr-review.yml（用户二次审批）；禁用自动触发实测无效后的文件级彻底处置",
+      "summary": "删除 pr-review.yml 止住 CI 失败红叉；R-5201 已解决(实证 push 0 run)",
       "ts": "2026-11-15T21:46:00+08:00"
     }
   ],
@@ -1081,7 +1081,7 @@
   "lock": {
     "held": false,
     "cycle": 52,
-    "released_at": "2026-11-15T21:49:00+08:00"
+    "released_at": "2026-11-15T21:51:00+08:00"
   },
   "status": "skipped",
   "await_confirm_reason": null

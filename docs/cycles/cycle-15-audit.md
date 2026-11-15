@@ -433,3 +433,9 @@
 - 依据：本项目永不开 PR，该 PR 评审流水线无用途；文件层禁用无效，删除是文件级唯一彻底手段；已推送的 git 历史可随时找回。
 - 验收：远端 feat/auto-cycle 不再含任何 workflow 文件 → push 无 workflow 可触发，失败红叉应止住（下一轮 push 复核）。
 - 状态：completed；R-5201 转为「待下一轮 push 实证后关闭」。
+
+### cycle 52 闭环验证（R-5201 已解决）
+- 删除 pr-review.yml 后的 push(`265b42a`)：**触发 0 个 run**（head_sha 查询 total_count=0）。
+- 远端 feat/auto-cycle 的 `.github/workflows` 返回 404（无 workflow 文件）。
+- 结论：删除 workflow 彻底止住失败红叉，R-5201 关闭为「已解决(c52)」。
+- 技术备忘：文件内容层 `on:` 改动（移除 pull_request/仅留 workflow_dispatch）对 GitHub 的 push 触发**无效**——本仓库曾出现「无 push 触发仍跑 push」的服务端异常；文件级唯一可靠手段是删除 workflow 文件本身。
