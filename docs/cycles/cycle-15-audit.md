@@ -412,3 +412,17 @@
 ### 验收标准
 - YAML 可解析，`on` 触发器仅 `workflow_dispatch`，四 job 完整。→ PASS
 - 不影响 feat/auto-cycle 的正常 commit/push。→ 待下一轮 push 验证
+
+### ⚠️ 实证检验（cycle 52 收尾，重要发现）
+推送 b55de8a 后 30s 查询：**该 push 仍生成 run（id 43720662082, event=push, conclusion=failure）**。
+→ 移除 pull_request、仅留 workflow_dispatch 的修改 **未能阻止 push 触发**。
+进一步确认：main 与 feat/auto-cycle 的 `.github/workflows/` 均只有 `pr-review.yml`，
+两分支副本均无 `push` 触发（YAML 解析 + 目录列举），但 GitHub 仍按 push 运行。
+**结论**：GitHub 对该 workflow 的 push 触发评估**与文件 `on:` 内容不符**（服务端异常/缓存）。
+文件内容层面的「禁用自动触发」对此无效。
+
+### 处置建议（转 await_confirm，需用户再决策）
+已批准的「禁用自动触发」实测无效。剩余可靠手段：
+1. 删除 `.github/workflows/pr-review.yml`（文件级彻底移除，需 git 历史可找回）——推荐
+2. 在 GitHub 仓库 UI 关闭该 workflow 的 Actions（需仓库管理员，非文件级，agent 无法执行）
+状态置 await_confirm，锁释放。
