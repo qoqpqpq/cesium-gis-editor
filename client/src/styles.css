@@ -838,7 +838,7 @@ textarea.input {
   gap: 6px;
   margin-bottom: 14px;
   background: var(--white-2);
-  border: 1px solid var(--white-6);
+  border: 1px solid var(--white-06);
   border-radius: 12px;
   padding: 4px;
   width: fit-content;
@@ -854,7 +854,7 @@ textarea.input {
   font-weight: 500;
   transition: all 0.2s ease;
 }
-.tab:hover { color: var(--text); background: var(--white-4); }
+.tab:hover { color: var(--text); background: var(--white-04); }
 .tab.active {
   background: linear-gradient(135deg, var(--primary), var(--accent));
   color: var(--on-primary);
@@ -2013,7 +2013,7 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: var(--white-8);
+  background: var(--white-08);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 3px 6px;
@@ -5348,7 +5348,7 @@ textarea.input {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: var(--white-5);
+  background: var(--white-06);
   cursor: move;
   user-select: none;
   font-weight: 600;
