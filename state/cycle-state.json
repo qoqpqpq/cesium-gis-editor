@@ -1,7 +1,7 @@
 {
   "current_cycle": 52,
   "previous_cycle": 50,
-  "last_run_status": "await_confirm",
+  "last_run_status": "completed",
   "last_run_at": "2026-11-15T15:10:00+08:00",
   "cycle_started_at": "2026-11-15T15:10:00+08:00",
   "cycle_completed_at": "2026-11-15T15:12:00+08:00",
@@ -1068,8 +1068,8 @@
     },
     {
       "cycle": 52,
-      "status": "await_confirm",
-      "summary": "pr-review.yml 禁用自动触发(已审批)但 push 仍触发失败 run；升级为待删文件决策",
+      "status": "completed",
+      "summary": "删除 pr-review.yml（用户二次审批）；禁用自动触发实测无效后的文件级彻底处置",
       "ts": "2026-11-15T21:46:00+08:00"
     }
   ],
@@ -1081,8 +1081,8 @@
   "lock": {
     "held": false,
     "cycle": 52,
-    "released_at": "2026-11-15T21:46:00+08:00"
+    "released_at": "2026-11-15T21:49:00+08:00"
   },
   "status": "skipped",
-  "await_confirm_reason": "cycle52: pr-review.yml 移除 pull_request 后 push 仍触发失败 run(b55de8ae/43720662082)，文件内容层禁用无效；GitHub 对该 workflow 的 push 触发评估与 on: 内容不符。需用户决策是否删除该 workflow 文件（CI-CD 高风险，已批准方案实测无效，故再阻塞）。"
+  "await_confirm_reason": null
 }

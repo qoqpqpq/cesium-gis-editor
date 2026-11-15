@@ -426,3 +426,10 @@
 1. 删除 `.github/workflows/pr-review.yml`（文件级彻底移除，需 git 历史可找回）——推荐
 2. 在 GitHub 仓库 UI 关闭该 workflow 的 Actions（需仓库管理员，非文件级，agent 无法执行）
 状态置 await_confirm，锁释放。
+
+### cycle 52 最终处置：删除 pr-review.yml（用户二次审批通过）
+- 用户在「禁用自动触发实测无效」后选择**删除该 workflow**。
+- 执行 `git rm .github/workflows/pr-review.yml`；`.github/` 下仅含 workflows/（已随之移除）。
+- 依据：本项目永不开 PR，该 PR 评审流水线无用途；文件层禁用无效，删除是文件级唯一彻底手段；已推送的 git 历史可随时找回。
+- 验收：远端 feat/auto-cycle 不再含任何 workflow 文件 → push 无 workflow 可触发，失败红叉应止住（下一轮 push 复核）。
+- 状态：completed；R-5201 转为「待下一轮 push 实证后关闭」。
