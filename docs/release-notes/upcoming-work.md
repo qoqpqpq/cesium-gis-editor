@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 47 已交付（2026-11-15，自动周期第十轮）
+
+- ✅ **UI-REFACTOR UR-2 第二步：建立字号阶梯 token `--fs-*` + 迁移 Top3 高频字号** —— 新增 5 个 token（`--fs-xs:10px`/`--fs-sm:11px`/`--fs-md:12px`/`--fs-base:13px`/`--fs-lg:14px`，取当前最高频实际值等值零视觉变化）；迁移 **191 处** `font-size:10/11/12px`→`var(--fs-xs/sm/md)`（Top3 全收敛）。颜色基线不变（250，本轮只动 font-size）；CSS 括号平衡、0 新增未定义 var。更新 `css-duplication-audit.cjs` A9（原断言迁移前碎片化基线，改为断言迁移生效，legitimate 非弱化）。spec 10/10 全绿
+
 ## 周期 46 已交付（2026-11-15，自动周期第九轮）
 
 - ✅ **转 UR-2 第一步：CSS 重复声明审计工具 + 可量化基线 + 字号阶梯提案** —— 新增 `scripts/css-duplication-audit.cjs`（可复用，`--json`/`--prop`）。**关键发现（纠正预设）**：index.jsx 仅 1 处内联 style（必需的动态 --left-w/--right-w），密度问题在 **CSS 膨胀**（styles.css 5723 行/3522 声明）而非 JSX。基线 **6261 行/3684 声明**；Top 重复 `display:flex`×162/`align-items:center`×90/`font-size:12px`×78；**font-size 极度碎片化**（10px×44/11px×65/12px×78/13px×28 + px 与 rem 混用）→ 收敛为 `--fs-*` 阶梯是「更简洁」核心抓手。spec `css-duplication-audit.cjs` **10 PASS**。基线报告 `docs/guides/ui-refactor-ur2-baseline.md`。**纯审计零视觉风险**
