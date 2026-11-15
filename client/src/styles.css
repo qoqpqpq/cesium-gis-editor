@@ -2959,7 +2959,7 @@ textarea.input {
   word-break: break-word;
 }
 .btn.danger {
-  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  background: linear-gradient(135deg, var(--danger), #b91c1c);
   color: var(--on-accent-fg);
   border: none;
 }
@@ -3133,7 +3133,7 @@ textarea.input {
 }
 .stat-err {
   background: var(--danger-bg);
-  color: #ef4444;
+  color: var(--danger);
   border: 1px solid var(--danger-border);
 }
 
