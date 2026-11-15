@@ -77,12 +77,13 @@ function runJson() {
       assert.ok(parseFloat(px[i - 1].size) <= parseFloat(px[i].size));
     }
   });
-  await ok('A9: 高频字号 12px/11px/10px 均存在（碎片化基线证据）', () => {
+  await ok('A9: Top 高频字号 10/11/12px 已 token 化（UR-2 第二步迁移生效）', () => {
     const j = runJson();
     const sizes = new Map(j.fontSizes.map((f) => [f.size, f.count]));
-    assert.ok(sizes.get('12px') >= 50);
-    assert.ok(sizes.get('11px') >= 50);
-    assert.ok(sizes.get('10px') >= 20);
+    // UR-2 第二步已把最高频的 10/11/12px 收敛为 var(--fs-xs/sm/md)，原始 px 不应再出现
+    assert.ok(!sizes.has('12px'), '12px 仍以原始 px 存在（应已迁移为 var(--fs-md)）');
+    assert.ok(!sizes.has('11px'), '11px 仍以原始 px 存在（应已迁移为 var(--fs-sm)）');
+    assert.ok(!sizes.has('10px'), '10px 仍以原始 px 存在（应已迁移为 var(--fs-xs)）');
   });
   await ok('A10: --prop 过滤生效（font-size 只返回 font-size 声明）', () => {
     const out = execFileSync('node', [SCRIPT, '--json', '--prop', 'font-size'], { encoding: 'utf8' });

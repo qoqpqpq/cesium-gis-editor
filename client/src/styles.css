@@ -26,6 +26,12 @@
   --text-meta: #6b7280;         /* 次要/元信息文字(UR-1 迁移: 原 color:#6b7280) */
   --primary-tint-fg: #b6c4ff;   /* primary 淡色前景(UR-1 迁移: 原 color:#b6c4ff) */
   --grad-brand: linear-gradient(135deg, #6366f1, #8b5cf6); /* 品牌渐变(UR-1 去重: 原 3 处重复) */
+  /* ===== 字号阶梯(UR-2 迁移: 取当前最高频实际值, 等值零视觉变化) ===== */
+  --fs-xs: 10px;    /* 原 font-size:10px ×44 */
+  --fs-sm: 11px;    /* 原 font-size:11px ×65 */
+  --fs-md: 12px;    /* 原 font-size:12px ×78 */
+  --fs-base: 13px;  /* 原 font-size:13px ×28 */
+  --fs-lg: 14px;    /* 原 font-size:14px ×18 */
   /* 形状 */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -148,7 +154,7 @@ p {
   background-clip: text;
 }
 .brand-subtitle {
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text-soft);
 }
 .nav {
@@ -212,7 +218,7 @@ p {
   line-height: 1;
 }
 .theme-toggle-label {
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text-soft);
   white-space: nowrap;
 }
@@ -256,7 +262,7 @@ p {
   line-height: 1;
 }
 .ai-key-btn-label {
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text-soft);
   white-space: nowrap;
 }
@@ -496,7 +502,7 @@ p {
   text-align: center;
   color: var(--muted);
   border-top: 1px solid var(--rule);
-  font-size: 12px;
+  font-size: var(--fs-md);
   background: var(--footer-bg);
 }
 .footer-links {
@@ -611,7 +617,7 @@ textarea.input {
   color: var(--text-soft);
 }
 .small {
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .warn {
   color: var(--warn);
@@ -634,11 +640,11 @@ textarea.input {
   border-radius: 999px;
   background: var(--primary-soft-bg);
   color: var(--primary-soft-fg);
-  font-size: 12px;
+  font-size: var(--fs-md);
   border: 1px solid var(--primary-soft-border);
 }
 .tag.small {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   padding: 1px 8px;
 }
 .badge {
@@ -647,7 +653,7 @@ textarea.input {
   border-radius: 6px;
   background: var(--neutral-soft-bg);
   color: var(--neutral-soft-fg);
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 
 /* ====== 主页 ====== */
@@ -812,7 +818,7 @@ textarea.input {
 }
 .stat-label {
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 @media (max-width: 700px) {
   .stat-strip { grid-template-columns: repeat(2, 1fr); }
@@ -1072,12 +1078,12 @@ textarea.input {
 }
 .recommend-meta .score {
   color: var(--accent);
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 600;
 }
 .recommend-reason {
   color: var(--text-soft);
-  font-size: 12px;
+  font-size: var(--fs-md);
   margin-top: 6px;
   line-height: 1.5;
 }
@@ -1135,12 +1141,12 @@ textarea.input {
 .gh-sha {
   flex-shrink: 0;
   font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
-  font-size: 11px; color: var(--text-soft);
+  font-size: var(--fs-sm); color: var(--text-soft);
   background: var(--ink-30); padding: 1px 6px; border-radius: 4px;
 }
 .gh-row-meta {
   display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: var(--text-soft);
+  font-size: var(--fs-md); color: var(--text-soft);
 }
 .gh-avatar {
   width: 16px; height: 16px; border-radius: 50%;
@@ -1234,7 +1240,7 @@ textarea.input {
 }
 .gis-side label {
   display: block;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text-soft);
   margin: 6px 0 2px;
 }
@@ -1249,7 +1255,7 @@ textarea.input {
   padding: 4px 10px;
   border-radius: 999px;
   color: var(--text-soft);
-  font-size: 12px;
+  font-size: var(--fs-md);
   cursor: pointer;
 }
 .preset-btn:hover {
@@ -1261,7 +1267,7 @@ textarea.input {
   left: 304px;
   bottom: 16px;
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   z-index: 40;
 }
 .legend {
@@ -1289,7 +1295,7 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 @media (max-width: 900px) {
   .gis-info,
@@ -1315,7 +1321,7 @@ textarea.input {
 }
 .ai-side label {
   display: block;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text-soft);
   margin: 6px 0 2px;
 }
@@ -1330,7 +1336,7 @@ textarea.input {
 }
 .configured-models h4 {
   margin: 0 0 8px 0;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text-soft);
 }
 .model-grid {
@@ -1362,12 +1368,12 @@ textarea.input {
   box-shadow: 0 0 0 1px var(--primary);
 }
 .model-chip .model-name {
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--text);
 }
 .model-chip .model-ver {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   margin-top: 2px;
 }
@@ -1387,7 +1393,7 @@ textarea.input {
 }
 .key-switcher h4 {
   margin: 0 0 8px 0;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text-soft);
 }
 .key-list {
@@ -1418,16 +1424,16 @@ textarea.input {
   gap: 2px;
 }
 .key-remark {
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 500;
   color: var(--text);
 }
 .key-model {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted);
 }
 .key-badge {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -1460,7 +1466,7 @@ textarea.input {
   font-size: 14px;
 }
 .panel-toggle {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   transition: transform 0.2s;
 }
@@ -1524,7 +1530,7 @@ textarea.input {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 12px;
+  font-size: var(--fs-md);
   flex-shrink: 0;
 }
 .msg-user .msg-role {
@@ -1724,7 +1730,7 @@ textarea.input {
   font-weight: bold;
 }
 .col-collapse-label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
   writing-mode: vertical-rl;
   text-orientation: mixed;
@@ -1808,7 +1814,7 @@ textarea.input {
   border: 1px solid var(--primary-30);
   border-radius: 14px;
   padding: 3px 10px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text);
   cursor: pointer;
   transition: all 0.15s;
@@ -1820,7 +1826,7 @@ textarea.input {
 }
 .chip.small {
   padding: 2px 8px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 
 .ai-chat-box {
@@ -1864,7 +1870,7 @@ textarea.input {
   margin-top: 2px;
 }
 .nl-bar-label {
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--text-soft, #888);
 }
@@ -1879,7 +1885,7 @@ textarea.input {
   gap: 4px;
 }
 .nl-result {
-  font-size: 12px;
+  font-size: var(--fs-md);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 8px;
@@ -1888,8 +1894,8 @@ textarea.input {
 .nl-result-error { border-color: #ff7875; background: rgba(255,77,79,.05); }
 .nl-result-ok { border-color: var(--accent, var(--accent-500)); }
 .nl-result-summary { font-weight: 600; margin-bottom: 4px; }
-.nl-result-rule { font-family: ui-monospace, monospace; font-size: 12px; padding: 1px 0; }
-.nl-result-hints { font-size: 11px; color: var(--text-soft, #888); margin-top: 4px; }
+.nl-result-rule { font-family: ui-monospace, monospace; font-size: var(--fs-md); padding: 1px 0; }
+.nl-result-hints { font-size: var(--fs-sm); color: var(--text-soft, #888); margin-top: 4px; }
 .nl-result-actions { display: flex; gap: 6px; margin-top: 6px; }
 
 .nl-suggestions {
@@ -1900,7 +1906,7 @@ textarea.input {
   overflow: auto;
 }
 .nl-suggestions-empty {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft, #888);
   padding: 4px 0;
 }
@@ -1914,7 +1920,7 @@ textarea.input {
   background: var(--panel, #fff);
   cursor: pointer;
   text-align: left;
-  font-size: 12px;
+  font-size: var(--fs-md);
   width: 100%;
 }
 .nl-suggestion:hover { border-color: var(--accent, var(--accent-500)); background: var(--panel-soft, rgba(90,209,255,.06)); }
@@ -1963,7 +1969,7 @@ textarea.input {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   flex-shrink: 0;
   background: linear-gradient(135deg, var(--primary-500), var(--primary-strong));
   color: var(--on-accent-fg);
@@ -2017,7 +2023,7 @@ textarea.input {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 3px 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 
 .ai-file-preview-item img {
@@ -2040,7 +2046,7 @@ textarea.input {
   color: var(--muted);
   cursor: pointer;
   padding: 0;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   line-height: 1;
 }
 .ai-file-remove:hover { color: var(--danger); }
@@ -2057,7 +2063,7 @@ textarea.input {
 
 .input.small {
   padding: 4px 8px;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 
 /* 主场景 */
@@ -2099,7 +2105,7 @@ textarea.input {
   border: 1px solid var(--white-08);
   border-radius: 8px;
   backdrop-filter: blur(8px);
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text);
   font-family: inherit;
   min-width: 240px;
@@ -2107,7 +2113,7 @@ textarea.input {
 .opacity-label {
   white-space: nowrap;
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   letter-spacing: 0.5px;
 }
 .opacity-slider {
@@ -2145,7 +2151,7 @@ textarea.input {
   text-align: right;
   color: var(--text);
   font-variant-numeric: tabular-nums;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 
 /* Toast 通知 */
@@ -2172,7 +2178,7 @@ textarea.input {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text);
   transition: background-color var(--theme-transition-duration) var(--theme-transition-ease),
               border-color var(--theme-transition-duration) var(--theme-transition-ease);
@@ -2196,12 +2202,12 @@ textarea.input {
   min-width: 0;
 }
 .ai-status-text strong {
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--text);
 }
 .ai-status-text span {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2212,7 +2218,7 @@ textarea.input {
   background: var(--code-bg);
   padding: 1px 5px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 
 /* 阶段 2C: 视图分享按钮(浮在 Cesium 右下角,避开 SelectionBox / 自带控件) */
@@ -2328,14 +2334,14 @@ textarea.input {
   border-bottom: 1px solid var(--ai-code-border);
 }
 .ai-code-tag {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--ai-code-tag);
   letter-spacing: 0.5px;
 }
 .ai-code-body {
   margin: 0;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   line-height: 1.55;
   max-height: 360px;
   /* 长代码软换行 + 禁掉横向滚动：窄列里也只纵向滚 */
@@ -2359,7 +2365,7 @@ textarea.input {
   border-radius: 8px;
   margin: 8px 0;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .ai-tool-head {
   display: flex;
@@ -2384,7 +2390,7 @@ textarea.input {
   word-break: break-word;
 }
 .ai-tool-status {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 1px 6px;
   border-radius: 8px;
   text-transform: uppercase;
@@ -2441,7 +2447,7 @@ textarea.input {
   border: none;
   padding: 4px 12px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
@@ -2465,7 +2471,7 @@ textarea.input {
 }
 .output-line-badge {
   flex-shrink: 0;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   background: var(--danger-border);
   color: var(--level-error-fg);
   padding: 1px 6px;
@@ -2480,7 +2486,7 @@ textarea.input {
 /* 控制台 → AI 按钮（每行日志右侧） */
 .output-send-ai {
   flex-shrink: 0;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   background: var(--indigo-18);
   color: var(--primary-soft-fg);
   border: 1px solid var(--indigo-35);
@@ -2502,7 +2508,7 @@ textarea.input {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
   cursor: pointer;
   user-select: none;
@@ -2546,7 +2552,7 @@ textarea.input {
   border-radius: 6px;
 }
 .ai-tool-chips-label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: #a5b4fc;
   margin-right: 4px;
@@ -2556,7 +2562,7 @@ textarea.input {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-family: 'SFMono-Regular', Consolas, 'Courier New', monospace;
   padding: 2px 7px;
   border-radius: 999px;
@@ -2599,7 +2605,7 @@ textarea.input {
   border-bottom: 1px solid var(--ai-code-border);
 }
 .ai-diff-title {
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--ai-code-tag);
   flex: 0 0 auto;
 }
@@ -2609,7 +2615,7 @@ textarea.input {
   flex: 1;
 }
 .diff-stat {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 1px 6px;
   border-radius: 8px;
   font-family: inherit;
@@ -2633,7 +2639,7 @@ textarea.input {
   width: 100%;
   border-collapse: collapse;
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--fs-md);
   line-height: 1.55;
   table-layout: fixed;
 }
@@ -2642,7 +2648,7 @@ textarea.input {
   padding: 6px;
   background: var(--ai-code-head-bg);
   color: #9ca3af;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 500;
   border-bottom: 1px solid var(--ai-code-border);
 }
@@ -2666,7 +2672,7 @@ textarea.input {
   padding: 1px 6px;
   color: var(--text-meta);
   text-align: right;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   user-select: none;
   vertical-align: top;
   background: var(--ai-code-head-bg);
@@ -2682,7 +2688,7 @@ textarea.input {
   margin: 0;
   font-family: inherit;
   background: transparent;
-  font-size: 12px;
+  font-size: var(--fs-md);
   line-height: 1.55;
   white-space: pre-wrap;
   word-break: break-all;
@@ -2700,7 +2706,7 @@ textarea.input {
 
 .btn.xsmall {
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 
 /* ============================================================
@@ -2719,7 +2725,7 @@ textarea.input {
 }
 .ai-plan-tag {
   display: inline-block;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   color: var(--primary-soft-fg);
   background: var(--primary-20);
@@ -2836,7 +2842,7 @@ textarea.input {
   gap: 10px;
   align-items: center;
   padding: 10px 16px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   border-bottom: 1px solid var(--border);
   background: var(--ink-15);
 }
@@ -2854,7 +2860,7 @@ textarea.input {
   flex: 1;
   overflow: auto;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--fs-md);
   line-height: 1.6;
   background: #0f1219;
   padding: 8px 0;
@@ -2912,7 +2918,7 @@ textarea.input {
   color: var(--text-soft);
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -2928,7 +2934,7 @@ textarea.input {
   color: var(--primary-soft-fg);
   border: 1px solid var(--primary-30);
   border-radius: 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   padding: 2px 6px;
   cursor: pointer;
   outline: none;
@@ -2946,14 +2952,14 @@ textarea.input {
   border-left: 3px solid rgba(245, 158, 11, 0.5);
   padding: 8px 10px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text-soft);
   margin: 4px 0;
 }
 .ai-asis-pre {
   margin: 4px 0 0;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: #d1d5db;
   white-space: pre-wrap;
   word-break: break-word;
@@ -3048,7 +3054,7 @@ textarea.input {
   box-shadow: none;
 }
 .run-icon {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   line-height: 1;
 }
 .run-label {
@@ -3061,7 +3067,7 @@ textarea.input {
   background: var(--ink-28);
   border: 1px solid var(--white-18);
   border-radius: 3px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-weight: 500;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   letter-spacing: 0.3px;
@@ -3076,7 +3082,7 @@ textarea.input {
   color: var(--text);
   border: 1px solid #2a3142;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   cursor: pointer;
   outline: none;
   transition: border-color 0.15s;
@@ -3097,7 +3103,7 @@ textarea.input {
   color: var(--text-soft);
   border: 1px solid transparent;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.15s;
   flex-shrink: 0;
@@ -3117,7 +3123,7 @@ textarea.input {
 .stat-badge {
   padding: 2px 8px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 500;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 }
@@ -3193,7 +3199,7 @@ textarea.input {
   flex: 1;
   display: flex;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--fs-md);
   background: var(--ai-code-bg);
   min-height: 0;
   overflow: hidden;
@@ -3204,7 +3210,7 @@ textarea.input {
   padding: 8px 12px;
   margin: 8px 12px 0 12px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   border: 1px solid transparent;
 }
 .verification-banner.pass {
@@ -3226,7 +3232,7 @@ textarea.input {
   margin-bottom: 6px;
 }
 .verification-count {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: normal;
   opacity: 0.8;
 }
@@ -3249,14 +3255,14 @@ textarea.input {
 .verification-row .v-actual {
   font-family: ui-monospace, monospace;
   color: var(--white-70);
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 .verification-hint {
   margin-top: 6px;
   padding-top: 6px;
   border-top: 1px dashed var(--white-12);
   color: var(--white-65);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   line-height: 1.5;
 }
 
@@ -3302,7 +3308,7 @@ textarea.input {
   background: rgba(220, 38, 38, 0.2);
 }
 .code-context-menu .ctx-hint {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: #8b91a3;
   font-weight: normal;
 }
@@ -3358,15 +3364,15 @@ textarea.input {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--text-soft);
 }
 .console-icon {
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .console-hint {
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 .console-empty {
   padding: 24px 20px;
@@ -3381,7 +3387,7 @@ textarea.input {
   overflow-y: auto;
   padding: 8px 12px;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .output-line {
   display: flex;
@@ -3394,7 +3400,7 @@ textarea.input {
 .output-time {
   flex-shrink: 0;
   width: 78px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-meta);
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   letter-spacing: 0.2px;
@@ -3403,7 +3409,7 @@ textarea.input {
 .output-tag {
   flex-shrink: 0;
   width: 50px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   text-align: center;
   border-radius: 3px;
   background: #1f2937;
@@ -3472,7 +3478,7 @@ textarea.input {
   height: 16px;
   background: var(--primary);
   color: var(--on-accent-fg);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   border-radius: 999px;
   display: grid;
@@ -3493,7 +3499,7 @@ textarea.input {
   border-radius: 12px;
   backdrop-filter: blur(12px);
   box-shadow: 0 12px 40px var(--ink-50);
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-family: inherit;
   overflow: hidden;
   animation: popup-in 0.15s ease-out;
@@ -3522,7 +3528,7 @@ textarea.input {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-family: inherit;
 }
 
@@ -3548,12 +3554,12 @@ textarea.input {
 }
 .drop-zone-hint {
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   margin-bottom: 6px;
 }
 .drop-zone-formats {
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-family: "JetBrains Mono", "SF Mono", monospace;
   line-height: 1.5;
   word-break: break-all;
@@ -3570,7 +3576,7 @@ textarea.input {
 }
 .loaded-files-title {
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   margin-bottom: 6px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -3591,7 +3597,7 @@ textarea.input {
   padding: 4px 6px;
   border-radius: 6px;
   background: var(--white-04);
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 .loaded-files li.hidden {
   opacity: 0.5;
@@ -3605,14 +3611,14 @@ textarea.input {
 .loaded-files .file-fmt {
   color: var(--accent);
   font-family: "JetBrains Mono", monospace;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 1px 4px;
   background: var(--info-bg);
   border-radius: 3px;
 }
 .loaded-files .file-count {
   color: var(--text-soft);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-variant-numeric: tabular-nums;
   min-width: 28px;
   text-align: right;
@@ -3622,7 +3628,7 @@ textarea.input {
   border: 0;
   color: var(--text-soft);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--fs-md);
   padding: 2px 4px;
   border-radius: 4px;
 }
@@ -3641,7 +3647,7 @@ textarea.input {
   padding-top: 8px;
 }
 .all-layers-hint {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted, #888);
   font-weight: normal;
 }
@@ -3649,7 +3655,7 @@ textarea.input {
   background: var(--ink-30);
   padding: 1px 4px;
   border-radius: 3px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 .file-fmt.source-editor {
   background: var(--info-bg);
@@ -3679,7 +3685,7 @@ textarea.input {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .col-picker-mode label {
   display: flex;
@@ -3702,7 +3708,7 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .col-picker-fields .lbl {
   min-width: 80px;
@@ -3715,7 +3721,7 @@ textarea.input {
   border: 1px solid var(--white-12);
   border-radius: 4px;
   color: var(--text);
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .col-picker-fields select:focus {
   outline: none;
@@ -3731,7 +3737,7 @@ textarea.input {
   background: var(--ink-30);
   padding: 1px 4px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-family: 'SFMono-Regular', Consolas, monospace;
 }
 .col-picker-preview {
@@ -3753,7 +3759,7 @@ textarea.input {
   border-radius: 4px;
   color: var(--on-accent-fg);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 500;
 }
 .col-picker-actions .btn-primary:disabled {
@@ -3766,7 +3772,7 @@ textarea.input {
   color: var(--muted, #888);
   cursor: pointer;
   padding: 5px 10px;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .col-picker-actions .btn-link:hover {
   color: var(--text);
@@ -3814,7 +3820,7 @@ textarea.input {
   border-radius: 12px;
   backdrop-filter: blur(12px);
   box-shadow: 0 12px 40px var(--ink-50);
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-family: inherit;
   display: flex;
   flex-direction: column;
@@ -3835,7 +3841,7 @@ textarea.input {
   border: none;
   border-bottom: 2px solid transparent;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-family: inherit;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
@@ -3888,7 +3894,7 @@ textarea.input {
   background: var(--warn-bg);
   border: 1px solid var(--warn-border);
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--warn);
   text-align: center;
 }
@@ -3898,7 +3904,7 @@ textarea.input {
 }
 
 .editor-section-title {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -3943,7 +3949,7 @@ textarea.input {
   line-height: 1;
 }
 .editor-tool-label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
 }
 
@@ -3952,7 +3958,7 @@ textarea.input {
   padding: 6px 8px;
   background: var(--info-bg);
   border-radius: 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--accent);
 }
 .editor-measure-readout {
@@ -3965,7 +3971,7 @@ textarea.input {
   flex-direction: column;
   gap: 4px;
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--warn);
   font-weight: 600;
 }
@@ -3980,7 +3986,7 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text);
   cursor: pointer;
   user-select: none;
@@ -4006,7 +4012,7 @@ textarea.input {
 
 .editor-snap-tol-val {
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--accent);
   min-width: 36px;
   text-align: right;
@@ -4065,7 +4071,7 @@ textarea.input {
 }
 
 .editor-simplify-stats .stat-label {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted, #94a3b8);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -4098,7 +4104,7 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 
 .editor-simplify-eps .muted {
@@ -4120,7 +4126,7 @@ textarea.input {
 .editor-simplify-eps-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted, #94a3b8);
 }
 
@@ -4138,7 +4144,7 @@ textarea.input {
   border: none;
   padding: 6px 14px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   cursor: pointer;
   font-weight: 600;
 }
@@ -4196,7 +4202,7 @@ textarea.input {
   background: var(--white-04);
   border: 1px solid var(--white-08);
   border-radius: 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
   cursor: pointer;
 }
@@ -4207,7 +4213,7 @@ textarea.input {
   color: var(--text);
 }
 .editor-layer-tab .icon-btn {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 0 2px;
   color: inherit;
 }
@@ -4231,7 +4237,7 @@ textarea.input {
 /* === LayersTree (TOC) — ArcGIS/QGIS 风格 === */
 .editor-section-meta {
   margin-left: auto;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   font-weight: normal;
 }
@@ -4258,7 +4264,7 @@ textarea.input {
   align-items: center;
   gap: 4px;
   padding: 5px 8px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   cursor: pointer;
   user-select: none;
 }
@@ -4281,7 +4287,7 @@ textarea.input {
 }
 .editor-layer-row.active .editor-layer-name { color: var(--text); }
 .editor-layer-count {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   background: var(--white-06);
   padding: 1px 6px;
@@ -4299,7 +4305,7 @@ textarea.input {
 }
 .editor-layer-empty {
   padding: 4px 8px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   font-style: italic;
 }
@@ -4308,7 +4314,7 @@ textarea.input {
   align-items: center;
   gap: 4px;
   padding: 3px 6px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-soft);
   border-radius: 4px;
   cursor: pointer;
@@ -4334,7 +4340,7 @@ textarea.input {
   text-overflow: ellipsis;
 }
 .editor-feature-row .icon-btn {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 0 3px;
   color: inherit;
   opacity: 0.7;
@@ -4353,7 +4359,7 @@ textarea.input {
   border: 1px solid var(--white-06);
   border-radius: 4px;
   color: var(--text-soft);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 2px 4px;
   cursor: pointer;
 }
@@ -4371,7 +4377,7 @@ textarea.input {
   border: 1px dashed var(--white-12);
   border-radius: 6px;
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   cursor: pointer;
 }
 .editor-layer-add-btn:hover {
@@ -4385,7 +4391,7 @@ textarea.input {
   background: var(--primary-08);
   border-left: 2px solid var(--primary-30);
   border-radius: 3px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--text-soft);
   line-height: 1.4;
 }
@@ -4402,7 +4408,7 @@ textarea.input {
   border-radius: 6px;
   color: var(--text-soft);
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -4421,7 +4427,7 @@ textarea.input {
 
 .editor-meta {
   margin-top: 8px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 
@@ -4437,7 +4443,7 @@ textarea.input {
   border-radius: 10px;
   backdrop-filter: blur(10px);
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text);
   box-shadow: 0 8px 24px var(--ink-40);
 }
@@ -4456,7 +4462,7 @@ textarea.input {
 }
 .editor-style-row label {
   width: 50px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
   flex-shrink: 0;
 }
@@ -4481,10 +4487,10 @@ textarea.input {
   color: var(--text);
   padding: 4px 6px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .editor-style-val {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   min-width: 24px;
   text-align: right;
@@ -4508,7 +4514,7 @@ textarea.input {
   gap: 6px;
   padding: 4px 6px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
 }
 .editor-feature-list li:hover { background: var(--white-04); }
@@ -4520,7 +4526,7 @@ textarea.input {
   background: var(--primary-20);
   color: var(--primary-tint-fg);
   border-radius: 3px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   text-align: center;
 }
 .editor-feature-name {
@@ -4538,7 +4544,7 @@ textarea.input {
   color: var(--text);
   padding: 2px 4px;
   font-family: inherit;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 .editor-feature-layer-select {
   background: var(--white-04);
@@ -4546,7 +4552,7 @@ textarea.input {
   border-radius: 3px;
   color: var(--text);
   font-family: inherit;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   padding: 1px 2px;
 }
 
@@ -4565,7 +4571,7 @@ textarea.input {
   border-radius: 8px;
   backdrop-filter: blur(8px);
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text-soft);
   pointer-events: auto;
 }
@@ -4586,7 +4592,7 @@ textarea.input {
   background: transparent;
   color: var(--text-soft);
   font-family: inherit;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-weight: 600;
   letter-spacing: 0.05em;
   padding: 2px 7px;
@@ -4609,11 +4615,11 @@ textarea.input {
 }
 .editor-coord-text {
   color: var(--on-accent-fg);
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .editor-coord-height {
   color: var(--muted, #888);
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 
 /* ============================================================
@@ -4629,7 +4635,7 @@ textarea.input {
   justify-content: space-between;
   gap: 14px;
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   background: var(--header-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -4651,7 +4657,7 @@ textarea.input {
 }
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-fmt-btn {
   padding: 3px 9px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   border-radius: 5px;
   min-width: 32px;
 }
@@ -4673,13 +4679,13 @@ textarea.input {
 }
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-cell-label {
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   letter-spacing: 0.05em;
   font-weight: 600;
 }
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-cell-value {
   color: var(--text-primary);
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 500;
   letter-spacing: 0.02em;
   min-width: 0;
@@ -4695,7 +4701,7 @@ textarea.input {
   height: 18px;
   margin-right: 4px;
   padding: 0 5px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   border-radius: 9px;
@@ -4753,7 +4759,7 @@ textarea.input {
   border-radius: 10px;
   backdrop-filter: blur(12px);
   box-shadow: 0 12px 40px var(--ink-50);
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text);
   display: flex;
   flex-direction: column;
@@ -4780,7 +4786,7 @@ textarea.input {
   border: 1px solid var(--primary-30);
   border-radius: 6px;
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   cursor: pointer;
   font-family: inherit;
 }
@@ -4813,7 +4819,7 @@ textarea.input {
   cursor: not-allowed;
 }
 .attr-saved-badge {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   margin-left: 4px;
   padding: 1px 6px;
   border-radius: 4px;
@@ -4833,7 +4839,7 @@ textarea.input {
   border: 1px solid var(--primary-30);
   border-radius: 4px;
   padding: 3px 8px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-family: inherit;
   outline: none;
   width: 220px;
@@ -4849,7 +4855,7 @@ textarea.input {
   padding: 8px 10px;
 }
 .query-builder {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--text);
   display: flex;
   flex-direction: column;
@@ -4912,7 +4918,7 @@ textarea.input {
   border: 1px solid var(--primary-30);
   border-radius: 3px;
   padding: 2px 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-family: inherit;
   outline: none;
 }
@@ -4954,7 +4960,7 @@ textarea.input {
   min-width: 180px;
   max-height: 320px;
   overflow: auto;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text);
   backdrop-filter: blur(8px);
 }
@@ -4963,7 +4969,7 @@ textarea.input {
   font-weight: 600;
   color: var(--muted);
   border-bottom: 1px solid var(--white-08);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -4985,7 +4991,7 @@ textarea.input {
 }
 .attr-col-menu-type {
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-family: monospace;
 }
 .attr-col-menu-foot {
@@ -5013,7 +5019,7 @@ textarea.input {
   border: 1px solid var(--primary-30);
   border-radius: 4px;
   padding: 3px 8px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-family: inherit;
   outline: none;
 }
@@ -5023,7 +5029,7 @@ textarea.input {
 }
 .attr-drop-label {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .attr-table-scroll {
   overflow: auto;
@@ -5032,7 +5038,7 @@ textarea.input {
 .attr-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 .attr-table thead th {
   position: sticky;
@@ -5045,7 +5051,7 @@ textarea.input {
   border-bottom: 1px solid var(--white-08);
   white-space: nowrap;
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.4px;
   z-index: 1;
 }
@@ -5074,7 +5080,7 @@ textarea.input {
   padding: 2px 4px;
   width: 100%;
   font-family: inherit;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 .attr-table-cell {
   display: inline-block;
@@ -5089,12 +5095,12 @@ textarea.input {
   background: var(--primary-18);
   color: var(--primary-tint-fg);
   border-radius: 3px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   text-align: center;
 }
 .attr-table-layer {
   color: var(--muted);
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 .attr-table-empty {
   text-align: center;
@@ -5119,7 +5125,7 @@ textarea.input {
   border-radius: 10px;
   backdrop-filter: blur(12px);
   box-shadow: 0 12px 40px var(--ink-50);
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text);
   overflow: hidden;
 }
@@ -5146,7 +5152,7 @@ textarea.input {
   gap: 4px;
 }
 .analysis-row label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -5159,7 +5165,7 @@ textarea.input {
   color: var(--text);
   padding: 5px 8px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--fs-md);
   color-scheme: dark;
 }
 .analysis-row select:focus,
@@ -5182,7 +5188,7 @@ textarea.input {
   color: var(--text);
   padding: 5px 8px;
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--fs-md);
   cursor: pointer;
   text-align: left;
 }
@@ -5191,7 +5197,7 @@ textarea.input {
   background: var(--primary-08);
 }
 .op-caret {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted);
   flex-shrink: 0;
 }
@@ -5210,7 +5216,7 @@ textarea.input {
 }
 .op-dropdown-group-label {
   padding: 6px 12px 2px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--primary-500) !important;
   font-weight: 700;
   text-transform: uppercase;
@@ -5220,7 +5226,7 @@ textarea.input {
 .op-dropdown-option {
   padding: 7px 16px;
   color: var(--on-primary) !important;
-  font-size: 12px;
+  font-size: var(--fs-md);
   cursor: pointer;
   user-select: none;
   background: transparent !important;
@@ -5299,7 +5305,7 @@ textarea.input {
   font-weight: 600;
 }
 .platform-picker-option-tag {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   padding: 1px 6px;
   border-radius: 999px;
   background: var(--primary-25);
@@ -5317,13 +5323,13 @@ textarea.input {
   padding: 8px 10px;
   background: var(--primary-12);
   border-radius: 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--primary-tint-fg);
   border: 1px solid var(--primary-25);
 }
 .analysis-hint {
   color: var(--muted);
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-style: italic;
 }
 
@@ -5339,7 +5345,7 @@ textarea.input {
   border-radius: 10px;
   backdrop-filter: blur(12px);
   box-shadow: 0 12px 40px var(--ink-50);
-  font-size: 12px;
+  font-size: var(--fs-md);
   color: var(--text);
   overflow: hidden;
 }
@@ -5368,7 +5374,7 @@ textarea.input {
 .print-export-row > label {
   min-width: 60px;
   color: var(--text-soft);
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 .print-export-row input,
 .print-export-row select {
@@ -5378,7 +5384,7 @@ textarea.input {
   border: 1px solid var(--primary-30);
   border-radius: 3px;
   padding: 3px 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-family: inherit;
   outline: none;
 }
@@ -5407,7 +5413,7 @@ textarea.input {
 .print-export-grid .attr-table-btn {
   padding: 8px 6px;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 .print-export-hint {
   color: var(--muted);
@@ -5419,7 +5425,7 @@ textarea.input {
   padding: 6px 8px;
   background: var(--primary-12);
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--primary-70);
   border: 1px solid var(--primary-25);
 }
@@ -5473,7 +5479,7 @@ textarea.input {
   color: var(--text, #e6edf3);
   padding: 8px 12px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   text-align: left;
   overflow: auto;
   max-height: 160px;
@@ -5519,7 +5525,7 @@ textarea.input {
 .editor-error-message {
   margin: 0 0 8px;
   color: var(--text-muted, #94a3b8);
-  font-size: 12px;
+  font-size: var(--fs-md);
   line-height: 1.4;
 }
 .editor-error-reset {
@@ -5530,7 +5536,7 @@ textarea.input {
   border-radius: 4px;
   font-weight: 600;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--fs-md);
 }
 
 .analysis-server-toggle {
@@ -5539,7 +5545,7 @@ textarea.input {
   gap: 6px;
   margin-top: 6px;
   padding: 4px 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   cursor: pointer;
   user-select: none;
@@ -5568,7 +5574,7 @@ textarea.input {
   flex: 1;
   padding: 5px 0;
   text-align: center;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   cursor: pointer;
   color: var(--muted);
   background: var(--white-04);
@@ -5592,7 +5598,7 @@ textarea.input {
   border-radius: 12px;
   backdrop-filter: blur(12px);
   box-shadow: 0 12px 40px var(--ink-60);
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-family: inherit;
   overflow: hidden;
   animation: popup-in 0.15s ease-out;
@@ -5620,7 +5626,7 @@ textarea.input {
 }
 
 .three-check-hint {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--muted);
   line-height: 1.4;
 }
@@ -5634,7 +5640,7 @@ textarea.input {
 .three-check-summary {
   padding: 8px 10px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-md);
   font-weight: 600;
   margin-bottom: 8px;
 }
@@ -5684,12 +5690,12 @@ textarea.input {
 
 .three-check-name {
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--fs-md);
   flex: 1;
 }
 
 .three-check-count {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--muted);
 }
 
@@ -5703,7 +5709,7 @@ textarea.input {
   display: flex;
   gap: 6px;
   padding: 3px 0;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   border-bottom: 1px solid var(--white-04);
 }
 
