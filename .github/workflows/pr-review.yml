@@ -4,8 +4,8 @@
 # 周期 10 P1-1: Multi-specialist PR review（baseline + security + design 三 specialist fan-out）
 #
 # 触发条件：
-#   - pull_request 打开 / 同步 / 重开
 #   - workflow_dispatch 手动触发
+#   - 周期 52：已移除 pull_request 自动触发（本项目永不开 PR；CI 缺依赖导致 push 空跑必失败）
 #
 # 工作流（multi-specialist fan-out）：
 #   1. checkout 代码
@@ -28,8 +28,11 @@
 name: pr-review
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  # 周期 52：移除 pull_request 自动触发，仅保留 workflow_dispatch 手动触发。
+  # 背景：本项目约定「永不开 PR」，pull_request 路径永不使用；且 CI 环境缺
+  # 运行中的 server(localhost:3001) / @turf/turf / M3_API_KEY，baseline job 的
+  # spec 必然失败，导致每次 push 产生无意义失败红叉。禁用自动触发后，仅在
+  # 人工显式 workflow_dispatch 时运行（PR 评审逻辑原样保留备用）。
   workflow_dispatch:
     inputs:
       pr_number:

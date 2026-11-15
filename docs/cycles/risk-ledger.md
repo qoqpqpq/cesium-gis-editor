@@ -14,3 +14,4 @@
 
 ## 已知开放缺陷（承继历史）
 - 历史周期累计 bugs_open 计数见 `state/cycle-state.json` history；本轮未新增阻断/严重缺陷。
+| R-5201 | CI-CD | GitHub 在 pr-review.yml 无 `push` 触发的情况下仍生成 `event:push` 失败 run（服务端触发评估异常，20+ 次） | 开放 | c52 已移除 pull_request 仅留 workflow_dispatch；待下一轮 push 实证是否止住 | 若仍触发→删除该 workflow（需审批）；CI baseline job 缺 server/turf/API key 依赖，需最小环境解锁或加门控 |

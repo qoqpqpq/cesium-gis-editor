@@ -388,3 +388,27 @@
 - 风险台账：R-2201 → **resolved (cycle 38)**
 - 状态：completed（合并+推送收尾）
 - 告警：无
+
+<!-- ===== cycle 52 (2026-11-15, model: sensenova-6.8-flash) ===== -->
+## Cycle 52 — CI: 禁用 pr-review.yml 自动触发（高风险已审批）
+
+**状态**: completed
+**类型**: CI-CD 高风险变更（已获用户 await_confirm 通过，方案：禁用自动触发）
+**模型**: sensenova-6.8-flash
+
+### 背景与诊断
+- GitHub Actions 上 `.github/workflows/pr-review.yml` 持续失败（run #9–#20，2026-09-08 起约 20 次）。
+- 核实：该 workflow 本地 / 远端 tip(e97472cf) / main(bf4f13c) 三个版本的 `on:` 均只有 `pull_request` + `workflow_dispatch`，**从无 `push` 触发**（YAML 解析确认）。
+- 失败 run 的 head_sha 全部为本地自有提交（e97472cf/82368004/e1ff48a3…），**不存在另一实例推代码**。
+- 失败 job 为 `baseline`：无条件 `npm ci` + checkpoint + AI 探针 + 遍历全部 166 spec，任一失败 exit 1；CI 环境缺 server(localhost:3001)/@turf/turf/M3_API_KEY，故必然失败。**非代码回归，是 CI 环境与 spec 依赖不匹配。**
+- 本项目约定「永不开 PR」，`pull_request` 路径永不使用 → 该 workflow 自动触发已成死路径，仅产红叉噪音。
+
+### 改动
+- `.github/workflows/pr-review.yml`：`on:` 移除 `pull_request`，仅保留 `workflow_dispatch`（手动触发）；同步更新头部触发条件注释。PR 评审逻辑（baseline/security/design/summary 四 job）原样保留备用。
+
+### 异常留证（未解，转风险台账 R-5201）
+原始版本无 `push` 触发，GitHub 却生成 `event:push` 的 run——服务端触发评估与文件内容不符。本次移除 pull_request 后能否止住 push run **尚待下一轮 push 实证**；若仍发生，升级为删除该 workflow（需再次审批）。
+
+### 验收标准
+- YAML 可解析，`on` 触发器仅 `workflow_dispatch`，四 job 完整。→ PASS
+- 不影响 feat/auto-cycle 的正常 commit/push。→ 待下一轮 push 验证
