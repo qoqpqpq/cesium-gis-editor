@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 44 已交付（2026-11-15，自动周期第七轮）
+
+- ✅ **UR-1 技术债：修复 CSS var 拼写错误缺陷 C44-B01 + 加护栏 spec** —— 诊断上轮记的「10 个未定义 var」：`--left-w`/`--right-w` 是 JS 注入、`--fg`/`--panel*` 是有意 fallback（均正常），而 **`--white-4`/`--white-5`/`--white-6`/`--white-8` 是拼写错误**（缺前导零，引用不存在的 token → 样式静默失效）。修复为 `--white-04`/`--white-06`/`--white-08`（恢复预期淡色背景）；新增护栏 spec `css-var-reference-guard.cjs` **9 PASS**（白名单放行 JS 注入/fallback，断言未定义引用==0 防复发）。回归 13+24+18 全绿；基线仍 252（typo 是 var 引用非硬编码）
+
 ## 周期 43 已交付（2026-11-15，自动周期第六轮）
 
 - ✅ **技术债偿还 + UR-1 度量校准** 审计脚本排除 var() fallback hex —— `scripts/design-token-audit.cjs` 统计前先摘掉 `var(--tok, #fallback)` 整段，只计真硬编码（fallback 是 token 兜底，不应算硬编码）。**基线校准：289（旧虚高）→ 252（真实，styles 123 + theme 129，差值 37 即 fallback）**；spec 13/13 行为契约仍全绿（测结构/自洽非数字）；`--max` 闸门仍有效。后续迁移以 **252** 为准基线
