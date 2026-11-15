@@ -469,3 +469,32 @@ UR-1/UR-2 中「可安全自动化、等值零视觉变化、可离线验证」�
 **依据**：本轮实测——远端与本地同步(fa63e9c)、**环境未解锁**（`node_modules/@turf` 未装、server:3001 未运行）、cycle 53 已 skipped、锁空闲。
 **结论**：UI-REFACTOR 可安全自动化的等值零视觉迁移已收敛（cycle53 双审计证据：颜色 componentTotal=250 剩余渐变/遮罩/主题rgba 有外观风险；字号剩余非阶梯奇数值迁移非等值；flex 需改 JSX+视觉复核）。无新增可自动化需求，R-1502 仍未解锁 → 诚实跳过，禁止凭空造需求。
 **去向**：唯一有实质待办价值方向为 R-1502 最小环境解锁（需用户 go-ahead）；R-1601/R-1503 仍挂起。
+
+<!-- ===== cycle 55 (2026-11-15, model: sensenova-6.8-flash) ===== -->
+## Cycle 55 — R-1502 最小环境解锁 + 修复删除 workflow 引入的 spec 回归
+
+**状态**: completed　**模型**: sensenova-6.8-flash
+
+### 1. R-1502 解锁（用户 go-ahead 后执行）
+- `npm install --omit=dev`：**229 包**（含 `@turf/turf`、express、node-fetch、helmet），1s（缓存命中）。
+- `nohup node server/index.js` 起 server:3001（pid 803653，log `/tmp/cesium-server.log`）；`/api/health` → `{"status":"ok"}` 2s 就绪。
+- `tests/checkpoint.cjs` 真实打 server：**9 PASS / 0 FAIL**。
+- `tests/specs/editor-utils-turf.cjs`：**47 PASS / 0 FAIL**。
+- → **R-1502 解锁成功**（server + turf 门禁恢复可跑）。
+
+### 2. 全量 spec 基线（解锁后首次真实测量）
+- 166 spec：**155 PASS / 11 FAIL 文件**。这是项目首次在全依赖就绪下的真实基线（此前 CI 缺 server/turf 大量误失败）。
+
+### 3. 修复 A 类回归（我 cycle52 删除 workflow 引入，P1）
+- `pr-review-workflow.cjs`、`pr-review-workflow-m3.cjs` 仍断言 `pr-review.yml` 存在 → ENOENT FATAL。
+- PR 评审功能已按用户决定整体移除 → 这 2 个 spec 过时，`git rm` 删除。套件 166→164，失败 11→9。
+
+### 4. B 类 9 个既有失败（新暴露，非我引入）→ 登记 TD-5501
+- Permissions-Policy: csp-permissions-policy(6)、helmet-8-upgrade(1)、helmet-permissions-policy(3)
+- metadata-ips: metadata-ip-maintenance(4)、metadata-ip-sync-script(8)
+- protocol: protocol-shared(1)、protocol-sync-script(3)
+- sandbox-perf-benchmark(1)、viewstate-browser-decompress(MODULE_NOT_FOUND)
+- 均为「spec 描述的功能代码中不存在」(疑似 TDD 待实现或 spec 过时)，与 UI/CSS/workflow 改动无关。逐个判定需设计判断，超出无人值守边界 → 登记 TD-5501 待人工分诊。
+
+### 验收
+- A 类回归消除（pr-review spec 残留 0）；抽样 spec（turf 47 / multi-agent 46 / css-var-guard 9）全绿，无新增破坏。

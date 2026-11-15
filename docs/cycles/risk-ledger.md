@@ -15,3 +15,5 @@
 ## 已知开放缺陷（承继历史）
 - 历史周期累计 bugs_open 计数见 `state/cycle-state.json` history；本轮未新增阻断/严重缺陷。
 | R-5201 | CI-CD | GitHub 在 pr-review.yml 无 `push` 触发的情况下仍生成 `event:push` 失败 run（服务端触发评估异常，20+ 次） | **已解决(c52)** | c52 先移除 pull_request(实测无效,b55de8ae 仍触发)；二次审批后删除 pr-review.yml，删除后的 push(265b42a) 触发 0 run，远端 .github/workflows 404 | 已闭环：删除 workflow 止住红叉；git 历史可找回。附带发现：文件层 on: 改动对 GitHub push 触发无效（服务端异常） |
+
+| TD-5501 | 技术债 | R-1502 环境解锁后全量 spec 基线暴露 9 个既有失败（此前 CI 环境缺 server/turf 被掩盖）：Permissions-Policy(csp/helmet×2,10fail)、metadata-ips(maintenance/sync,12fail)、protocol(shared/sync,4fail)、sandbox-perf(1)、viewstate-browser-decompress(MODULE_NOT_FOUND) | 开放 | c55 已修 A 类回归(删 2 过时 pr-review spec)；B 类 9 个为 spec 描述的功能代码中不存在(疑似 TDD 待实现/spec 过时)，与 UI/CSS/workflow 改动无关 | 需逐个判定「实现功能」还是「删除过时 spec」，多涉及设计判断，超出无人值守自动化；建议人工分诊 |
