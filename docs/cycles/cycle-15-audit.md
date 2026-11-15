@@ -498,3 +498,26 @@ UR-1/UR-2 中「可安全自动化、等值零视觉变化、可离线验证」�
 
 ### 验收
 - A 类回归消除（pr-review spec 残留 0）；抽样 spec（turf 47 / multi-agent 46 / css-var-guard 9）全绿，无新增破坏。
+
+<!-- ===== cycle 56 (2026-11-15, model: sensenova-6.8-flash) ===== -->
+## Cycle 56 — TD-5501 分诊（9 个既有 spec 失败根因核实，纯分析零改动）
+
+**状态**: completed　**模型**: sensenova-6.8-flash
+
+### 任务
+对 cycle55 解锁后暴露的 9 个既有 spec 失败逐个核实根因，区分「spec 过时/路径错误」vs「真实功能缺口」vs「环境问题」，产出可决策清单。**纯分析，零代码改动（零风险）。**
+
+### 核心发现（纠正预设）
+- **Permissions-Policy 功能其实已实现**：`curl -D -` 实测 server 响应含完整 `Permissions-Policy` 头（camera=()/geolocation=() 等）。3 个 spec（csp/helmet×2）失败是因用**正则匹配 server/index.js 源码文本**，而实现已迁移 → **spec 断言方式过时**，非安全功能缺失。
+- **protocol 组路径错误**：spec 找顶层 `protocol/index.js`+`TOOL_OPEN/TOOL_CLOSE`，实际协议在 `server/agent/protocol/index.js`（check-protocol-sync.cjs L30-31 证实）→ 协议曾迁移，spec 指向旧路径。
+- **metadata-ip-sync-script API 漂移**：脚本导出 `parseMarkdown/parse/sync`，spec 期望 `parseMarkdownTable/parseSourceSet/isMetadataIp` → 另一版本 API。
+- **metadata-ip-maintenance 文档缺失**：`docs/guides/metadata-ips.md` 不存在。
+- **viewstate-browser-decompress 纯环境**：缺 `client/node_modules/pako`（cycle55 未装 client 依赖）。
+
+### 结论
+9 个失败 = 6 spec 过时/路径/API 漂移 + 1 文档缺失 + 1 环境未装 + 1 待细查(sandbox-perf)。**无安全/核心功能缺失。**
+主体工作=修过时 spec（#1-7），属低风险测试维护，可安全自动化；#4 补文档 vs 删 spec、#9 装 client 依赖需用户定。
+
+### 产出
+- `docs/guides/td-5501-triage.md`（分诊报告，含汇总表+核实证据+建议处置+优先级）
+- `docs/cycles/risk-ledger.md`：TD-5501 → 分诊完成(c56)
