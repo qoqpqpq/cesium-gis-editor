@@ -27,19 +27,21 @@
   --primary-tint-fg: #b6c4ff;   /* primary 淡色前景(UR-1 迁移: 原 color:#b6c4ff) */
   --grad-brand: linear-gradient(135deg, #6366f1, #8b5cf6); /* 品牌渐变(UR-1 去重: 原 3 处重复) */
   /* ===== 字号阶梯(UR-2 迁移: 取当前最高频实际值, 等值零视觉变化) ===== */
-  --fs-2xs: 9px;    /* 原 font-size: var(--fs-2xs) ×3 */
-  --fs-xs: 10px;    /* 原 font-size: var(--fs-xs) ×44 */
-  --fs-sm: 11px;    /* 原 font-size: var(--fs-sm) ×65 */
-  --fs-md: 12px;    /* 原 font-size: var(--fs-md) ×78 */
-  --fs-base: 13px;  /* 原 font-size: var(--fs-base) ×28 */
-  --fs-lg: 14px;    /* 原 font-size: var(--fs-lg) ×18 */
-  --fs-xl: 15px;    /* 原 font-size: var(--fs-xl) ×5 */
-  --fs-2xl: 16px;   /* 原 font-size: var(--fs-2xl) ×5 */
-  --fs-3xl: 18px;   /* 原 font-size: var(--fs-3xl) ×8 */
-  --fs-4xl: 20px;   /* 原 font-size: var(--fs-4xl) ×1 */
-  --fs-5xl: 28px;   /* 原 font-size: var(--fs-5xl) ×2 */
-  --fs-6xl: 30px;   /* 原 font-size: var(--fs-6xl) ×1 */
-  --fs-7xl: 40px;   /* 原 font-size: var(--fs-7xl) ×1 */
+  --fs-2xs: 9px;    /* 原 font-size:9px ×3 */
+  --fs-xs: 10px;    /* 原 font-size:10px ×44 */
+  --fs-xs-half: 10.5px;  /* 原 font-size:10.5px ×2（亚像素，等值保留） */
+  --fs-sm: 11px;    /* 原 font-size:11px ×65 */
+  --fs-sm-half: 11.5px;  /* 原 font-size:11.5px ×1（亚像素，等值保留） */
+  --fs-md: 12px;    /* 原 font-size:12px ×78 */
+  --fs-base: 13px;  /* 原 font-size:13px ×28 */
+  --fs-lg: 14px;    /* 原 font-size:14px ×18 */
+  --fs-xl: 15px;    /* 原 font-size:15px ×5 */
+  --fs-2xl: 16px;   /* 原 font-size:16px ×5 */
+  --fs-3xl: 18px;   /* 原 font-size:18px ×8 */
+  --fs-4xl: 20px;   /* 原 font-size:20px ×1 */
+  --fs-5xl: 28px;   /* 原 font-size:28px ×2 */
+  --fs-6xl: 30px;   /* 原 font-size:30px ×1 */
+  --fs-7xl: 40px;   /* 原 font-size:40px ×1 */
   /* 形状 */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -3255,7 +3257,7 @@ textarea.input {
   align-items: center;
   gap: 6px;
   padding: 2px 0;
-  font-size: 11.5px;
+  font-size: var(--fs-sm-half);
 }
 .verification-row.pass .v-icon { color: var(--success); }
 .verification-row.fail .v-icon { color: var(--danger-soft-fg); }
@@ -4898,7 +4900,7 @@ textarea.input {
 }
 .query-builder-empty {
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: var(--fs-xs-half);
   padding: 4px 0;
   font-style: italic;
 }
@@ -5425,7 +5427,7 @@ textarea.input {
 }
 .print-export-hint {
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: var(--fs-xs-half);
   line-height: 1.4;
 }
 .print-export-result {
