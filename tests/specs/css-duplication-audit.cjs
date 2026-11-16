@@ -96,6 +96,12 @@ function runJson() {
     const raw = j.topDecl.filter((d) => /^font-weight:/.test(d.decl) && !/var\(--fw-/.test(d.decl));
     assert.strictEqual(raw.length, 0, `仍有未 token 化 font-weight: ${raw.map((d) => d.decl).join(', ')}`);
   });
+  await ok('A12: line-height 已 token 化（UR-4 方案A 行高等值迁移生效）', () => {
+    const out = execFileSync('node', [SCRIPT, '--json', '--prop', 'line-height'], { encoding: 'utf8' });
+    const j = JSON.parse(out);
+    const raw = j.topDecl.filter((d) => /^line-height:/.test(d.decl) && !/var\(--lh-/.test(d.decl));
+    assert.strictEqual(raw.length, 0, `仍有未 token 化 line-height: ${raw.map((d) => d.decl).join(', ')}`);
+  });
 
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
