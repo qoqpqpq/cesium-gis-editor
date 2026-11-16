@@ -202,6 +202,35 @@ function runJson() {
     assert.ok(!/\)undefined/.test(src), '发现 )undefined 替换污染');
   });
 
+  await ok('A18: padding/margin 族单值已 token 化（UR-2 间距 scale 步骤6 生效）', () => {
+    const fs = require('fs');
+    let src = '';
+    for (const f of ['client/src/styles.css', 'client/src/theme.css']) {
+      // 逐行剔除 token 定义行（其行尾注释含 padding:Npx 等文本，会被误计为组件用法）
+      const lines = fs.readFileSync(f, 'utf8').split('\n');
+      for (const l of lines) if (!/^\s*--[a-zA-Z0-9-]+:/.test(l)) src += l + '\n';
+    }
+    src = src.replace(/\/\*[\s\S]*?\*\//g, '');
+    // 1) 单值原始值必须为 0（排除 0 清零 / auto / var() / 多值简写 / inherit 等非 scale 值）
+    const special = new Set(['0', 'auto', 'inherit', 'initial', 'unset', 'revert', 'none', '0 0', '0 auto']);
+    const PROP = 'padding(?:-top|-bottom|-left|-right)?|margin(?:-top|-bottom|-left|-right)?';
+    const re = new RegExp('(?:^|[^\\w-])(' + PROP + '):\\s*([^;}]*)(\\s*;?)', 'g');
+    const raw = new Map();
+    let x;
+    while ((x = re.exec(src)) !== null) {
+      const v = x[2].trim();
+      if (!v || special.has(v) || /^var\(/.test(v) || /\s/.test(v)) continue;
+      raw.set(v, (raw.get(v) || 0) + 1);
+    }
+    const offenders = [...raw].map(([v, n]) => `${v} x${n}`);
+    assert.strictEqual(offenders.length, 0, `仍存在未 token 化的 padding/margin 单值: ${offenders.join(', ')}`);
+    // 2) 反 C69-B01：任何 padding/margin 族值不得是裸自定义属性（未用 var() 包裹）
+    const bare = src.match(/(?:padding|margin)(?:-top|-bottom|-left|-right)?:\s*--/g);
+    assert.strictEqual(bare ? bare.length : 0, 0, `发现裸自定义属性引用: ${(bare || []).slice(0, 5).join(', ')}`);
+    // 3) 反 C69-B02：脚本替换不得拼出 )undefined
+    assert.ok(!/\)undefined/.test(src), '发现 )undefined 替换污染');
+  });
+
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
 })().catch((e) => {
