@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 62 已交付（2026-11-16，自动周期第十四轮）
+
+- ✅ **UI-REFACTOR UR-4 字重 token 化（font-weight 阶梯）+ 行高审计基线** —— 新增 5 个字重 token `--fw-normal:400`/`--fw-medium:500`/`--fw-semibold:600`/`--fw-bold:700`/`--fw-extrabold:800`（等值零视觉变化）；迁移 **76 处** font-weight（600×50 + 500×13 + 700×6 + normal×4 + bold×2 + 800×1）→`var(--fw-*)`；styles.css 真实 font-weight 声明 **0 处原始值**。行高（line-height 37 处，8 个无单位比值 1/1.1/1.4/1.5/1.55/1.6/1.7/1.85）**只审计不改码**，基线+提案见 `docs/guides/ur4-line-height-baseline.md`（方案 A 等值 token 化待拍板，方案 B 归一化需视觉 QA）。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit **11/11**（新增 A11「font-weight 已 token 化」）+ css-var-reference-guard 9 + design-token-audit 13 零失败
+
 ## 周期 61 已交付（2026-11-16，自动周期第十三轮）
 
 - ✅ **UI-REFACTOR UR-4 字高收敛第二步：font-size 亚像素 10.5/11.5px token 化 + 修复 cycle-60 注释自引用缺陷** —— 新增 2 个亚像素 token `--fs-xs-half:10.5px`/`--fs-sm-half:11.5px`（等值保留零视觉变化）；迁移 3 处 `font-size:10.5/11.5px`→`var(--fs-xs-half/sm-half)`；**styles.css 真实 `font-size` 声明 268 处 var(--fs-*) + 25 处 rem/em/inherit（相对单位保留）+ 0 处原始 px**（绝对 px 100% token 化）。顺带还原 cycle-60 sed 污染的 13 条字号阶梯注释（`/* 原 font-size: var(--fs-*) ×M */`→`/* 原 font-size:Npx ×M */`，仅注释文本，token 值未受影响）。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit 10 + css-var-reference-guard 9 + design-token-audit 13 零失败。会计更正：cycle-60「278 处」含 13 条污染注释误匹配，真实为 265 处 → 本轮 268 处
