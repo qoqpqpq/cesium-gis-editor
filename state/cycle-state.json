@@ -1,10 +1,10 @@
 {
-  "current_cycle": 73,
+  "current_cycle": 74,
   "previous_cycle": 50,
   "last_run_status": "skipped",
-  "last_run_at": "2026-11-17T03:12:00+08:00",
+  "last_run_at": "2026-11-17T04:12:00+08:00",
   "cycle_started_at": "2026-11-17T01:12:00+08:00",
-  "cycle_completed_at": "2026-11-17T03:12:00+08:00",
+  "cycle_completed_at": "2026-11-17T04:12:00+08:00",
   "current_round": 2,
   "round_status": "completed",
   "round_completed_at": "2026-10-17T23:45:00+08:00",
@@ -1116,12 +1116,12 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 73,
-    "acquired_at": "2026-11-17T03:12:00+08:00",
-    "released_at": "2026-11-17T03:12:00+08:00",
+    "cycle": 74,
+    "acquired_at": "2026-11-17T04:12:00+08:00",
+    "released_at": "2026-11-17T04:12:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "completed",
   "await_confirm_reason": null,
-  "skip_reason": "延续 cycle-72：UR-2 纯自动化已完成，剩余 UR-3/UR-4 项需设计拍板或视觉 QA，无量化可验证入口，且无新用户指令"
+  "skip_reason": "第3轮连续同因跳过：UR-2 纯自动化已完成，剩余 UR-3/UR-4 项需设计拍板或视觉 QA；无新用户指令；无周期性维护任务到期（磁盘23%、无待清理产物）"
 }
