@@ -112,6 +112,18 @@
   --gap-2: 12px;
   --gap-3: 18px;
   --gap-4: 24px;
+  /* 细间距档（UR-2 步骤5 收敛：组件规则实际值，等值零视觉变化）
+     命名带 px 后缀以避开已占用的 --gap-1..4 语义档（8/12/18/24px）；
+     值命名、非语义档，间距语义阶梯待设计拍板（UR-3 待办）。 */
+  --gap-1px: 1px;   /* 原 gap:1px ×2 */
+  --gap-2px: 2px;   /* 原 gap:2px ×6 */
+  --gap-3px: 3px;   /* 原 gap:3px ×2 */
+  --gap-4px: 4px;   /* 原 gap:4px ×24 + row-gap:4px ×1 */
+  --gap-5px: 5px;   /* 原 gap:5px ×2 */
+  --gap-6px: 6px;   /* 原 gap:6px ×50 */
+  --gap-10px: 10px; /* 原 gap:10px ×13 */
+  --gap-14px: 14px; /* 原 gap:14px ×4 */
+  --gap-16px: 16px; /* 原 gap:16px ×2 */
   /* 动效 */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --duration: 0.25s;
@@ -198,7 +210,7 @@ p {
 .brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--gap-14px);
 }
 .brand-logo {
   width: 40px;
@@ -224,12 +236,12 @@ p {
 }
 .nav {
   display: flex;
-  gap: 4px;
+  gap: var(--gap-4px);
 }
 .nav-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 8px 14px;
   border-radius: var(--radius-pill);
   color: var(--text-soft);
@@ -254,7 +266,7 @@ p {
 .theme-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 6px 12px;
   margin-left: 12px;
   background: var(--toggle-bg);
@@ -301,7 +313,7 @@ p {
 .ai-key-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 6px 12px;
   background: var(--toggle-bg);
   color: var(--text);
@@ -374,7 +386,7 @@ p {
 .usage-panel-select {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   font-size: 0.85rem;
   color: var(--text-soft);
 }
@@ -483,7 +495,7 @@ p {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .usage-session {
   background: var(--card-strong);
@@ -572,7 +584,7 @@ p {
 }
 .footer-links {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 4px;
@@ -661,7 +673,7 @@ textarea.input {
 }
 .row {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-1);
   align-items: center;
   margin: 8px 0;
   flex-wrap: wrap;
@@ -670,7 +682,7 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--gap-1);
   margin: 8px 0;
 }
 .divider {
@@ -818,14 +830,14 @@ textarea.input {
 }
 .hero-cta {
   display: flex;
-  gap: 10px;
+  gap: var(--gap-10px);
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
 .hero-cta a {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 7px 14px;
   border-radius: var(--radius-pill);
   background: var(--white-06);
@@ -845,7 +857,7 @@ textarea.input {
 .stat-strip {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
+  gap: var(--gap-10px);
   padding: 12px;
   background: var(--white-04);
   border: 1px solid var(--border);
@@ -854,7 +866,7 @@ textarea.input {
 .stat {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-1);
   padding: 6px 10px;
   border-radius: var(--radius-sm);
   transition: background-color var(--duration) var(--ease);
@@ -869,7 +881,7 @@ textarea.input {
 .stat-body {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--gap-1px);
   min-width: 0;
 }
 .stat-num {
@@ -906,7 +918,7 @@ textarea.input {
 
 .tabs {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   margin-bottom: 14px;
   background: var(--white-2);
   border: 1px solid var(--white-06);
@@ -935,7 +947,7 @@ textarea.input {
 .article-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
+  gap: var(--gap-14px);
 }
 .article-card {
   display: block;
@@ -1010,7 +1022,7 @@ textarea.input {
 }
 .article-meta {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-1);
   align-items: center;
   justify-content: space-between;
   margin-top: 12px;
@@ -1019,7 +1031,7 @@ textarea.input {
 .works-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
+  gap: var(--gap-14px);
 }
 .work-card {
   background: var(--surface);
@@ -1067,7 +1079,7 @@ textarea.input {
 }
 .work-tech {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   flex-wrap: wrap;
   margin: 8px 0 0;
 }
@@ -1078,7 +1090,7 @@ textarea.input {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-1);
 }
 .moment-item {
   background: var(--surface);
@@ -1102,7 +1114,7 @@ textarea.input {
 }
 .moment-meta {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-1);
   align-items: center;
   flex-wrap: wrap;
   margin-top: 6px;
@@ -1114,7 +1126,7 @@ textarea.input {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-1);
 }
 .recommend-item {
   background: var(--surface);
@@ -1136,7 +1148,7 @@ textarea.input {
 }
 .recommend-meta {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-1);
   align-items: center;
   margin-top: 6px;
   flex-wrap: wrap;
@@ -1162,7 +1174,7 @@ textarea.input {
   box-shadow: var(--shadow-sm);
 }
 .gh-card-title {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: var(--gap-1);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-xl);
 }
@@ -1174,7 +1186,7 @@ textarea.input {
 }
 .gh-list {
   list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-10px);
 }
 @media (max-width: 900px) { .gh-list { grid-template-columns: 1fr; } }
 .gh-row {
@@ -1185,7 +1197,7 @@ textarea.input {
   transition: background-color var(--duration) var(--ease),
               border-color var(--duration) var(--ease),
               transform var(--duration) var(--ease);
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: var(--gap-6px);
 }
 .gh-row:hover {
   background: var(--primary-06);
@@ -1193,7 +1205,7 @@ textarea.input {
   transform: translateY(-2px);
 }
 .gh-row-head {
-  display: flex; align-items: baseline; gap: 8px;
+  display: flex; align-items: baseline; gap: var(--gap-1);
   min-width: 0;
 }
 .gh-msg {
@@ -1210,7 +1222,7 @@ textarea.input {
   background: var(--ink-30); padding: 1px 6px; border-radius: var(--radius-4);
 }
 .gh-row-meta {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: var(--gap-6px);
   font-size: var(--fs-md); color: var(--text-soft);
 }
 .gh-avatar {
@@ -1239,7 +1251,7 @@ textarea.input {
 }
 .article-tags {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   flex-wrap: wrap;
   margin: 10px 0 20px;
 }
@@ -1290,7 +1302,7 @@ textarea.input {
   display: grid;
   grid-template-columns: 280px 1fr;
   grid-template-rows: 1fr;
-  gap: 16px;
+  gap: var(--gap-16px);
   height: calc(100vh - 200px);
   min-height: 540px;
 }
@@ -1312,7 +1324,7 @@ textarea.input {
 .preset-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .preset-btn {
   background: var(--white-06);
@@ -1373,7 +1385,7 @@ textarea.input {
 .ai-page {
   display: grid;
   grid-template-columns: 320px 1fr;
-  gap: 16px;
+  gap: var(--gap-16px);
   min-height: calc(100vh - 200px);
 }
 @media (max-width: 900px) {
@@ -1407,7 +1419,7 @@ textarea.input {
 .model-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .model-chip {
   display: flex;
@@ -1464,7 +1476,7 @@ textarea.input {
 .key-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .key-item {
   display: flex;
@@ -1486,7 +1498,7 @@ textarea.input {
 .key-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2px);
 }
 .key-remark {
   font-size: var(--fs-md);
@@ -1545,7 +1557,7 @@ textarea.input {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .session-item {
   background: var(--white-04);
@@ -1578,7 +1590,7 @@ textarea.input {
   margin: 8px 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--gap-2);
 }
 .chat-empty {
   text-align: center;
@@ -1586,7 +1598,7 @@ textarea.input {
 }
 .msg {
   display: flex;
-  gap: 10px;
+  gap: var(--gap-10px);
   align-items: flex-start;
 }
 .msg-role {
@@ -1619,7 +1631,7 @@ textarea.input {
 .chat-input {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-1);
 }
 
 /* ============================================================
@@ -1782,7 +1794,7 @@ textarea.input {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--gap-1);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -1850,7 +1862,7 @@ textarea.input {
   padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap-10px);
   overflow: hidden;
 }
 .ai-panel-header {
@@ -1871,7 +1883,7 @@ textarea.input {
 .example-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--gap-4px);
   margin-top: 6px;
 }
 .chip {
@@ -1906,7 +1918,7 @@ textarea.input {
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-1);
 }
 
 /* 输入框区域也要避免滚动链冒泡 */
@@ -1922,13 +1934,13 @@ textarea.input {
   background: var(--panel-soft);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
   overscroll-behavior: contain;
 }
 .nl-bar-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   flex-wrap: wrap;
 }
 .nl-bar-secondary {
@@ -1947,7 +1959,7 @@ textarea.input {
 .nl-bar-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--gap-4px);
 }
 .nl-result {
   font-size: var(--fs-md);
@@ -1961,12 +1973,12 @@ textarea.input {
 .nl-result-summary { font-weight: var(--fw-semibold); margin-bottom: 4px; }
 .nl-result-rule { font-family: ui-monospace, monospace; font-size: var(--fs-md); padding: 1px 0; }
 .nl-result-hints { font-size: var(--fs-sm); color: var(--text-soft, var(--color-gray-500)); margin-top: 4px; }
-.nl-result-actions { display: flex; gap: 6px; margin-top: 6px; }
+.nl-result-actions { display: flex; gap: var(--gap-6px); margin-top: 6px; }
 
 .nl-suggestions {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-4px);
   max-height: 220px;
   overflow: auto;
 }
@@ -1978,7 +1990,7 @@ textarea.input {
 .nl-suggestion {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--gap-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-6);
   padding: 6px 8px;
@@ -1990,7 +2002,7 @@ textarea.input {
 }
 .nl-suggestion:hover { border-color: var(--accent, var(--accent-500)); background: var(--panel-soft, rgba(90,209,255,.06)); }
 .nl-suggestion-icon { font-size: var(--fs-2xl); flex: 0 0 20px; text-align: center; }
-.nl-suggestion-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.nl-suggestion-text { display: flex; flex-direction: column; gap: var(--gap-1px); flex: 1; min-width: 0; }
 .nl-suggestion-label { font-weight: var(--fw-semibold); color: var(--text, #222); }
 .nl-suggestion-reason { color: var(--text-soft, var(--color-gray-500)); }
 
@@ -2025,7 +2037,7 @@ textarea.input {
 
 .ai-msg {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-1);
   align-items: flex-start;
 }
 .ai-msg-role {
@@ -2062,7 +2074,7 @@ textarea.input {
   padding-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .ai-input-box .input {
   resize: none;
@@ -2077,13 +2089,13 @@ textarea.input {
 .ai-file-previews {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 
 .ai-file-preview-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-4px);
   background: var(--white-08);
   border: 1px solid var(--border);
   border-radius: var(--radius-6);
@@ -2121,7 +2133,7 @@ textarea.input {
 .gis-main {
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 12px;
+  gap: var(--gap-2);
   min-height: 0;
   min-width: 0;
 }
@@ -2164,7 +2176,7 @@ textarea.input {
   z-index: 30;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-10px);
   padding: 8px 12px;
   background: var(--overlay-85);
   border: 1px solid var(--white-08);
@@ -2226,7 +2238,7 @@ textarea.input {
   right: 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
   z-index: 70;
   pointer-events: none;
   max-width: 360px;
@@ -2237,7 +2249,7 @@ textarea.input {
 .ai-status-banner {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-10px);
   padding: 8px 12px;
   margin-bottom: 8px;
   background: var(--surface);
@@ -2263,7 +2275,7 @@ textarea.input {
 .ai-status-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2px);
   min-width: 0;
 }
 .ai-status-text strong {
@@ -2435,7 +2447,7 @@ textarea.input {
 .ai-tool-head {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 6px 10px;
   background: var(--white-04);
   border-bottom: 1px solid var(--primary-15);
@@ -2572,7 +2584,7 @@ textarea.input {
 .ai-auto-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--gap-5px);
   font-size: var(--fs-sm);
   color: var(--text-soft);
   cursor: pointer;
@@ -2598,7 +2610,7 @@ textarea.input {
 /* AI 消息级操作行（一键应用按钮） */
 .ai-msg-actions {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   margin-top: 8px;
   padding-top: 6px;
   border-top: 1px dashed var(--white-08);
@@ -2608,7 +2620,7 @@ textarea.input {
 .ai-tool-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--gap-4px);
   align-items: center;
   margin-top: 8px;
   padding: 6px 8px;
@@ -2626,7 +2638,7 @@ textarea.input {
 .ai-tool-chip {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: var(--gap-3px);
   font-size: var(--fs-sm);
   font-family: 'SFMono-Regular', Consolas, 'Courier New', monospace;
   padding: 2px 7px;
@@ -2664,7 +2676,7 @@ textarea.input {
 .ai-diff-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-10px);
   padding: 8px 12px;
   background: var(--ai-code-head-bg);
   border-bottom: 1px solid var(--ai-code-border);
@@ -2676,7 +2688,7 @@ textarea.input {
 }
 .ai-diff-stats {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   flex: 1;
 }
 .diff-stat {
@@ -2904,7 +2916,7 @@ textarea.input {
 }
 .ai-modal-meta {
   display: flex;
-  gap: 10px;
+  gap: var(--gap-10px);
   align-items: center;
   padding: 10px 16px;
   font-size: var(--fs-md);
@@ -2964,7 +2976,7 @@ textarea.input {
   padding: 12px 16px;
   border-top: 1px solid var(--border);
   display: flex;
-  gap: 8px;
+  gap: var(--gap-1);
   justify-content: flex-end;
   background: var(--ink-15);
 }
@@ -2973,7 +2985,7 @@ textarea.input {
 .ai-example-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--gap-6px);
   margin-top: 12px;
   justify-content: center;
 }
@@ -3066,16 +3078,16 @@ textarea.input {
   background: linear-gradient(180deg, var(--surface-dark-4) 0%, var(--surface-dark-3) 100%);
   border-bottom: 1px solid var(--surface-dark-8);
   flex-shrink: 0;
-  gap: 6px;
+  gap: var(--gap-6px);
   /* 窄列宽时自动换行，避免右侧按钮被挤出可见区 */
   flex-wrap: wrap;
-  row-gap: 4px;
+  row-gap: var(--gap-4px);
 }
 .toolbar-left,
 .toolbar-right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-4px);
   flex-wrap: wrap;
 }
 .toolbar-divider {
@@ -3089,7 +3101,7 @@ textarea.input {
 .sandcastle-run-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--gap-5px);
   padding: 5px 12px;
   background: linear-gradient(180deg, var(--color-green-flat) 0%, #27ae60 100%);
   color: var(--on-accent-fg);
@@ -3182,7 +3194,7 @@ textarea.input {
 /* 控制台统计徽章 */
 .console-stats {
   display: flex;
-  gap: 4px;
+  gap: var(--gap-4px);
   margin-right: 4px;
 }
 .stat-badge {
@@ -3304,13 +3316,13 @@ textarea.input {
 .verification-results {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: var(--gap-3px);
 }
 .verification-row {
   display: grid;
   grid-template-columns: 14px 1fr auto;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 2px 0;
   font-size: var(--fs-sm-half);
 }
@@ -3355,7 +3367,7 @@ textarea.input {
   color: #d6dceb;
   cursor: pointer;
   text-align: left;
-  gap: 2px;
+  gap: var(--gap-2px);
   font: inherit;
 }
 .code-context-menu .ctx-item:not(:disabled):hover {
@@ -3428,7 +3440,7 @@ textarea.input {
 .console-title {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
   color: var(--text-soft);
@@ -3457,7 +3469,7 @@ textarea.input {
 .output-line {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--gap-1);
   padding: 3px 0;
   border-bottom: 1px dashed var(--white-04);
   line-height: var(--lh-normal);
@@ -3592,7 +3604,7 @@ textarea.input {
   width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-1);
   font-size: var(--fs-md);
   font-family: inherit;
 }
@@ -3652,12 +3664,12 @@ textarea.input {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-4px);
 }
 .loaded-files li {
   display: grid;
   grid-template-columns: 1fr auto auto auto auto auto;
-  gap: 6px;
+  gap: var(--gap-6px);
   align-items: center;
   padding: 4px 6px;
   border-radius: var(--radius-6);
@@ -3744,18 +3756,18 @@ textarea.input {
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--gap-2);
 }
 .col-picker-mode {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
   font-size: var(--fs-md);
 }
 .col-picker-mode label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   cursor: pointer;
   padding: 4px 6px;
   border-radius: var(--radius-4);
@@ -3767,12 +3779,12 @@ textarea.input {
 .col-picker-fields {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-1);
 }
 .col-picker-fields label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-1);
   font-size: var(--fs-md);
 }
 .col-picker-fields .lbl {
@@ -3813,7 +3825,7 @@ textarea.input {
 .col-picker-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--gap-1);
   padding-top: 6px;
   border-top: 1px dashed var(--white-08);
 }
@@ -3979,14 +3991,14 @@ textarea.input {
 .editor-tool-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 
 .editor-tool-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-4px);
   padding: 8px 4px;
   background: var(--white-04);
   border: 1px solid var(--white-08);
@@ -4034,7 +4046,7 @@ textarea.input {
   border-radius: var(--radius-6);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-4px);
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   font-size: var(--fs-md);
   color: var(--warn);
@@ -4044,13 +4056,13 @@ textarea.input {
 .editor-snap-row {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-4px);
 }
 
 .editor-snap-toggle {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   font-size: var(--fs-md);
   color: var(--text);
   cursor: pointer;
@@ -4065,7 +4077,7 @@ textarea.input {
 .editor-snap-tol-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-1);
   margin-top: 6px;
 }
 
@@ -4123,7 +4135,7 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: var(--gap-6px);
   margin-bottom: 18px;
   padding: 12px 8px;
   background: var(--primary-08);
@@ -4162,7 +4174,7 @@ textarea.input {
 .editor-simplify-slider {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 
 .editor-simplify-eps {
@@ -4198,7 +4210,7 @@ textarea.input {
 .editor-modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--gap-1);
   padding: 12px 16px;
   border-top: 1px solid var(--white-08);
 }
@@ -4255,14 +4267,14 @@ textarea.input {
 .editor-layer-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--gap-4px);
   align-items: center;
 }
 
 .editor-layer-tab {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-4px);
   padding: 4px 8px;
   background: var(--white-04);
   border: 1px solid var(--white-08);
@@ -4309,7 +4321,7 @@ textarea.input {
 .editor-layer-tree {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-4px);
 }
 .editor-layer-row {
   background: var(--white-04);
@@ -4327,7 +4339,7 @@ textarea.input {
 .editor-layer-header {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-4px);
   padding: 5px 8px;
   font-size: var(--fs-sm);
   cursor: pointer;
@@ -4377,7 +4389,7 @@ textarea.input {
 .editor-feature-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-4px);
   padding: 3px 6px;
   font-size: var(--fs-xs);
   color: var(--text-soft);
@@ -4413,7 +4425,7 @@ textarea.input {
 .editor-feature-row .icon-btn:hover { opacity: 1; }
 .editor-layer-bulk-actions {
   display: flex;
-  gap: 4px;
+  gap: var(--gap-4px);
   padding: 4px 6px 2px;
   border-top: 1px dashed var(--white-08);
   margin-top: 2px;
@@ -4464,7 +4476,7 @@ textarea.input {
 .editor-action-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: var(--gap-10px);
 }
 .editor-action-row .btn-link {
   background: none;
@@ -4522,7 +4534,7 @@ textarea.input {
 .editor-style-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-1);
   margin-bottom: 6px;
 }
 .editor-style-row label {
@@ -4576,7 +4588,7 @@ textarea.input {
 .editor-feature-list li {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 4px 6px;
   border-radius: var(--radius-6);
   font-size: var(--fs-sm);
@@ -4629,7 +4641,7 @@ textarea.input {
   z-index: 30;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 6px 12px;
   background: var(--overlay-85);
   border: 1px solid var(--white-08);
@@ -4645,7 +4657,7 @@ textarea.input {
 }
 .editor-coord-format-toggle {
   display: flex;
-  gap: 2px;
+  gap: var(--gap-2px);
   align-self: flex-start;
   background: var(--white-06);
   border: 1px solid var(--white-06);
@@ -4676,7 +4688,7 @@ textarea.input {
 .editor-coord-display {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2px);
 }
 .editor-coord-text {
   color: var(--on-accent-fg);
@@ -4698,7 +4710,7 @@ textarea.input {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: var(--gap-14px);
   padding: 6px 12px;
   font-size: var(--fs-md);
   background: var(--header-bg);
@@ -4718,7 +4730,7 @@ textarea.input {
   background: transparent;
   border: none;
   padding: 0;
-  gap: 2px;
+  gap: var(--gap-2px);
 }
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-fmt-btn {
   padding: 3px 9px;
@@ -4729,7 +4741,7 @@ textarea.input {
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-display {
   flex-direction: row;
   align-items: center;
-  gap: 18px;
+  gap: var(--gap-3);
   flex: 1;
   justify-content: flex-end;
   flex-wrap: nowrap;
@@ -4737,7 +4749,7 @@ textarea.input {
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-cell {
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: var(--gap-6px);
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   white-space: nowrap;
   flex-shrink: 0;
@@ -4783,7 +4795,7 @@ textarea.input {
   border-color: transparent;
 }
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-cell--state .editor-coord-cell-value {
-  gap: 4px;
+  gap: var(--gap-4px);
   display: inline-flex;
   align-items: center;
 }
@@ -4801,7 +4813,7 @@ textarea.input {
   z-index: 30;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap-10px);
   align-items: flex-start;
 }
 .cesium-topbar-left .imagery-opacity-control {
@@ -4843,7 +4855,7 @@ textarea.input {
 }
 .attr-table-actions {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .attr-table-btn {
   background: var(--primary-16);
@@ -4924,12 +4936,12 @@ textarea.input {
   color: var(--text);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .query-builder-head {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap-2);
   flex-wrap: wrap;
 }
 .query-builder-title {
@@ -4938,19 +4950,19 @@ textarea.input {
 }
 .query-builder-combinator {
   display: flex;
-  gap: 10px;
+  gap: var(--gap-10px);
   align-items: center;
 }
 .query-builder-combinator label {
   display: inline-flex;
-  gap: 4px;
+  gap: var(--gap-4px);
   align-items: center;
   cursor: pointer;
   color: var(--text-soft);
 }
 .query-builder-actions {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   margin-left: auto;
 }
 .query-builder-empty {
@@ -4965,11 +4977,11 @@ textarea.input {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-4px);
 }
 .query-builder-rule {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   align-items: center;
   background: var(--card);
   padding: 4px 6px;
@@ -4998,7 +5010,7 @@ textarea.input {
 .qb-value-none { color: var(--muted); font-style: italic; padding: 0 8px; }
 .qb-bbox {
   display: flex;
-  gap: 4px;
+  gap: var(--gap-4px);
 }
 .qb-bbox input {
   width: 78px;
@@ -5041,7 +5053,7 @@ textarea.input {
 .attr-col-menu-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 4px 10px;
   cursor: pointer;
 }
@@ -5071,7 +5083,7 @@ textarea.input {
 }
 .attr-add-field-bar {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   align-items: center;
   padding: 6px 10px;
   background: var(--white-04);
@@ -5209,12 +5221,12 @@ textarea.input {
   padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap-10px);
 }
 .analysis-row {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-4px);
 }
 .analysis-row label {
   font-size: var(--fs-sm);
@@ -5246,7 +5258,7 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--gap-1);
   background: var(--white-04);
   border: 1px solid var(--white-10);
   border-radius: var(--radius-4);
@@ -5355,7 +5367,7 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--gap-1);
   padding: 8px 12px;
   cursor: pointer;
   font-size: var(--fs-base);
@@ -5379,7 +5391,7 @@ textarea.input {
 }
 .analysis-actions {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   justify-content: flex-end;
   margin-top: 6px;
 }
@@ -5429,12 +5441,12 @@ textarea.input {
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-1);
 }
 .print-export-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-1);
 }
 .print-export-row > label {
   min-width: 60px;
@@ -5459,7 +5471,7 @@ textarea.input {
 }
 .print-export-size {
   display: flex;
-  gap: 4px;
+  gap: var(--gap-4px);
   align-items: center;
   flex: 1;
 }
@@ -5473,7 +5485,7 @@ textarea.input {
 .print-export-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: var(--gap-6px);
 }
 .print-export-grid .attr-table-btn {
   padding: 8px 6px;
@@ -5552,7 +5564,7 @@ textarea.input {
 }
 .error-boundary-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-1);
   justify-content: center;
 }
 .error-boundary-retry {
@@ -5607,7 +5619,7 @@ textarea.input {
 .analysis-server-toggle {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   margin-top: 6px;
   padding: 4px 6px;
   font-size: var(--fs-sm);
@@ -5698,7 +5710,7 @@ textarea.input {
 
 .three-check-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-1);
   margin-bottom: 10px;
 }
 
@@ -5747,7 +5759,7 @@ textarea.input {
 .three-check-card-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-6px);
   margin-bottom: 4px;
 }
 
@@ -5772,7 +5784,7 @@ textarea.input {
 
 .three-check-item {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-6px);
   padding: 3px 0;
   font-size: var(--fs-sm);
   border-bottom: 1px solid var(--white-04);
