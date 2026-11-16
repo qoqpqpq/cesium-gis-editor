@@ -19,6 +19,13 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 71 已交付（2026-11-17，自动周期第二十三轮）
+
+- ✅ **UI-REFACTOR UR-2 步骤8：`letter-spacing` 字距 scale 收敛**（等值零视觉变化）—— 审计：24 处 / 9 值（`0.5px`×7、`0.05em`×3、`1px`×3、`0.3px`×3、`0.4px`×3、`0.02em`×2、`-0.4px`×1、`2px`×1、`0.2px`×1），全原始 → 新增 **9 个值命名 token** `--ls-0-5px`/`--ls-0-05em`/`--ls-1px`/`--ls-0-3px`/`--ls-0-4px`/`--ls-0-02em`/`--ls-neg-0-4px`/`--ls-2px`/`--ls-0-2px`，24 处 → `var(--ls-*)`，原始值 **24→0**（100%）。回归 css-duplication-audit **20/20**（新增 **A20**：原始值 0 + 无裸自定义属性 + **token 名无下划线**（与 css-var-reference-guard 兼容性硬约束）+ 无 `)undefined`；负向验证：原始值注入 FAIL / 下划线名注入 FAIL / 还原 20/20）+ css-var-reference-guard 9/9 + design-token-audit 13/13；括号平衡 910/910；**`vite build` ✓ 6.23s**（503 modules，CSS 124.91 kB）。等值零视觉变化、双主题未破
+- ⚠️ **C71-B01（已修复）**：首版 token 名用下划线 `--ls-0_5px`，与 guard 的 var 名正则 `[a-zA-Z0-9-]+` 不兼容 → B1/B5 FAIL（`--ls-0` 未定义）；重命名 27 处（7 定义 + 20 引用）为纯连字符名，guard 恢复 9/9。**教训**：token 名必须与 css-var-reference-guard 的 var 名正则一致（纯 `[a-zA-Z0-9-]`、无下划线）；A20 已固化该断言
+- 📌 **UR-2 纯自动化 scale 已全部完成**（字号/字重/行高/圆角/gap/padding-margin 单值/阴影重复值/字距）。**剩余项均需设计拍板或视觉 QA**：字距/间距语义阶梯、26 处单次 box-shadow、单次色与 alpha 变体归并（UR-1 余量）、`--shadow-sm/md/lg` 双文件不等价、多值简写复合 token（padding 212+margin 47）、`index.jsx` 视觉密度精简（1100 行）—— 归 UR-3
+- ⏭️ **下一轮建议**：UR-2 无纯迁移任务 → 待人工设计拍板后再推进 UR-3；或由人工指定新任务（如 `index.jsx` 视觉密度精简需评审）
+
 ## 周期 70 已交付（2026-11-17，自动周期第二十二轮）
 
 - ✅ **UI-REFACTOR UR-2 步骤7：`box-shadow` 重复值 scale 收敛**（等值零视觉变化）—— 审计：box-shadow 42 处/31 值（9 处已 `var(--shadow-sm/md/lg)`）。重复值（≥2 次）仅 2 个共 **7 处**：`0 12px 40px var(--ink-50)`×5（浮层面板：file-loader-popup/analysis-panel/print-export-panel 等）、`0 1px 4px var(--ink-30)`×2 → 新增 **2 个值命名 token** `--shadow-12-40-ink50`/`--shadow-1-4-ink30`；重复原始值 **7→0**，`var(--shadow-*)` 引用 9→16。**26 处单次 box-shadow 值**（状态环/`--primary-*` 光晕等，组件专属）留 UR-3 设计拍板。回归 css-duplication-audit **19/19**（新增 **A19**：重复 ≥2 次 box-shadow 原始值 0 + 无裸自定义属性 + 无 `)undefined`；负向验证：注入 1 处不触发 <2 阈值、注入 2 处 FAIL、还原 19/19）+ css-var-reference-guard 9/9 + design-token-audit 13/13；括号平衡 910/910；**`vite build` ✓ 6.18s**（503 modules，CSS 124.49 kB）。等值零视觉变化、双主题未破
