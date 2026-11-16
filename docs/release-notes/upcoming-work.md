@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 66 已交付（2026-11-16，自动周期第十八轮）
+
+- ✅ **UI-REFACTOR UR-1 色值收敛：状态/图表色 token 化（复用色全部收口）** —— 新增 10 个状态/图表色 token `--color-blue-300:#93c5fd`/`--color-blue-400:#60a5fa`/`--color-cyan-300:#67e8f9`/`--color-green-300:#86efac`/`--color-green-500:#22c55e`/`--color-green-flat:#2ecc71`/`--color-orange-300:#fdba74`/`--color-rose-300:#fda4af`/`--color-red-300:#fca5a5`/`--color-red-700:#b91c1c`（沿用 cycle-64 确立的 `--color-<hue>-<shade>` 命名约定与 Tailwind 色板档位，等值零视觉变化；`#2ecc71` 为 Flat UI Emerald 非 Tailwind 档，单列 `--color-green-flat`）；迁移 **23 处**状态/图表色（含 `--accent`、`--danger-border` 的回退位）；组件硬编码色值 **221→202**（hex 89→70；相对 cycle-38 基线 366 → **−45%**）。**UR-1 复用色（≥2 次）至此全部 token 化收口**：中性色 7 + 深色表面 9 + 状态色 10 = 26 个新 token / 迁移 72 处。余量 202 中 rgb 占 132（alpha 变体 183 值中 29 个 ≥2 次，多为单次用途的覆盖层/边框/阴影），归一需先定「alpha 阶梯语义」并配视觉 QA（会改变半透明观感，属视觉变化），与单次色（68 hex 值）归并同列 **UR-3** 待办。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit **15/15**（新增 A15「状态/图表色已 token 化」）+ css-var-reference-guard 9 + design-token-audit 13 零失败
+
 ## 周期 65 已交付（2026-11-16，自动周期第十七轮）
 
 - ✅ **UI-REFACTOR UR-1 色值收敛：深色表面 token 化** —— 新增 9 个深色表面 token `--surface-dark-0:#0b0d11`~`--surface-dark-8:#2a3142`（0=最深→8=最浅，取当前实际值等值零视觉变化）；迁移 **24 处**深色表面/边框色（`#0d1117`×3 + `#1a1f2b`×3 + `#1f2937`×3 + `#2a3142`×5 + `#0f1219`×2 + `#0b0d11`×2 + `#11141a`×2 + `#161a23`×2 + `#181c25`×2，含 `--surface-0/1/2`、`--card-strong`、`--panel-bg` 的回退位→`var(--token, var(--surface-dark-*))`）；组件硬编码色值 **238→221**（hex 106→89；相对 cycle-38 基线 366 → **−40%**）。`docs/guides/ur1-color-convergence-proposal.md` 已更新：剩余复用色仅剩**状态/图表色**（Tailwind 系 ~23 处，需设计定 `--chart-*`/`--status-*` 色板）与单次色（68 值，建议 UR-3 归并）。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit **14/14**（新增 A14「深色表面已 token 化」）+ css-var-reference-guard 9 + design-token-audit 13 零失败
