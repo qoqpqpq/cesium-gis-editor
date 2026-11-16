@@ -19,6 +19,12 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 69 已交付（2026-11-16，自动周期第二十一轮）
+
+- ✅ **UI-REFACTOR UR-2 步骤6：`padding`/`margin` 族单值 scale 收敛**（等值零视觉变化）—— 审计：padding 单值 49（含 `0`×16 清零）+ margin 单值 88（含 `0`×18、`auto`×3）；排除清零/auto/var 后**可迁移 102 处**（padding 32 + margin 70）。迁移 **102 处**→ `var(--gap-*)`（等值复用既有档：`6px`×26/`4px`×23/`8px`×16/`12px`×12/`10px`×7/`14px`×4/`16px`×4/`2px`×3/`1px`×2/`18px`×1/`24px`×1 + 新增 3 档 `--gap-20px`/`--gap-28px`/`--gap-30px`×各1）。padding/margin 单值原始值 **102→0**。**多值简写 259 处（padding 212/75 组合 + margin 47/35 组合）无法用单 token 表达**，需复合/方向性 token 设计决策（UR-3 待办）。回归 css-duplication-audit **18/18**（新增 **A18**：padding/margin 单值 0 + 无裸自定义属性 + 无 `)undefined`，负向注入验证 FAIL 后还原）+ css-var-reference-guard 9/9 + design-token-audit 13/13；括号平衡 910/910；**`vite build` ✓ 6.46s**（503 modules，CSS 124.40 kB）。等值零视觉变化、双主题未破
+- ⚠️ **C69-B01（已规避）**：首版迁移脚本 `[^;}]*?` 惰性量词先匹配空值、回调返回原串后正则不再重试 → 0 迁移；改贪婪 `[^;}]*` + 回调内 `/\s/` 判别单值/多值（多值不动）后成功迁移 102 处。教训与 C68-B02/03 同源：**脚本化迁移必须以 `vite build` 为最终闸门**，A17/A18 已固化「无裸自定义属性」「无 `)undefined`」两项负向断言
+- ⏭️ **遗留**：多值简写收敛（259 处，需复合 token 设计拍板）；间距语义阶梯 `--gap-*px`→语义档；阴影 scale 审计；`index.jsx` 视觉密度精简（1100 行）—— 均归 UR-2 收尾 / UR-3 待办
+
 ## 周期 68 已交付（2026-11-16，自动周期第二十轮）
 
 - ✅ **UI-REFACTOR UR-2 步骤5：`gap` 间距 scale 收敛**（等值零视觉变化）—— `gap`/`row-gap`/`column-gap` 审计：声明 153 处，其中 140 处 `gap` + 1 处 `row-gap` 为原始 px 值（仅 12 处已 `var` 化）。新增 **9 个 token** `--gap-1px:1px`/`--gap-2px:2px`/`--gap-3px:3px`/`--gap-4px:4px`/`--gap-5px:5px`/`--gap-6px:6px`/`--gap-10px:10px`/`--gap-14px:14px`/`--gap-16px:16px`（取组件实际值）+ 复用既有 `--gap-1`(8px)×30/`--gap-2`(12px)×4/`--gap-3`(18px)×1；迁移 **141 处**。`gap` 族原始值 **141→0**，153/153 **100% var 化**。**命名决策**：既有 `--gap-1..4` 已占用纯数字后缀（8/12/18/24px 语义档），新增档一律用 `px` 后缀值命名以避命名冲突，并注释「值命名、非语义档」。回归 css-duplication-audit **17/17**（新增 **A17**：gap 原始值 0 + 无裸自定义属性 + 无 `)undefined`，已做双向负向注入验证）+ css-var-reference-guard 9/9 + design-token-audit 13/13；括号平衡 910/910；**`vite build` ✓ 6.25s**（503 modules，CSS 123.30 kB）。等值零视觉变化、双主题未破
