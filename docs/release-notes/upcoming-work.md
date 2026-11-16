@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 72 已跳过（2026-11-17，自动周期第二十四轮）
+
+- ⏭️ **skipped**：无可执行任务。UR-2 纯自动化 scale（字号/字重/行高/圆角/gap/padding-margin 单值/阴影重复值/字距）已全部完成；UR-3/UR-4 剩余项（字距/间距语义阶梯、26 处单次 box-shadow、单次色与 alpha 变体归并、`--shadow-sm/md/lg` 双文件不等价、多值简写复合 token、`index.jsx` 视觉密度精简）均需**设计拍板或视觉 QA**，无量化可验证的纯迁移入口。**不启动、不造需求**。待人工给出设计方向或指定任务后，下一轮再续。
+
 ## 周期 71 已交付（2026-11-17，自动周期第二十三轮）
 
 - ✅ **UI-REFACTOR UR-2 步骤8：`letter-spacing` 字距 scale 收敛**（等值零视觉变化）—— 审计：24 处 / 9 值（`0.5px`×7、`0.05em`×3、`1px`×3、`0.3px`×3、`0.4px`×3、`0.02em`×2、`-0.4px`×1、`2px`×1、`0.2px`×1），全原始 → 新增 **9 个值命名 token** `--ls-0-5px`/`--ls-0-05em`/`--ls-1px`/`--ls-0-3px`/`--ls-0-4px`/`--ls-0-02em`/`--ls-neg-0-4px`/`--ls-2px`/`--ls-0-2px`，24 处 → `var(--ls-*)`，原始值 **24→0**（100%）。回归 css-duplication-audit **20/20**（新增 **A20**：原始值 0 + 无裸自定义属性 + **token 名无下划线**（与 css-var-reference-guard 兼容性硬约束）+ 无 `)undefined`；负向验证：原始值注入 FAIL / 下划线名注入 FAIL / 还原 20/20）+ css-var-reference-guard 9/9 + design-token-audit 13/13；括号平衡 910/910；**`vite build` ✓ 6.23s**（503 modules，CSS 124.91 kB）。等值零视觉变化、双主题未破
