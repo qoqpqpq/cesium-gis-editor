@@ -425,7 +425,7 @@ html.theme-transitioning *::after {
 /* 亮主题下 Cesium 控件适配 */
 :root[data-theme="light"] #cesiumContainer,
 :root[data-theme="light"] .cesium-viewer {
-  background-color: #ffffff;
+  background-color: var(--color-white);
 }
 :root[data-theme="light"] .cesium-viewer-bottom,
 :root[data-theme="light"] .cesium-widget-credits {
@@ -472,7 +472,7 @@ html.theme-transitioning *::after {
               border-color var(--theme-transition-duration) var(--theme-transition-ease);
 }
 :root[data-theme="light"] .cesium-toolbar-button:hover {
-  background: #ffffff;
+  background: var(--color-white);
   border-color: var(--primary);
 }
 

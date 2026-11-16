@@ -57,6 +57,14 @@
   --lh-loose: 1.7;   /* 原 line-height:1.7 ×3 */
   --lh-155: 1.55;    /* 原 line-height:1.55 ×7（档外值，待归一化） */
   --lh-185: 1.85;    /* 原 line-height:1.85 ×1（档外值，待归一化） */
+  /* ===== 中性色(UR-1 收敛: 取当前实际值, 等值零视觉变化) ===== */
+  --color-white: #fff;      /* 原 #fff/#ffffff 同值 */
+  --color-black: #000;      /* 原 #000 ×2 */
+  --color-gray-300: #d1d5db; /* 原 #d1d5db ×2 */
+  --color-gray-500: #888;   /* 原 #888 ×8 */
+  --color-gray-600: #4b5563; /* 原 #4b5563 ×2 */
+  --color-slate-100: #f1f5f9; /* 原 #f1f5f9 ×2 */
+  --color-slate-400: #94a3b8; /* 原 #94a3b8 ×6 */
   /* 形状 */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -917,8 +925,8 @@ textarea.input {
   border-radius: var(--radius-lg);
   padding: 1px;
   background: linear-gradient(135deg, transparent 40%, var(--primary-35) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(var(--color-white) 0 0) content-box, linear-gradient(var(--color-white) 0 0);
+  mask: linear-gradient(var(--color-white) 0 0) content-box, linear-gradient(var(--color-white) 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
@@ -1703,7 +1711,7 @@ textarea.input {
   transform: translate(-50%, -50%);
   width: 2px;
   height: 32px;
-  background: #4b5563;
+  background: var(--color-gray-600);
   border-radius: 1px;
   transition: background 0.15s;
 }
@@ -1897,7 +1905,7 @@ textarea.input {
 .nl-bar-label {
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
-  color: var(--text-soft, #888);
+  color: var(--text-soft, var(--color-gray-500));
 }
 .nl-bar-input {
   flex: 1 1 200px;
@@ -1914,13 +1922,13 @@ textarea.input {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 8px;
-  background: var(--panel, #fff);
+  background: var(--panel, var(--color-white));
 }
 .nl-result-error { border-color: #ff7875; background: rgba(255,77,79,.05); }
 .nl-result-ok { border-color: var(--accent, var(--accent-500)); }
 .nl-result-summary { font-weight: var(--fw-semibold); margin-bottom: 4px; }
 .nl-result-rule { font-family: ui-monospace, monospace; font-size: var(--fs-md); padding: 1px 0; }
-.nl-result-hints { font-size: var(--fs-sm); color: var(--text-soft, #888); margin-top: 4px; }
+.nl-result-hints { font-size: var(--fs-sm); color: var(--text-soft, var(--color-gray-500)); margin-top: 4px; }
 .nl-result-actions { display: flex; gap: 6px; margin-top: 6px; }
 
 .nl-suggestions {
@@ -1932,7 +1940,7 @@ textarea.input {
 }
 .nl-suggestions-empty {
   font-size: var(--fs-sm);
-  color: var(--text-soft, #888);
+  color: var(--text-soft, var(--color-gray-500));
   padding: 4px 0;
 }
 .nl-suggestion {
@@ -1942,7 +1950,7 @@ textarea.input {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 6px 8px;
-  background: var(--panel, #fff);
+  background: var(--panel, var(--color-white));
   cursor: pointer;
   text-align: left;
   font-size: var(--fs-md);
@@ -1952,7 +1960,7 @@ textarea.input {
 .nl-suggestion-icon { font-size: var(--fs-2xl); flex: 0 0 20px; text-align: center; }
 .nl-suggestion-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
 .nl-suggestion-label { font-weight: var(--fw-semibold); color: var(--text, #222); }
-.nl-suggestion-reason { color: var(--text-soft, #888); }
+.nl-suggestion-reason { color: var(--text-soft, var(--color-gray-500)); }
 
 .nl-bar-report { position: relative; }
 .nl-report-menu {
@@ -1962,7 +1970,7 @@ textarea.input {
   margin-top: 4px;
   z-index: 100;
   width: 260px;
-  background: var(--panel, #fff);
+  background: var(--panel, var(--color-white));
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 8px;
@@ -2101,12 +2109,12 @@ textarea.input {
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border);
-  background: #000;
+  background: var(--color-black);
 }
 .cesium-host {
   position: absolute;
   inset: 0;
-  background: #000;
+  background: var(--color-black);
 }
 .cesium-host .cesium-viewer-bottom,
 .cesium-host .cesium-widget-credits {
@@ -2985,7 +2993,7 @@ textarea.input {
   margin: 4px 0 0;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   font-size: var(--fs-sm);
-  color: #d1d5db;
+  color: var(--color-gray-300);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -3202,7 +3210,7 @@ textarea.input {
 .dock-vsplitter-handle {
   width: 40px;
   height: 2px;
-  background: #4b5563;
+  background: var(--color-gray-600);
   border-radius: 1px;
   pointer-events: none;
   transition:
@@ -3461,7 +3469,7 @@ textarea.input {
   color: #93c5fd;
 }
 .output-text {
-  color: #d1d5db;
+  color: var(--color-gray-300);
   flex: 1;
   word-break: break-word;
 }
@@ -3673,7 +3681,7 @@ textarea.input {
 }
 .all-layers-hint {
   font-size: var(--fs-xs);
-  color: var(--muted, #888);
+  color: var(--muted, var(--color-gray-500));
   font-weight: var(--fw-normal);
 }
 .all-layers-hint code {
@@ -3737,7 +3745,7 @@ textarea.input {
 }
 .col-picker-fields .lbl {
   min-width: 80px;
-  color: var(--muted, #888);
+  color: var(--muted, var(--color-gray-500));
 }
 .col-picker-fields select {
   flex: 1;
@@ -3794,7 +3802,7 @@ textarea.input {
 .col-picker-actions .btn-link {
   background: none;
   border: none;
-  color: var(--muted, #888);
+  color: var(--muted, var(--color-gray-500));
   cursor: pointer;
   padding: 5px 10px;
   font-size: var(--fs-md);
@@ -4055,7 +4063,7 @@ textarea.input {
 
 .editor-modal {
   background: var(--panel-bg, #1f2937);
-  color: var(--text, #f1f5f9);
+  color: var(--text, var(--color-slate-100));
   border: 1px solid var(--white-10);
   border-radius: 10px;
   width: 360px;
@@ -4097,7 +4105,7 @@ textarea.input {
 
 .editor-simplify-stats .stat-label {
   font-size: var(--fs-xs);
-  color: var(--muted, #94a3b8);
+  color: var(--muted, var(--color-slate-400));
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -4107,7 +4115,7 @@ textarea.input {
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   font-size: var(--fs-3xl);
   font-weight: var(--fw-semibold);
-  color: var(--text, #f1f5f9);
+  color: var(--text, var(--color-slate-100));
 }
 
 .editor-simplify-stats .stat-val.accent {
@@ -4115,7 +4123,7 @@ textarea.input {
 }
 
 .editor-simplify-stats .stat-arrow {
-  color: var(--muted, #94a3b8);
+  color: var(--muted, var(--color-slate-400));
   font-size: var(--fs-lg);
 }
 
@@ -4133,7 +4141,7 @@ textarea.input {
 }
 
 .editor-simplify-eps .muted {
-  color: var(--muted, #94a3b8);
+  color: var(--muted, var(--color-slate-400));
 }
 
 .editor-simplify-eps .val {
@@ -4152,7 +4160,7 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   font-size: var(--fs-xs);
-  color: var(--muted, #94a3b8);
+  color: var(--muted, var(--color-slate-400));
 }
 
 .editor-modal-footer {
@@ -4643,7 +4651,7 @@ textarea.input {
   font-size: var(--fs-md);
 }
 .editor-coord-height {
-  color: var(--muted, #888);
+  color: var(--muted, var(--color-gray-500));
   font-size: var(--fs-xs);
 }
 
@@ -5495,7 +5503,7 @@ textarea.input {
 }
 .error-boundary-message {
   margin: 0 0 12px;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted, var(--color-slate-400));
   font-size: var(--fs-lg);
   line-height: var(--lh-normal);
 }
@@ -5549,7 +5557,7 @@ textarea.input {
 }
 .editor-error-message {
   margin: 0 0 8px;
-  color: var(--text-muted, #94a3b8);
+  color: var(--text-muted, var(--color-slate-400));
   font-size: var(--fs-md);
   line-height: var(--lh-snug);
 }
