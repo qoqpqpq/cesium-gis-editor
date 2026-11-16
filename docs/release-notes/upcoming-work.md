@@ -19,6 +19,12 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 68 已交付（2026-11-16，自动周期第二十轮）
+
+- ✅ **UI-REFACTOR UR-2 步骤5：`gap` 间距 scale 收敛**（等值零视觉变化）—— `gap`/`row-gap`/`column-gap` 审计：声明 153 处，其中 140 处 `gap` + 1 处 `row-gap` 为原始 px 值（仅 12 处已 `var` 化）。新增 **9 个 token** `--gap-1px:1px`/`--gap-2px:2px`/`--gap-3px:3px`/`--gap-4px:4px`/`--gap-5px:5px`/`--gap-6px:6px`/`--gap-10px:10px`/`--gap-14px:14px`/`--gap-16px:16px`（取组件实际值）+ 复用既有 `--gap-1`(8px)×30/`--gap-2`(12px)×4/`--gap-3`(18px)×1；迁移 **141 处**。`gap` 族原始值 **141→0**，153/153 **100% var 化**。**命名决策**：既有 `--gap-1..4` 已占用纯数字后缀（8/12/18/24px 语义档），新增档一律用 `px` 后缀值命名以避命名冲突，并注释「值命名、非语义档」。回归 css-duplication-audit **17/17**（新增 **A17**：gap 原始值 0 + 无裸自定义属性 + 无 `)undefined`，已做双向负向注入验证）+ css-var-reference-guard 9/9 + design-token-audit 13/13；括号平衡 910/910；**`vite build` ✓ 6.25s**（503 modules，CSS 123.30 kB）。等值零视觉变化、双主题未破
+- ⚠️ **本轮自纠 2 处脚本缺陷（已修复 + 加护栏）** —— **C68-B01** token 定义行守卫写成 `m.slice(0,0)` 恒为空（死代码）→ 定义行**行尾注释**里的 `gap:4px ×24` 文本被误迁 10 处，回滚重做为逐行跳过定义行/块注释行；**C68-B02/B03** 替换漏 `var()` 包裹 → 141 处裸自定义属性使 postcss 报 `Missed semicolon`，补修时 `px?`（=「`p`+可选`x`」）漏匹配 35 处、内层分组 `(px)?` 又使回调参数位错位拼出 `var(--gap-1)undefined` 并吞掉分号。教训：三门 spec 只看「var 是否已定义」，看不出「值是否被 var() 包裹」，**生产构建才是脚本化迁移的最终闸门**（A17 已固化两项负向断言）
+- ⏭️ **遗留**：padding/margin/margin-top/margin-bottom 收敛（padding 原始 246 / margin 67 / margin-top 29 / margin-bottom 28）多值简写占比高需逐值核对；间距**语义阶梯**（`--gap-*px` 数值档 → 语义档）与 UR-1 的 alpha 变体归一、单次色归并同为需设计拍板的 **UR-3** 待办；阴影 scale 尚未审计
+
 ## 周期 67 已交付（2026-11-16，自动周期第十九轮）
 
 - ✅ **UI-REFACTOR UR-2 步骤4：圆角 scale 收敛**（等值零视觉变化）—— `border-radius` 审计：183 条声明 / 20 个不同值，其中单值原始 px/% **156 处未收敛**（既有阶梯 `--radius-sm/md/lg/xl` 仅覆盖 22 处）。新增 **9 个 token**（`--radius-1:1px`/`--radius-3:3px`/`--radius-4:4px`/`--radius-5:5px`/`--radius-6:6px`/`--radius-9:9px`/`--radius-10:10px`/`--radius-full:50%`/`--radius-pill:999px`，取组件规则实际值）+ 复用既有 `--radius-sm`（`8px`×26）/`--radius-md`（`12px`×10，零新增 token）；迁移 **156 处**（`6px`×32/`4px`×27/`8px`×26/`10px`×22/`3px`×17/`999px`×10/`12px`×10/`50%`×6/`9px`×2/`5px`×2/`1px`×2）。单值原始 px/% 声明 **156→4**，已 token 化引用 22→**178**。仅处理「单值 + 非 var() + 非多值简写」声明，`0 6px 6px 0` 多值简写与 4 个单次档（`2px`/`14px`/`22px`/`28px`）刻意保持原样。回归：css-duplication-audit **16/16**（新增 **A16**「border-radius 单值已 token 化」）+ css-var-reference-guard **9/9** + design-token-audit **13/13**；括号平衡 **910/910**；**`vite build` ✓ 6.42s**（503 modules，CSS 121.68 kB）证明 CSS 可编译。等值零视觉变化、双主题未破
