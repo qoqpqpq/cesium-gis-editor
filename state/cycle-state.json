@@ -1,7 +1,7 @@
 {
-  "current_cycle": 57,
+  "current_cycle": 58,
   "previous_cycle": 50,
-  "last_run_status": "completed",
+  "last_run_status": "skipped",
   "last_run_at": "2026-11-16T11:15:00+08:00",
   "cycle_started_at": "2026-11-16T08:40:00+08:00",
   "cycle_completed_at": "2026-11-16T11:15:00+08:00",
@@ -1101,6 +1101,12 @@
       "status": "completed",
       "summary": "修 5 过时 spec(PP×3+protocol×2)+顺带1;全量失败 9→3;对准真实实现非弱化",
       "ts": "2026-11-16T09:05:00+08:00"
+    },
+    {
+      "cycle": 58,
+      "status": "skipped",
+      "summary": "TD-5501 剩余3项均需用户决策;metadata sync=TDD待实现非改名;诚实跳过",
+      "ts": "2026-11-16T12:14:00+08:00"
     }
   ],
   "rounds_completed": 0,
@@ -1110,10 +1116,10 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 57,
-    "released_at": "2026-11-16T09:05:00+08:00"
+    "cycle": 58,
+    "released_at": "2026-11-16T12:14:00+08:00"
   },
   "status": "completed",
   "await_confirm_reason": null,
-  "skip_reason": null
+  "skip_reason": "TD-5501 剩余3项(metadata sync=TDD待实现/maintenance=缺文档/viewstate=缺client依赖)均需用户定方向,无安全可自动化项"
 }

@@ -545,3 +545,17 @@ UR-1/UR-2 中「可安全自动化、等值零视觉变化、可离线验证」�
 
 ### 验收
 全量 spec：**失败文件 9 → 3**（metadata-ip-maintenance、metadata-ip-sync-script、viewstate-browser-decompress，均为 TD-5501 暂缓项）。无新增回归。
+
+<!-- ===== cycle 58 (2026-11-16, model: sensenova-6.8-flash) ===== -->
+## Cycle 58 — skipped（TD-5501 剩余 3 项均需用户决策，无安全可自动化项）
+
+**状态**: skipped（零代码改动）　**模型**: sensenova-6.8-flash
+
+### 评估
+TD-5501 剩余 3 个失败，逐一评估可自动化性：
+- **metadata-ip-sync-script.cjs**：**非简单 API 改名**——spec 为更完整功能所写(TDD 待实现)：期望脚本含 `isMetadataIp`(云 metadata IP 运行时验证)/`ssrf-guard`/`parseMarkdownTable`/`parseSourceSet`，输出 `isMetadataIp('169.254.169.254')=true`、IPv4/IPv6 文档一致性 PASS；实际脚本只有 parseMarkdown/parseCsv/parseJson/parse/sync，**无 IP 验证逻辑**。对齐=实现整套 metadata IP 验证功能(涉安全语义+设计判断) → 超出无人值守边界。
+- **metadata-ip-maintenance.cjs**：缺 `docs/guides/metadata-ips.md` → 补文档 vs 删 spec，需用户定。
+- **viewstate-browser-decompress.cjs**：缺 `client/node_modules/pako` → 装 client 依赖，需用户定。
+
+### 结论
+TD-5501 中「安全对齐现实」的 spec 修复已在前两轮做完(6/9)。剩余 3 项**全部需用户先定方向**（实现功能/补文档/删 spec/装依赖），无安全可自动化项 → 诚实 skipped，禁止凭空造需求。
