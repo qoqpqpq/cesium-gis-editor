@@ -48,6 +48,15 @@
   --fw-semibold: 600;   /* 原 font-weight:600 ×50 */
   --fw-bold: 700;       /* 原 font-weight:bold ×2 + 700 ×6 */
   --fw-extrabold: 800;  /* 原 font-weight:800 ×1 */
+  /* ===== 行高阶梯(UR-4 方案A: 取当前实际值, 等值零视觉变化; 归一化留方案B/视觉QA) ===== */
+  --lh-none: 1;      /* 原 line-height:1 ×7 */
+  --lh-tight: 1.1;   /* 原 line-height:1.1 ×1 */
+  --lh-snug: 1.4;    /* 原 line-height:1.4 ×6 */
+  --lh-normal: 1.5;  /* 原 line-height:1.5 ×6 */
+  --lh-relaxed: 1.6; /* 原 line-height:1.6 ×6 */
+  --lh-loose: 1.7;   /* 原 line-height:1.7 ×3 */
+  --lh-155: 1.55;    /* 原 line-height:1.55 ×7（档外值，待归一化） */
+  --lh-185: 1.85;    /* 原 line-height:1.85 ×1（档外值，待归一化） */
   /* 形状 */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -124,7 +133,7 @@ h4 {
   margin: 0 0 0.4em;
 }
 p {
-  line-height: 1.7;
+  line-height: var(--lh-loose);
 }
 
 /* ====== 布局 ====== */
@@ -231,7 +240,7 @@ p {
 }
 .theme-toggle-icon {
   font-size: var(--fs-lg);
-  line-height: 1;
+  line-height: var(--lh-none);
 }
 .theme-toggle-label {
   font-size: var(--fs-md);
@@ -275,7 +284,7 @@ p {
 }
 .ai-key-btn-icon {
   font-size: var(--fs-lg);
-  line-height: 1;
+  line-height: var(--lh-none);
 }
 .ai-key-btn-label {
   font-size: var(--fs-md);
@@ -765,7 +774,7 @@ textarea.input {
   color: var(--text-soft);
   margin: 0 0 14px;
   font-size: var(--fs-lg);
-  line-height: 1.6;
+  line-height: var(--lh-relaxed);
 }
 .hero-cta {
   display: flex;
@@ -815,7 +824,7 @@ textarea.input {
 }
 .stat-icon {
   font-size: var(--fs-3xl);
-  line-height: 1;
+  line-height: var(--lh-none);
 }
 .stat-body {
   display: flex;
@@ -830,7 +839,7 @@ textarea.input {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  line-height: 1.1;
+  line-height: var(--lh-tight);
 }
 .stat-label {
   color: var(--text-soft);
@@ -943,7 +952,7 @@ textarea.input {
   font-size: var(--fs-xl);
   font-weight: var(--fw-semibold);
   margin-bottom: 6px;
-  line-height: 1.4;
+  line-height: var(--lh-snug);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -952,7 +961,7 @@ textarea.input {
 .article-summary {
   color: var(--text-soft);
   font-size: var(--fs-base);
-  line-height: 1.55;
+  line-height: var(--lh-155);
   min-height: 38px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1014,7 +1023,7 @@ textarea.input {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.5;
+  line-height: var(--lh-normal);
 }
 .work-tech {
   display: flex;
@@ -1044,7 +1053,7 @@ textarea.input {
   border-color: var(--primary-20);
 }
 .moment-content {
-  line-height: 1.6;
+  line-height: var(--lh-relaxed);
   font-size: var(--fs-lg);
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -1101,7 +1110,7 @@ textarea.input {
   color: var(--text-soft);
   font-size: var(--fs-md);
   margin-top: 6px;
-  line-height: 1.5;
+  line-height: var(--lh-normal);
 }
 
 /* ====== GitHub 仓库更新（主页） ====== */
@@ -1200,7 +1209,7 @@ textarea.input {
   margin: 1em 0 0.5em;
 }
 .markdown p {
-  line-height: 1.85;
+  line-height: var(--lh-185);
 }
 .markdown pre {
   background: var(--ink-40);
@@ -1560,7 +1569,7 @@ textarea.input {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px 12px;
-  line-height: 1.7;
+  line-height: var(--lh-loose);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -1626,7 +1635,7 @@ textarea.input {
 .ai-scene-desc-body {
   color: var(--text);
   font-size: 0.92rem;
-  line-height: 1.55;
+  line-height: var(--lh-155);
   max-height: 180px;
   overflow-y: auto;
 }
@@ -1998,7 +2007,7 @@ textarea.input {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 8px 10px;
-  line-height: 1.55;
+  line-height: var(--lh-155);
   font-size: var(--fs-base);
   flex: 1;
   min-width: 0;
@@ -2063,7 +2072,7 @@ textarea.input {
   cursor: pointer;
   padding: 0;
   font-size: var(--fs-xs);
-  line-height: 1;
+  line-height: var(--lh-none);
 }
 .ai-file-remove:hover { color: var(--danger); }
 
@@ -2311,7 +2320,7 @@ textarea.input {
 .ai-msg-text {
   white-space: pre-wrap;
   word-break: break-word;
-  line-height: 1.55;
+  line-height: var(--lh-155);
 }
 .ai-msg-text.pending {
   opacity: 0.85;
@@ -2358,7 +2367,7 @@ textarea.input {
   margin: 0;
   padding: 10px 12px;
   font-size: var(--fs-md);
-  line-height: 1.55;
+  line-height: var(--lh-155);
   max-height: 360px;
   /* 长代码软换行 + 禁掉横向滚动：窄列里也只纵向滚 */
   overflow-x: hidden;
@@ -2656,7 +2665,7 @@ textarea.input {
   border-collapse: collapse;
   font-family: inherit;
   font-size: var(--fs-md);
-  line-height: 1.55;
+  line-height: var(--lh-155);
   table-layout: fixed;
 }
 .diff-side {
@@ -2705,7 +2714,7 @@ textarea.input {
   font-family: inherit;
   background: transparent;
   font-size: var(--fs-md);
-  line-height: 1.55;
+  line-height: var(--lh-155);
   white-space: pre-wrap;
   word-break: break-all;
 }
@@ -2737,7 +2746,7 @@ textarea.input {
   padding: 8px 12px;
   margin: 6px 0;
   font-size: var(--fs-base);
-  line-height: 1.6;
+  line-height: var(--lh-relaxed);
 }
 .ai-plan-tag {
   display: inline-block;
@@ -2754,7 +2763,7 @@ textarea.input {
 /* 简单 Markdown */
 .md-p {
   margin: 6px 0;
-  line-height: 1.6;
+  line-height: var(--lh-relaxed);
 }
 .md-h {
   margin: 10px 0 6px;
@@ -2779,7 +2788,7 @@ textarea.input {
 .md-ul li,
 .md-ol li {
   margin: 2px 0;
-  line-height: 1.6;
+  line-height: var(--lh-relaxed);
 }
 .md-code {
   background: rgba(125, 211, 252, 0.12);
@@ -2877,7 +2886,7 @@ textarea.input {
   overflow: auto;
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   font-size: var(--fs-md);
-  line-height: 1.6;
+  line-height: var(--lh-relaxed);
   background: #0f1219;
   padding: 8px 0;
 }
@@ -3071,7 +3080,7 @@ textarea.input {
 }
 .run-icon {
   font-size: var(--fs-sm);
-  line-height: 1;
+  line-height: var(--lh-none);
 }
 .run-label {
   letter-spacing: 0.3px;
@@ -3088,7 +3097,7 @@ textarea.input {
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   letter-spacing: 0.3px;
   opacity: 0.9;
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 
 /* 示例下拉 */
@@ -3279,7 +3288,7 @@ textarea.input {
   border-top: 1px dashed var(--white-12);
   color: var(--white-65);
   font-size: var(--fs-sm);
-  line-height: 1.5;
+  line-height: var(--lh-normal);
 }
 
 /* ===== 代码右键菜单（CodeMirror 上 contextmenu 拦截）===== */
@@ -3393,7 +3402,7 @@ textarea.input {
 .console-empty {
   padding: 24px 20px;
   text-align: center;
-  line-height: 1.7;
+  line-height: var(--lh-loose);
   color: var(--text-meta);
 }
 .output-list {
@@ -3411,7 +3420,7 @@ textarea.input {
   gap: 8px;
   padding: 3px 0;
   border-bottom: 1px dashed var(--white-04);
-  line-height: 1.5;
+  line-height: var(--lh-normal);
 }
 .output-time {
   flex-shrink: 0;
@@ -3577,7 +3586,7 @@ textarea.input {
   color: var(--muted);
   font-size: var(--fs-xs);
   font-family: "JetBrains Mono", "SF Mono", monospace;
-  line-height: 1.5;
+  line-height: var(--lh-normal);
   word-break: break-all;
 }
 
@@ -3962,7 +3971,7 @@ textarea.input {
 }
 .editor-tool-icon {
   font-size: var(--fs-3xl);
-  line-height: 1;
+  line-height: var(--lh-none);
 }
 .editor-tool-label {
   font-size: var(--fs-sm);
@@ -4243,7 +4252,7 @@ textarea.input {
   color: var(--text-soft);
   cursor: pointer;
   font-size: var(--fs-lg);
-  line-height: 1;
+  line-height: var(--lh-none);
 }
 .editor-layer-add:hover {
   border-color: var(--accent);
@@ -4409,7 +4418,7 @@ textarea.input {
   border-radius: 3px;
   font-size: var(--fs-xs);
   color: var(--text-soft);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 
 .editor-action-row {
@@ -5434,7 +5443,7 @@ textarea.input {
 .print-export-hint {
   color: var(--muted);
   font-size: var(--fs-xs-half);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 .print-export-result {
   margin-top: 6px;
@@ -5488,7 +5497,7 @@ textarea.input {
   margin: 0 0 12px;
   color: var(--text-muted, #94a3b8);
   font-size: var(--fs-lg);
-  line-height: 1.5;
+  line-height: var(--lh-normal);
 }
 .error-boundary-detail {
   background: var(--surface-1, #0d1117);
@@ -5542,7 +5551,7 @@ textarea.input {
   margin: 0 0 8px;
   color: var(--text-muted, #94a3b8);
   font-size: var(--fs-md);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 .editor-error-reset {
   background: var(--accent, var(--accent-500));
@@ -5644,7 +5653,7 @@ textarea.input {
 .three-check-hint {
   font-size: var(--fs-sm);
   color: var(--muted);
-  line-height: 1.4;
+  line-height: var(--lh-snug);
 }
 
 .three-check-actions {
