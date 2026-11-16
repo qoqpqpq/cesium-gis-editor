@@ -102,6 +102,19 @@ function runJson() {
     const raw = j.topDecl.filter((d) => /^line-height:/.test(d.decl) && !/var\(--lh-/.test(d.decl));
     assert.strictEqual(raw.length, 0, `仍有未 token 化 line-height: ${raw.map((d) => d.decl).join(', ')}`);
   });
+  await ok('A13: 中性色已 token 化（UR-1 中性色迁移生效）', () => {
+    const fs = require('fs');
+    const re = /(?<![0-9a-fA-F])(?:#888|#94a3b8|#4b5563|#d1d5db|#f1f5f9|#000|#fff)(?![0-9a-fA-F])/g;
+    const bad = [];
+    for (const f of ['client/src/styles.css', 'client/src/theme.css']) {
+      const lines = fs.readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').split('\n');
+      for (const l of lines) {
+        if (/^\s*--[a-zA-Z0-9-]+:/.test(l)) continue; // token 定义跳过
+        if (l.match(re)) bad.push(`${f}: ${l.trim()}`);
+      }
+    }
+    assert.strictEqual(bad.length, 0, `仍有未 token 化中性色: ${bad.join(' | ')}`);
+  });
 
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
