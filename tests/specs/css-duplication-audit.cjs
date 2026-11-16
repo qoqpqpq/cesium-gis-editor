@@ -129,6 +129,20 @@ function runJson() {
     assert.strictEqual(bad.length, 0, `仍有未 token 化深色表面: ${bad.join(' | ')}`);
   });
 
+  await ok('A15: 状态/图表色已 token 化（UR-1 状态色迁移生效）', () => {
+    const fs = require('fs');
+    const re = /(?<![0-9a-fA-F])(?:#93c5fd|#60a5fa|#67e8f9|#86efac|#22c55e|#2ecc71|#fdba74|#fda4af|#fca5a5|#b91c1c)(?![0-9a-fA-F])/g;
+    const bad = [];
+    for (const f of ['client/src/styles.css', 'client/src/theme.css']) {
+      const lines = fs.readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').split('\n');
+      for (const l of lines) {
+        if (/^\s*--[a-zA-Z0-9-]+:/.test(l)) continue; // token 定义跳过
+        if (l.match(re)) bad.push(`${f}: ${l.trim()}`);
+      }
+    }
+    assert.strictEqual(bad.length, 0, `仍有未 token 化状态/图表色: ${bad.join(' | ')}`);
+  });
+
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
 })().catch((e) => {

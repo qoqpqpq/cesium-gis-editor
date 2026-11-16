@@ -65,6 +65,17 @@
   --color-gray-600: #4b5563; /* 原 #4b5563 ×2 */
   --color-slate-100: #f1f5f9; /* 原 #f1f5f9 ×2 */
   --color-slate-400: #94a3b8; /* 原 #94a3b8 ×6 */
+  /* ===== 状态/图表色(UR-1 收敛: 按现有 --color-<hue>-<shade> 命名约定沿用 Tailwind 色板档位, 等值零视觉变化) ===== */
+  --color-blue-300: #93c5fd;   /* 原 #93c5fd ×3（图表/信息强调文字） */
+  --color-blue-400: #60a5fa;   /* 原 #60a5fa ×3（--accent 回退位） */
+  --color-cyan-300: #67e8f9;   /* 原 #67e8f9 ×2（信息状态） */
+  --color-green-300: #86efac;  /* 原 #86efac ×3（成功/正向状态） */
+  --color-green-500: #22c55e;  /* 原 #22c55e ×2（成功主色/accent-color） */
+  --color-green-flat: #2ecc71; /* 原 #2ecc71 ×2（Flat UI Emerald，非 Tailwind 档） */
+  --color-orange-300: #fdba74; /* 原 #fdba74 ×2（告警状态） */
+  --color-rose-300: #fda4af;   /* 原 #fda4af ×2（危险状态·浅） */
+  --color-red-300: #fca5a5;    /* 原 #fca5a5 ×2（危险状态·浅） */
+  --color-red-700: #b91c1c;    /* 原 #b91c1c ×2（危险渐变/--danger-border 回退位） */
   /* ===== 深色表面阶梯(UR-1 收敛: 取当前实际值, 等值零视觉变化; 0=最深 → 8=最浅) ===== */
   --surface-dark-0: #0b0d11; /* 原 #0b0d11 ×2 */
   --surface-dark-1: #0d1117; /* 原 #0d1117 ×3（--surface-0/1 回退位） */
@@ -2469,7 +2480,7 @@ textarea.input {
   border-bottom: none;
 }
 .tool-result-item a {
-  color: #93c5fd;
+  color: var(--color-blue-300);
   text-decoration: none;
   font-weight: var(--fw-medium);
   overflow-wrap: anywhere;
@@ -2610,18 +2621,18 @@ textarea.input {
   padding: 2px 7px;
   border-radius: 999px;
   background: var(--info-bg);
-  color: #67e8f9;
+  color: var(--color-cyan-300);
   border: 1px solid var(--info-border);
   cursor: default;
 }
 .ai-tool-chip.write {
   background: var(--warn-bg);
-  color: #fdba74;
+  color: var(--color-orange-300);
   border-color: var(--warn-border);
 }
 .ai-tool-chip.failed {
   background: var(--danger-soft-bg);
-  color: #fca5a5;
+  color: var(--color-red-300);
   border-color: var(--danger-soft-border);
   text-decoration: line-through;
 }
@@ -3008,7 +3019,7 @@ textarea.input {
   word-break: break-word;
 }
 .btn.danger {
-  background: linear-gradient(135deg, var(--danger), #b91c1c);
+  background: linear-gradient(135deg, var(--danger), var(--color-red-700));
   color: var(--on-accent-fg);
   border: none;
 }
@@ -3069,7 +3080,7 @@ textarea.input {
   align-items: center;
   gap: 5px;
   padding: 5px 12px;
-  background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%);
+  background: linear-gradient(180deg, var(--color-green-flat) 0%, #27ae60 100%);
   color: var(--on-accent-fg);
   border: 1px solid #229954;
   border-radius: 6px;
@@ -3081,7 +3092,7 @@ textarea.input {
   flex-shrink: 0;
 }
 .sandcastle-run-btn:hover:not(:disabled) {
-  background: linear-gradient(180deg, #58d68d 0%, #2ecc71 100%);
+  background: linear-gradient(180deg, #58d68d 0%, var(--color-green-flat) 100%);
   box-shadow: 0 2px 6px rgba(46, 204, 113, 0.45);
   transform: translateY(-1px);
 }
@@ -3259,12 +3270,12 @@ textarea.input {
 .verification-banner.pass {
   background: var(--success-bg);
   border-color: var(--success-border);
-  color: #86efac;
+  color: var(--color-green-300);
 }
 .verification-banner.fail {
   background: rgba(220, 38, 38, 0.12);
   border-color: rgba(220, 38, 38, 0.4);
-  color: #fda4af;
+  color: var(--color-rose-300);
 }
 .verification-headline {
   display: flex;
@@ -3345,7 +3356,7 @@ textarea.input {
   cursor: not-allowed;
 }
 .code-context-menu .ctx-item.ctx-error {
-  color: #fda4af;
+  color: var(--color-rose-300);
 }
 .code-context-menu .ctx-item.ctx-error:hover {
   background: rgba(220, 38, 38, 0.2);
@@ -3456,7 +3467,7 @@ textarea.input {
   text-align: center;
   border-radius: 3px;
   background: var(--surface-dark-7);
-  color: #93c5fd;
+  color: var(--color-blue-300);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 2px 0;
@@ -3476,7 +3487,7 @@ textarea.input {
 }
 .level-log .output-tag {
   background: var(--surface-dark-7);
-  color: #93c5fd;
+  color: var(--color-blue-300);
 }
 .output-text {
   color: var(--color-gray-300);
@@ -3702,7 +3713,7 @@ textarea.input {
 }
 .file-fmt.source-editor {
   background: var(--info-bg);
-  color: #67e8f9;
+  color: var(--color-cyan-300);
 }
 .file-fmt.source-sandbox {
   background: var(--accent-warm-bg);
@@ -3710,7 +3721,7 @@ textarea.input {
 }
 .file-fmt.source-datasource {
   background: var(--warn-bg);
-  color: #fdba74;
+  color: var(--color-orange-300);
 }
 
 /* ===== 列选择弹窗（CSV/XLSX 自动识别失败时的兜底 UI） ===== */
@@ -3894,8 +3905,8 @@ textarea.input {
 .et-tab:hover { color: var(--text); }
 
 .et-tab.active {
-  color: var(--accent, #60a5fa);
-  border-bottom-color: var(--accent, #60a5fa);
+  color: var(--accent, var(--color-blue-400));
+  border-bottom-color: var(--accent, var(--color-blue-400));
 }
 
 .et-tab-content {
@@ -3913,7 +3924,7 @@ textarea.input {
 }
 
 .et-highlight-section .editor-section-title {
-  color: var(--accent, #60a5fa);
+  color: var(--accent, var(--color-blue-400));
   margin-bottom: 4px;
 }
 
@@ -4129,7 +4140,7 @@ textarea.input {
 }
 
 .editor-simplify-stats .stat-val.accent {
-  color: #22c55e;
+  color: var(--color-green-500);
 }
 
 .editor-simplify-stats .stat-arrow {
@@ -4162,7 +4173,7 @@ textarea.input {
 
 .editor-simplify-slider input[type="range"] {
   width: 100%;
-  accent-color: #22c55e;
+  accent-color: var(--color-green-500);
   cursor: pointer;
 }
 
@@ -4843,7 +4854,7 @@ textarea.input {
 }
 .attr-table-btn.primary {
   background: var(--success-bg);
-  color: #86efac;
+  color: var(--color-green-300);
   border-color: var(--success-border);
 }
 .attr-table-btn.primary:hover {
@@ -4851,7 +4862,7 @@ textarea.input {
 }
 .attr-table-btn.danger {
   background: var(--danger-strong-bg);
-  color: #fca5a5;
+  color: var(--color-red-300);
   border-color: var(--danger-strong-border);
 }
 .attr-table-btn.danger:hover {
@@ -4869,7 +4880,7 @@ textarea.input {
 }
 .attr-saved-badge[data-state="saved"] {
   background: var(--success-bg);
-  color: #86efac;
+  color: var(--color-green-300);
 }
 .attr-saved-badge[data-state="none"] {
   background: var(--white-06);
@@ -5474,7 +5485,7 @@ textarea.input {
 }
 .print-export-result.error {
   background: var(--danger-bg, #7f1d1d);
-  border-color: var(--danger-border, #b91c1c);
+  border-color: var(--danger-border, var(--color-red-700));
   color: var(--level-error-fg);
 }
 .print-export-header .close,
