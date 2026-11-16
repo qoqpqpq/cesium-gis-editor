@@ -19,6 +19,11 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 67 已交付（2026-11-16，自动周期第十九轮）
+
+- ✅ **UI-REFACTOR UR-2 步骤4：圆角 scale 收敛**（等值零视觉变化）—— `border-radius` 审计：183 条声明 / 20 个不同值，其中单值原始 px/% **156 处未收敛**（既有阶梯 `--radius-sm/md/lg/xl` 仅覆盖 22 处）。新增 **9 个 token**（`--radius-1:1px`/`--radius-3:3px`/`--radius-4:4px`/`--radius-5:5px`/`--radius-6:6px`/`--radius-9:9px`/`--radius-10:10px`/`--radius-full:50%`/`--radius-pill:999px`，取组件规则实际值）+ 复用既有 `--radius-sm`（`8px`×26）/`--radius-md`（`12px`×10，零新增 token）；迁移 **156 处**（`6px`×32/`4px`×27/`8px`×26/`10px`×22/`3px`×17/`999px`×10/`12px`×10/`50%`×6/`9px`×2/`5px`×2/`1px`×2）。单值原始 px/% 声明 **156→4**，已 token 化引用 22→**178**。仅处理「单值 + 非 var() + 非多值简写」声明，`0 6px 6px 0` 多值简写与 4 个单次档（`2px`/`14px`/`22px`/`28px`）刻意保持原样。回归：css-duplication-audit **16/16**（新增 **A16**「border-radius 单值已 token 化」）+ css-var-reference-guard **9/9** + design-token-audit **13/13**；括号平衡 **910/910**；**`vite build` ✓ 6.42s**（503 modules，CSS 121.68 kB）证明 CSS 可编译。等值零视觉变化、双主题未破
+- ⏭️ **遗留**：半径**语义**阶梯归并（`--radius-1/3/4/5/6/9/10` 数值命名档 → 语义档）需设计拍板 + 视觉 QA，不属等值迁移；与 UR-1 的 alpha 变体归一、单次色归并同为 **UR-3** 待办
+
 ## 周期 66 已交付（2026-11-16，自动周期第十八轮）
 
 - ✅ **UI-REFACTOR UR-1 色值收敛：状态/图表色 token 化（复用色全部收口）** —— 新增 10 个状态/图表色 token `--color-blue-300:#93c5fd`/`--color-blue-400:#60a5fa`/`--color-cyan-300:#67e8f9`/`--color-green-300:#86efac`/`--color-green-500:#22c55e`/`--color-green-flat:#2ecc71`/`--color-orange-300:#fdba74`/`--color-rose-300:#fda4af`/`--color-red-300:#fca5a5`/`--color-red-700:#b91c1c`（沿用 cycle-64 确立的 `--color-<hue>-<shade>` 命名约定与 Tailwind 色板档位，等值零视觉变化；`#2ecc71` 为 Flat UI Emerald 非 Tailwind 档，单列 `--color-green-flat`）；迁移 **23 处**状态/图表色（含 `--accent`、`--danger-border` 的回退位）；组件硬编码色值 **221→202**（hex 89→70；相对 cycle-38 基线 366 → **−45%**）。**UR-1 复用色（≥2 次）至此全部 token 化收口**：中性色 7 + 深色表面 9 + 状态色 10 = 26 个新 token / 迁移 72 处。余量 202 中 rgb 占 132（alpha 变体 183 值中 29 个 ≥2 次，多为单次用途的覆盖层/边框/阴影），归一需先定「alpha 阶梯语义」并配视觉 QA（会改变半透明观感，属视觉变化），与单次色（68 hex 值）归并同列 **UR-3** 待办。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit **15/15**（新增 A15「状态/图表色已 token 化」）+ css-var-reference-guard 9 + design-token-audit 13 零失败

@@ -143,6 +143,30 @@ function runJson() {
     assert.strictEqual(bad.length, 0, `仍有未 token 化状态/图表色: ${bad.join(' | ')}`);
   });
 
+  await ok('A16: border-radius 单值已 token 化（UR-2 半径 scale 迁移生效）', () => {
+    const fs = require('fs');
+    let src = '';
+    for (const f of ['client/src/styles.css', 'client/src/theme.css']) {
+      src += fs.readFileSync(f, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '') + '\n';
+    }
+    // 单值、非 var()、非多值简写的原始 border-radius（含 token 定义行，定义行值形如 8px 但带前导 --radius 声明）
+    const re = /border-radius:\s*([^;)]+)/g;
+    const whitelist = new Set(['2px', '14px', '22px', '28px']); // 已记录的单次色档（设计语义待拍板，UR-2 收尾）
+    const raw = new Map();
+    let x;
+    while ((x = re.exec(src)) !== null) {
+      const v = x[0].replace(/border-radius:\s*/, '').trim();
+      if (v.includes(' ') || v.startsWith('var(')) continue;
+      raw.set(v, (raw.get(v) || 0) + 1);
+    }
+    const offenders = [...raw].filter(([v]) => !whitelist.has(v)).map(([v, n]) => `${v} x${n}`);
+    assert.strictEqual(
+      offenders.length,
+      0,
+      `仍存在未 token 化的单值 border-radius: ${offenders.join(', ')}`
+    );
+  });
+
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
 })().catch((e) => {
