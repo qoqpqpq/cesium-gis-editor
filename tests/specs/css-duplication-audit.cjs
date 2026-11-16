@@ -167,6 +167,41 @@ function runJson() {
     );
   });
 
+  await ok('A17: gap 族已 token 化且无裸自定义属性（UR-2 间距 scale 迁移生效）', () => {
+    const fs = require('fs');
+    let src = '';
+    for (const f of ['client/src/styles.css', 'client/src/theme.css']) {
+      // 逐行剔除 token 定义行（其行尾注释含 gap:Npx 文本，会被误计为组件用法）
+      const lines = fs.readFileSync(f, 'utf8').split('\n');
+      for (const l of lines) if (!/^\s*--[a-zA-Z0-9-]+:/.test(l)) src += l + '\n';
+    }
+    src = src.replace(/\/\*[\s\S]*?\*\//g, '');
+    // 1) gap/row-gap/column-gap 的原始值必须为 0（全部走 var(--gap-*)）
+    const re = /(^|[^\w-])(row-|column-)?gap:\s*([^\s;,)]+)/g;
+    const raw = new Map();
+    let x;
+    while ((x = re.exec(src)) !== null) {
+      const v = x[3];
+      if (v.startsWith('var(')) continue;
+      raw.set(v, (raw.get(v) || 0) + 1);
+    }
+    const offenders = [...raw].map(([v, n]) => `${v} x${n}`);
+    assert.strictEqual(
+      offenders.length,
+      0,
+      `仍存在未 token 化的 gap 原始值: ${offenders.join(', ')}`
+    );
+    // 2) 反 C68-B01：任何 gap 族值不得是裸自定义属性（未用 var() 包裹 → postcss 报 Missed semicolon）
+    const bare = src.match(/gap:\s*--gap-[0-9a-z]+/g);
+    assert.strictEqual(
+      bare ? bare.length : 0,
+      0,
+      `发现裸自定义属性引用（必须用 var() 包裹）: ${(bare || []).slice(0, 5).join(', ')}`
+    );
+    // 3) 反 C68-B02：脚本替换不得拼出 )undefined
+    assert.ok(!/\)undefined/.test(src), '发现 )undefined 替换污染');
+  });
+
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
 })().catch((e) => {
