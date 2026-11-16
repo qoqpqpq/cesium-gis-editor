@@ -42,6 +42,12 @@
   --fs-5xl: 28px;   /* 原 font-size:28px ×2 */
   --fs-6xl: 30px;   /* 原 font-size:30px ×1 */
   --fs-7xl: 40px;   /* 原 font-size:40px ×1 */
+  /* ===== 字重阶梯(UR-4 迁移: 取当前实际值, 等值零视觉变化) ===== */
+  --fw-normal: 400;     /* 原 font-weight:normal ×4 */
+  --fw-medium: 500;     /* 原 font-weight:500 ×13 */
+  --fw-semibold: 600;   /* 原 font-weight:600 ×50 */
+  --fw-bold: 700;       /* 原 font-weight:bold ×2 + 700 ×6 */
+  --fw-extrabold: 800;  /* 原 font-weight:800 ×1 */
   /* 形状 */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -157,7 +163,7 @@ p {
 }
 .brand-title {
   font-size: var(--fs-3xl);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   background: var(--brand-title-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -379,7 +385,7 @@ p {
 }
 .usage-card-value {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--text);
   font-variant-numeric: tabular-nums;
 }
@@ -408,7 +414,7 @@ p {
 }
 .usage-table th {
   color: var(--text-soft);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -469,7 +475,7 @@ p {
 }
 .usage-session-cost {
   color: var(--accent);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 .usage-session-rounds {
   color: var(--muted);
@@ -545,7 +551,7 @@ p {
   padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
 }
-.card-header h3 { margin: 0; font-size: var(--fs-2xl); font-weight: 600; }
+.card-header h3 { margin: 0; font-size: var(--fs-2xl); font-weight: var(--fw-semibold); }
 .btn {
   background: var(--card-strong);
   color: var(--text);
@@ -747,7 +753,7 @@ textarea.input {
 }
 .hero-info h1 {
   font-size: var(--fs-5xl);
-  font-weight: 800;
+  font-weight: var(--fw-extrabold);
   margin-bottom: 6px;
   letter-spacing: -0.4px;
   background: linear-gradient(90deg, #f1f4ff 30%, var(--text-soft));
@@ -777,7 +783,7 @@ textarea.input {
   border: 1px solid var(--border);
   color: var(--text);
   font-size: var(--fs-base);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   text-decoration: none;
   transition: all var(--duration) var(--ease);
 }
@@ -819,7 +825,7 @@ textarea.input {
 }
 .stat-num {
   font-size: var(--fs-2xl);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   background: linear-gradient(90deg, var(--accent), var(--primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -867,7 +873,7 @@ textarea.input {
   border-radius: 9px;
   cursor: pointer;
   font-size: var(--fs-lg);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   transition: all 0.2s ease;
 }
 .tab:hover { color: var(--text); background: var(--white-04); }
@@ -935,7 +941,7 @@ textarea.input {
 }
 .article-title {
   font-size: var(--fs-xl);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   margin-bottom: 6px;
   line-height: 1.4;
   display: -webkit-box;
@@ -996,7 +1002,7 @@ textarea.input {
   padding: 14px 16px 16px;
 }
 .work-title {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-xl);
   margin-bottom: 4px;
 }
@@ -1076,7 +1082,7 @@ textarea.input {
   transform: translateX(2px);
 }
 .recommend-title {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-lg);
 }
 .recommend-meta {
@@ -1089,7 +1095,7 @@ textarea.input {
 .recommend-meta .score {
   color: var(--accent);
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 .recommend-reason {
   color: var(--text-soft);
@@ -1108,7 +1114,7 @@ textarea.input {
 }
 .gh-card-title {
   display: flex; align-items: center; gap: 8px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-xl);
 }
 .gh-icon { font-size: var(--fs-3xl); }
@@ -1142,7 +1148,7 @@ textarea.input {
   min-width: 0;
 }
 .gh-msg {
-  color: var(--text); text-decoration: none; font-weight: 500;
+  color: var(--text); text-decoration: none; font-weight: var(--fw-medium);
   flex: 1; min-width: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   font-size: var(--fs-base);
@@ -1379,7 +1385,7 @@ textarea.input {
 }
 .model-chip .model-name {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--text);
 }
 .model-chip .model-ver {
@@ -1435,7 +1441,7 @@ textarea.input {
 }
 .key-remark {
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   color: var(--text);
 }
 .key-model {
@@ -1504,7 +1510,7 @@ textarea.input {
   background: var(--primary-10);
 }
 .session-title {
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 
 .ai-main {
@@ -1594,7 +1600,7 @@ textarea.input {
   font-size: 1.1rem;
 }
 .ai-scene-desc-title {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: 0.95rem;
   color: var(--text);
 }
@@ -1737,7 +1743,7 @@ textarea.input {
 .col-collapse-icon {
   font-size: var(--fs-lg);
   color: var(--text-soft);
-  font-weight: bold;
+  font-weight: var(--fw-bold);
 }
 .col-collapse-label {
   font-size: var(--fs-sm);
@@ -1750,7 +1756,7 @@ textarea.input {
 /* 折叠按钮 */
 .collapse-btn {
   font-size: var(--fs-sm) !important;
-  font-weight: bold;
+  font-weight: var(--fw-bold);
   color: var(--text-soft) !important;
   letter-spacing: 1px;
 }
@@ -1881,7 +1887,7 @@ textarea.input {
 }
 .nl-bar-label {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--text-soft, #888);
 }
 .nl-bar-input {
@@ -1903,7 +1909,7 @@ textarea.input {
 }
 .nl-result-error { border-color: #ff7875; background: rgba(255,77,79,.05); }
 .nl-result-ok { border-color: var(--accent, var(--accent-500)); }
-.nl-result-summary { font-weight: 600; margin-bottom: 4px; }
+.nl-result-summary { font-weight: var(--fw-semibold); margin-bottom: 4px; }
 .nl-result-rule { font-family: ui-monospace, monospace; font-size: var(--fs-md); padding: 1px 0; }
 .nl-result-hints { font-size: var(--fs-sm); color: var(--text-soft, #888); margin-top: 4px; }
 .nl-result-actions { display: flex; gap: 6px; margin-top: 6px; }
@@ -1936,7 +1942,7 @@ textarea.input {
 .nl-suggestion:hover { border-color: var(--accent, var(--accent-500)); background: var(--panel-soft, rgba(90,209,255,.06)); }
 .nl-suggestion-icon { font-size: var(--fs-2xl); flex: 0 0 20px; text-align: center; }
 .nl-suggestion-text { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
-.nl-suggestion-label { font-weight: 600; color: var(--text, #222); }
+.nl-suggestion-label { font-weight: var(--fw-semibold); color: var(--text, #222); }
 .nl-suggestion-reason { color: var(--text-soft, #888); }
 
 .nl-bar-report { position: relative; }
@@ -2213,7 +2219,7 @@ textarea.input {
 }
 .ai-status-text strong {
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--text);
 }
 .ai-status-text span {
@@ -2243,7 +2249,7 @@ textarea.input {
   border: 1px solid var(--primary-soft-border);
   border-radius: var(--radius-md);
   font-size: var(--fs-base);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   cursor: pointer;
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-sm);
@@ -2390,7 +2396,7 @@ textarea.input {
   font-size: var(--fs-base);
 }
 .ai-tool-name {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--primary-soft-fg);
 }
 .ai-tool-args {
@@ -2438,7 +2444,7 @@ textarea.input {
 .tool-result-item a {
   color: #93c5fd;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -2458,7 +2464,7 @@ textarea.input {
   padding: 4px 12px;
   border-radius: 6px;
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: all 0.15s;
   letter-spacing: 0.5px;
@@ -2537,7 +2543,7 @@ textarea.input {
 }
 .ai-auto-toggle input:checked + span {
   color: var(--primary-soft-fg);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 /* AI 消息级操作行（一键应用按钮） */
@@ -2563,7 +2569,7 @@ textarea.input {
 }
 .ai-tool-chips-label {
   font-size: var(--fs-sm);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: #a5b4fc;
   margin-right: 4px;
   letter-spacing: 0.02em;
@@ -2659,7 +2665,7 @@ textarea.input {
   background: var(--ai-code-head-bg);
   color: #9ca3af;
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   border-bottom: 1px solid var(--ai-code-border);
 }
 .diff-side.old {
@@ -2736,7 +2742,7 @@ textarea.input {
 .ai-plan-tag {
   display: inline-block;
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--primary-soft-fg);
   background: var(--primary-20);
   padding: 1px 6px;
@@ -2752,7 +2758,7 @@ textarea.input {
 }
 .md-h {
   margin: 10px 0 6px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: #e6e9f4;
 }
 .md-h1 {
@@ -2785,7 +2791,7 @@ textarea.input {
 }
 .ai-msg-text b {
   color: #fde68a;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 .ai-msg-text i {
   color: var(--primary-soft-fg);
@@ -2830,7 +2836,7 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 .ai-modal-warn {
   margin: 12px 16px 0;
@@ -2858,12 +2864,12 @@ textarea.input {
 }
 .ai-stat-add {
   color: var(--success);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-family: "JetBrains Mono", monospace;
 }
 .ai-stat-del {
   color: var(--danger-soft-fg);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-family: "JetBrains Mono", monospace;
 }
 .ai-modal-diff {
@@ -3041,7 +3047,7 @@ textarea.input {
   border: 1px solid #229954;
   border-radius: 6px;
   font-size: var(--fs-base);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: all 0.15s;
   box-shadow: 0 1px 3px rgba(46, 204, 113, 0.3);
@@ -3078,7 +3084,7 @@ textarea.input {
   border: 1px solid var(--white-18);
   border-radius: 3px;
   font-size: var(--fs-xs);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   letter-spacing: 0.3px;
   opacity: 0.9;
@@ -3134,7 +3140,7 @@ textarea.input {
   padding: 2px 8px;
   border-radius: 10px;
   font-size: var(--fs-sm);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 }
 .stat-info {
@@ -3237,13 +3243,13 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
   margin-bottom: 6px;
 }
 .verification-count {
   font-size: var(--fs-sm);
-  font-weight: normal;
+  font-weight: var(--fw-normal);
   opacity: 0.8;
 }
 .verification-results {
@@ -3320,7 +3326,7 @@ textarea.input {
 .code-context-menu .ctx-hint {
   font-size: var(--fs-sm);
   color: #8b91a3;
-  font-weight: normal;
+  font-weight: var(--fw-normal);
 }
 
 /* CodeMirror 6 容器：填满父 .code-editor */
@@ -3375,7 +3381,7 @@ textarea.input {
   align-items: center;
   gap: 6px;
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--text-soft);
 }
 .console-icon {
@@ -3489,7 +3495,7 @@ textarea.input {
   background: var(--primary);
   color: var(--on-accent-fg);
   font-size: var(--fs-xs);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -3524,7 +3530,7 @@ textarea.input {
   align-items: center;
   padding: 10px 14px;
   border-bottom: 1px solid var(--white-08);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
 }
 
@@ -3558,7 +3564,7 @@ textarea.input {
   transform: scale(1.02);
 }
 .drop-zone-title {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
   margin-bottom: 4px;
 }
@@ -3659,7 +3665,7 @@ textarea.input {
 .all-layers-hint {
   font-size: var(--fs-xs);
   color: var(--muted, #888);
-  font-weight: normal;
+  font-weight: var(--fw-normal);
 }
 .all-layers-hint code {
   background: var(--ink-30);
@@ -3770,7 +3776,7 @@ textarea.input {
   color: var(--on-accent-fg);
   cursor: pointer;
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 .col-picker-actions .btn-primary:disabled {
   opacity: 0.45;
@@ -3894,7 +3900,7 @@ textarea.input {
   align-items: center;
   padding: 10px 14px;
   border-bottom: 1px solid var(--white-08);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
 }
 
@@ -3983,7 +3989,7 @@ textarea.input {
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   font-size: var(--fs-md);
   color: var(--warn);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .editor-snap-row {
@@ -4056,7 +4062,7 @@ textarea.input {
   justify-content: space-between;
   padding: 12px 16px;
   border-bottom: 1px solid var(--white-08);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-lg);
 }
 
@@ -4091,7 +4097,7 @@ textarea.input {
 .editor-simplify-stats .stat-val {
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   font-size: var(--fs-3xl);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--text, #f1f5f9);
 }
 
@@ -4124,7 +4130,7 @@ textarea.input {
 .editor-simplify-eps .val {
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   color: var(--accent, var(--primary-500));
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .editor-simplify-slider input[type="range"] {
@@ -4156,7 +4162,7 @@ textarea.input {
   border-radius: 6px;
   font-size: var(--fs-md);
   cursor: pointer;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 .btn-primary:disabled {
@@ -4249,7 +4255,7 @@ textarea.input {
   margin-left: auto;
   font-size: var(--fs-xs);
   color: var(--muted);
-  font-weight: normal;
+  font-weight: var(--fw-normal);
 }
 .editor-layer-tree {
   display: flex;
@@ -4462,7 +4468,7 @@ textarea.input {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 .editor-style-row {
   display: flex;
@@ -4603,7 +4609,7 @@ textarea.input {
   color: var(--text-soft);
   font-family: inherit;
   font-size: var(--fs-xs);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   letter-spacing: 0.05em;
   padding: 2px 7px;
   border-radius: 3px;
@@ -4691,12 +4697,12 @@ textarea.input {
   color: var(--text-soft);
   font-size: var(--fs-sm);
   letter-spacing: 0.05em;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-cell-value {
   color: var(--text-primary);
   font-size: var(--fs-md);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   letter-spacing: 0.02em;
   min-width: 0;
   transition: color var(--theme-transition-duration) var(--theme-transition-ease);
@@ -4712,7 +4718,7 @@ textarea.input {
   margin-right: 4px;
   padding: 0 5px;
   font-size: var(--fs-sm);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
   border-radius: 9px;
   color: var(--text-soft);
@@ -4781,7 +4787,7 @@ textarea.input {
   align-items: center;
   padding: 10px 14px;
   border-bottom: 1px solid var(--white-08);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
   cursor: move;
   user-select: none;
@@ -4878,7 +4884,7 @@ textarea.input {
   flex-wrap: wrap;
 }
 .query-builder-title {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--primary-70);
 }
 .query-builder-combinator {
@@ -4976,7 +4982,7 @@ textarea.input {
 }
 .attr-col-menu-head {
   padding: 6px 10px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--muted);
   border-bottom: 1px solid var(--white-08);
   font-size: var(--fs-sm);
@@ -5056,7 +5062,7 @@ textarea.input {
   background: rgba(15, 18, 25, 0.96);
   text-align: left;
   padding: 6px 8px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--muted);
   border-bottom: 1px solid var(--white-08);
   white-space: nowrap;
@@ -5145,7 +5151,7 @@ textarea.input {
   align-items: center;
   padding: 10px 14px;
   border-bottom: 1px solid var(--white-08);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
   cursor: move;
   user-select: none;
@@ -5228,7 +5234,7 @@ textarea.input {
   padding: 6px 12px 2px;
   font-size: var(--fs-xs);
   color: var(--primary-500) !important;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   background: transparent !important;
@@ -5248,7 +5254,7 @@ textarea.input {
 .op-dropdown-option.active {
   background: var(--primary-40) !important;
   color: var(--on-primary) !important;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 
 /* 自定义下拉（API Key 管理 - 平台选择）
@@ -5312,7 +5318,7 @@ textarea.input {
 }
 .platform-picker-option.active {
   background: var(--primary-32);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 .platform-picker-option-tag {
   font-size: var(--fs-sm);
@@ -5367,7 +5373,7 @@ textarea.input {
   background: var(--white-06);
   cursor: move;
   user-select: none;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--primary-70);
 }
 .print-export-body {
@@ -5506,7 +5512,7 @@ textarea.input {
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   cursor: pointer;
 }
 .error-boundary-retry:hover {
@@ -5544,7 +5550,7 @@ textarea.input {
   border: none;
   padding: 4px 10px;
   border-radius: 4px;
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   cursor: pointer;
   font-size: var(--fs-md);
 }
@@ -5620,7 +5626,7 @@ textarea.input {
   align-items: center;
   padding: 10px 14px;
   border-bottom: 1px solid var(--white-08);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
   cursor: move;
 }
@@ -5651,7 +5657,7 @@ textarea.input {
   padding: 8px 10px;
   border-radius: 6px;
   font-size: var(--fs-md);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   margin-bottom: 8px;
 }
 
@@ -5699,7 +5705,7 @@ textarea.input {
 .three-check-icon { font-size: var(--fs-base); }
 
 .three-check-name {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-md);
   flex: 1;
 }
