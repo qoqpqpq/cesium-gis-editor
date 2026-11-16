@@ -90,6 +90,12 @@ function runJson() {
     const j = JSON.parse(out);
     for (const d of j.topDecl) assert.match(d.decl, /^font-size:/);
   });
+  await ok('A11: font-weight 已 token 化（UR-4 字重迁移生效）', () => {
+    const out = execFileSync('node', [SCRIPT, '--json', '--prop', 'font-weight'], { encoding: 'utf8' });
+    const j = JSON.parse(out);
+    const raw = j.topDecl.filter((d) => /^font-weight:/.test(d.decl) && !/var\(--fw-/.test(d.decl));
+    assert.strictEqual(raw.length, 0, `仍有未 token 化 font-weight: ${raw.map((d) => d.decl).join(', ')}`);
+  });
 
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
