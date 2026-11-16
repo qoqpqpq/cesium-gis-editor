@@ -65,6 +65,16 @@
   --color-gray-600: #4b5563; /* 原 #4b5563 ×2 */
   --color-slate-100: #f1f5f9; /* 原 #f1f5f9 ×2 */
   --color-slate-400: #94a3b8; /* 原 #94a3b8 ×6 */
+  /* ===== 深色表面阶梯(UR-1 收敛: 取当前实际值, 等值零视觉变化; 0=最深 → 8=最浅) ===== */
+  --surface-dark-0: #0b0d11; /* 原 #0b0d11 ×2 */
+  --surface-dark-1: #0d1117; /* 原 #0d1117 ×3（--surface-0/1 回退位） */
+  --surface-dark-2: #0f1219; /* 原 #0f1219 ×2 */
+  --surface-dark-3: #11141a; /* 原 #11141a ×2 */
+  --surface-dark-4: #161a23; /* 原 #161a23 ×2 */
+  --surface-dark-5: #181c25; /* 原 #181c25 ×2（--surface-2 回退位） */
+  --surface-dark-6: #1a1f2b; /* 原 #1a1f2b ×3（--card-strong 回退位） */
+  --surface-dark-7: #1f2937; /* 原 #1f2937 ×3（--panel-bg 回退位） */
+  --surface-dark-8: #2a3142; /* 原 #2a3142 ×5（边框/面板） */
   /* 形状 */
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -1743,7 +1753,7 @@ textarea.input {
 .col-collapse-bar {
   width: 36px;
   height: 100%;
-  background: #11141a;
+  background: var(--surface-dark-3);
   border: 1px solid #1f242d;
   border-radius: 10px;
   display: flex;
@@ -1755,7 +1765,7 @@ textarea.input {
   transition: background 0.15s;
 }
 .col-collapse-bar:hover {
-  background: #1a1f2b;
+  background: var(--surface-dark-6);
 }
 .col-collapse-icon {
   font-size: var(--fs-lg);
@@ -2839,7 +2849,7 @@ textarea.input {
 .ai-modal {
   width: min(720px, 92vw);
   max-height: 80vh;
-  background: var(--card-strong, #1a1f2b);
+  background: var(--card-strong, var(--surface-dark-6));
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: 0 20px 60px var(--ink-50);
@@ -2895,7 +2905,7 @@ textarea.input {
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
   font-size: var(--fs-md);
   line-height: var(--lh-relaxed);
-  background: #0f1219;
+  background: var(--surface-dark-2);
   padding: 8px 0;
 }
 .diff-line {
@@ -3014,7 +3024,7 @@ textarea.input {
    - 控制台（下方，30%）
    ============================================================ */
 .code-dock {
-  background: #0b0d11;
+  background: var(--surface-dark-0);
   border: 1px solid #1f242d;
   border-radius: 10px;
   overflow: hidden;
@@ -3031,8 +3041,8 @@ textarea.input {
   align-items: center;
   justify-content: space-between;
   padding: 6px 10px;
-  background: linear-gradient(180deg, #161a23 0%, #11141a 100%);
-  border-bottom: 1px solid #2a3142;
+  background: linear-gradient(180deg, var(--surface-dark-4) 0%, var(--surface-dark-3) 100%);
+  border-bottom: 1px solid var(--surface-dark-8);
   flex-shrink: 0;
   gap: 6px;
   /* 窄列宽时自动换行，避免右侧按钮被挤出可见区 */
@@ -3049,7 +3059,7 @@ textarea.input {
 .toolbar-divider {
   width: 1px;
   height: 18px;
-  background: #2a3142;
+  background: var(--surface-dark-8);
   margin: 0 2px;
 }
 
@@ -3081,7 +3091,7 @@ textarea.input {
 }
 .sandcastle-run-btn:disabled {
   background: #3a4252;
-  border-color: #2a3142;
+  border-color: var(--surface-dark-8);
   color: var(--text-meta);
   cursor: not-allowed;
   box-shadow: none;
@@ -3111,9 +3121,9 @@ textarea.input {
 /* 示例下拉 */
 .sandcastle-select {
   padding: 5px 8px;
-  background: #1a1f2b;
+  background: var(--surface-dark-6);
   color: var(--text);
-  border: 1px solid #2a3142;
+  border: 1px solid var(--surface-dark-8);
   border-radius: 6px;
   font-size: var(--fs-md);
   cursor: pointer;
@@ -3144,7 +3154,7 @@ textarea.input {
 .sandcastle-icon-btn:hover {
   background: var(--white-06);
   color: var(--text);
-  border-color: #2a3142;
+  border-color: var(--surface-dark-8);
 }
 
 /* 控制台统计徽章 */
@@ -3303,7 +3313,7 @@ textarea.input {
 .code-context-menu {
   position: fixed;
   z-index: 9999;
-  background: linear-gradient(180deg, #1a1f29 0%, #161a23 100%);
+  background: linear-gradient(180deg, #1a1f29 0%, var(--surface-dark-4) 100%);
   border: 1px solid #3b4252;
   border-radius: 8px;
   box-shadow: 0 10px 24px var(--ink-50);
@@ -3389,7 +3399,7 @@ textarea.input {
   align-items: center;
   justify-content: space-between;
   padding: 6px 12px;
-  background: #0f1219;
+  background: var(--surface-dark-2);
   border-bottom: 1px solid #1f242d;
   flex-shrink: 0;
 }
@@ -3445,7 +3455,7 @@ textarea.input {
   font-size: var(--fs-xs);
   text-align: center;
   border-radius: 3px;
-  background: #1f2937;
+  background: var(--surface-dark-7);
   color: #93c5fd;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -3465,7 +3475,7 @@ textarea.input {
   color: #bae6fd;
 }
 .level-log .output-tag {
-  background: #1f2937;
+  background: var(--surface-dark-7);
   color: #93c5fd;
 }
 .output-text {
@@ -4062,7 +4072,7 @@ textarea.input {
 }
 
 .editor-modal {
-  background: var(--panel-bg, #1f2937);
+  background: var(--panel-bg, var(--surface-dark-7));
   color: var(--text, var(--color-slate-100));
   border: 1px solid var(--white-10);
   border-radius: 10px;
@@ -4639,7 +4649,7 @@ textarea.input {
 }
 .editor-coord-fmt-btn.active {
   background: var(--accent, var(--accent-500));
-  color: #0b0d11;
+  color: var(--surface-dark-0);
 }
 .editor-coord-display {
   display: flex;
@@ -5487,7 +5497,7 @@ textarea.input {
   justify-content: center;
   min-height: 240px;
   padding: 24px;
-  background: var(--surface-2, #181c25);
+  background: var(--surface-2, var(--surface-dark-5));
   border: 1px solid var(--danger, var(--danger-soft-fg));
   border-radius: 12px;
   margin: 16px;
@@ -5508,7 +5518,7 @@ textarea.input {
   line-height: var(--lh-normal);
 }
 .error-boundary-detail {
-  background: var(--surface-1, #0d1117);
+  background: var(--surface-1, var(--surface-dark-1));
   color: var(--text, #e6edf3);
   padding: 8px 12px;
   border-radius: 6px;
@@ -5525,7 +5535,7 @@ textarea.input {
 }
 .error-boundary-retry {
   background: var(--accent, var(--accent-500));
-  color: var(--surface-0, #0d1117);
+  color: var(--surface-0, var(--surface-dark-1));
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
@@ -5541,7 +5551,7 @@ textarea.input {
   justify-content: center;
   min-height: 120px;
   padding: 12px;
-  background: var(--surface-2, #181c25);
+  background: var(--surface-2, var(--surface-dark-5));
   border: 1px dashed var(--danger, var(--danger-soft-fg));
   border-radius: 8px;
   margin: 8px;
@@ -5563,7 +5573,7 @@ textarea.input {
 }
 .editor-error-reset {
   background: var(--accent, var(--accent-500));
-  color: var(--surface-0, #0d1117);
+  color: var(--surface-0, var(--surface-dark-1));
   border: none;
   padding: 4px 10px;
   border-radius: 4px;
