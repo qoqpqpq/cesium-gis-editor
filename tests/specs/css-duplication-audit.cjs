@@ -257,6 +257,36 @@ function runJson() {
     assert.ok(!/\)undefined/.test(src), '发现 )undefined 替换污染');
   });
 
+  await ok('A20: letter-spacing 已 token 化（UR-2 字距 scale 步骤8 生效）', () => {
+    const fs = require('fs');
+    let src = '';
+    for (const f of ['client/src/styles.css', 'client/src/theme.css']) {
+      const lines = fs.readFileSync(f, 'utf8').split('\n');
+      for (const l of lines) if (!/^\s*--[a-zA-Z0-9-]+:/.test(l)) src += l + '\n';
+    }
+    src = src.replace(/\/\*[\s\S]*?\*\//g, '');
+    // 1) 原始 letter-spacing 值必须为 0（全部走 var(--ls-*)）
+    const re = /letter-spacing:\s*([^;}]*)/g;
+    const raw = new Map();
+    let x;
+    while ((x = re.exec(src)) !== null) {
+      const v = x[1].trim();
+      if (!v || /^var\(/.test(v)) continue;
+      raw.set(v, (raw.get(v) || 0) + 1);
+    }
+    const offenders = [...raw].map(([v, n]) => `${v} x${n}`);
+    assert.strictEqual(offenders.length, 0, `仍存在未 token 化的 letter-spacing: ${offenders.join(', ')}`);
+    // 2) 反 C71-B01：letter-spacing 值不得是裸自定义属性
+    const bare = src.match(/letter-spacing:\s*--ls/g);
+    assert.strictEqual(bare ? bare.length : 0, 0, `发现裸自定义属性引用: ${(bare || []).slice(0, 5).join(', ')}`);
+    // 3) 反 C71-B02：token 名必须兼容 css-var-reference-guard 的 var 名正则（[a-zA-Z0-9-]+，无下划线）
+    //    否则 guard 会把 --ls-0-5px 截断为 --ls-0 判为未定义引用。
+    const badName = src.match(/--ls-[a-zA-Z0-9-]*_[a-zA-Z0-9-]*/g);
+    assert.strictEqual(badName ? badName.length : 0, 0, `token 名含下划线（与 css-var-reference-guard 不兼容）: ${(badName || []).slice(0, 5).join(', ')}`);
+    // 4) 反 C71-B03：脚本替换不得拼出 )undefined
+    assert.ok(!/\)undefined/.test(src), '发现 )undefined 替换污染');
+  });
+
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
 })().catch((e) => {
