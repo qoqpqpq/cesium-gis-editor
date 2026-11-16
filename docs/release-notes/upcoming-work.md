@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 61 已交付（2026-11-16，自动周期第十三轮）
+
+- ✅ **UI-REFACTOR UR-4 字高收敛第二步：font-size 亚像素 10.5/11.5px token 化 + 修复 cycle-60 注释自引用缺陷** —— 新增 2 个亚像素 token `--fs-xs-half:10.5px`/`--fs-sm-half:11.5px`（等值保留零视觉变化）；迁移 3 处 `font-size:10.5/11.5px`→`var(--fs-xs-half/sm-half)`；**styles.css 真实 `font-size` 声明 268 处 var(--fs-*) + 25 处 rem/em/inherit（相对单位保留）+ 0 处原始 px**（绝对 px 100% token 化）。顺带还原 cycle-60 sed 污染的 13 条字号阶梯注释（`/* 原 font-size: var(--fs-*) ×M */`→`/* 原 font-size:Npx ×M */`，仅注释文本，token 值未受影响）。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit 10 + css-var-reference-guard 9 + design-token-audit 13 零失败。会计更正：cycle-60「278 处」含 13 条污染注释误匹配，真实为 265 处 → 本轮 268 处
+
 ## 周期 60 已交付（2026-11-16，自动周期第十二轮）
 
 - ✅ **UI-REFACTOR UR-4 字高收敛第一步：font-size 少频档全部 token 化**（styles.css，新增 8 个 token）—— 新增 `--fs-2xs:9px`/`--fs-xl:15px`/`--fs-2xl:16px`/`--fs-3xl:18px`/`--fs-4xl:20px`/`--fs-5xl:28px`/`--fs-6xl:30px`/`--fs-7xl:40px`（取实际值等值零视觉变化）；迁移 **38 处** 少频档 `font-size:9/15/16/18/20/28/30/40px`→`var(--fs-*)`；font-size 绝对档位 **281 处中 278 已 token 化（98.9%）**，剩 3 亚像素（`10.5px`×2/`11.5px`×1）暂留待人工视觉归一化；相对单位 `rem/em/inherit` 25 处保留（非绝对档位）。等值零视觉变化、双主题未破（0 新增未定义 var、括号平衡 910/910）。回归 css-duplication-audit 10 + css-var-reference-guard 9 + design-token-audit 13 零失败。说明：JS 导出模板（aiDocumentExporter/exporter）内联 24/18/15/13/12/11px 属独立 HTML 文档模板、不加载 styles.css，不纳入 `--fs-*` 收敛。
