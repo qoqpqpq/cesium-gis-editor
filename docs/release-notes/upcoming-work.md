@@ -19,6 +19,12 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 70 已交付（2026-11-17，自动周期第二十二轮）
+
+- ✅ **UI-REFACTOR UR-2 步骤7：`box-shadow` 重复值 scale 收敛**（等值零视觉变化）—— 审计：box-shadow 42 处/31 值（9 处已 `var(--shadow-sm/md/lg)`）。重复值（≥2 次）仅 2 个共 **7 处**：`0 12px 40px var(--ink-50)`×5（浮层面板：file-loader-popup/analysis-panel/print-export-panel 等）、`0 1px 4px var(--ink-30)`×2 → 新增 **2 个值命名 token** `--shadow-12-40-ink50`/`--shadow-1-4-ink30`；重复原始值 **7→0**，`var(--shadow-*)` 引用 9→16。**26 处单次 box-shadow 值**（状态环/`--primary-*` 光晕等，组件专属）留 UR-3 设计拍板。回归 css-duplication-audit **19/19**（新增 **A19**：重复 ≥2 次 box-shadow 原始值 0 + 无裸自定义属性 + 无 `)undefined`；负向验证：注入 1 处不触发 <2 阈值、注入 2 处 FAIL、还原 19/19）+ css-var-reference-guard 9/9 + design-token-audit 13/13；括号平衡 910/910；**`vite build` ✓ 6.18s**（503 modules，CSS 124.49 kB）。等值零视觉变化、双主题未破
+- ⚠️ **关键发现（不自动改，已登记）**：`--shadow-sm/md/lg` 在 styles.css（`var(--ink-*)`，浅色下 alpha 0.25）与 theme.css 浅色主题（`rgba(15,23,42,*)`，alpha 0.06）**双文件定义且不等价**——属「样式重复」潜在不一致，级联决定何者生效；**修复需视觉 QA/设计拍板**，避免视觉回归
+- ⏭️ **遗留**：`--shadow-sm/md/lg` 双文件不等价（视觉 QA）；26 处单次 box-shadow（UR-3）；`index.jsx` 视觉密度精简（1100 行）；多值简写（padding 212 + margin 47，需复合 token 决策）；间距语义阶梯 `--gap-*px`→语义档；UR-1 alpha 变体归一/单次色归并
+
 ## 周期 69 已交付（2026-11-16，自动周期第二十一轮）
 
 - ✅ **UI-REFACTOR UR-2 步骤6：`padding`/`margin` 族单值 scale 收敛**（等值零视觉变化）—— 审计：padding 单值 49（含 `0`×16 清零）+ margin 单值 88（含 `0`×18、`auto`×3）；排除清零/auto/var 后**可迁移 102 处**（padding 32 + margin 70）。迁移 **102 处**→ `var(--gap-*)`（等值复用既有档：`6px`×26/`4px`×23/`8px`×16/`12px`×12/`10px`×7/`14px`×4/`16px`×4/`2px`×3/`1px`×2/`18px`×1/`24px`×1 + 新增 3 档 `--gap-20px`/`--gap-28px`/`--gap-30px`×各1）。padding/margin 单值原始值 **102→0**。**多值简写 259 处（padding 212/75 组合 + margin 47/35 组合）无法用单 token 表达**，需复合/方向性 token 设计决策（UR-3 待办）。回归 css-duplication-audit **18/18**（新增 **A18**：padding/margin 单值 0 + 无裸自定义属性 + 无 `)undefined`，负向注入验证 FAIL 后还原）+ css-var-reference-guard 9/9 + design-token-audit 13/13；括号平衡 910/910；**`vite build` ✓ 6.46s**（503 modules，CSS 124.40 kB）。等值零视觉变化、双主题未破
