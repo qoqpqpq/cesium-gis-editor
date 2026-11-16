@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 64 已交付（2026-11-16，自动周期第十六轮）
+
+- ✅ **UI-REFACTOR UR-1 色值收敛：中性色 token 化** —— 新增 7 个中性色 token `--color-white:#fff`/`--color-black:#000`/`--color-gray-300:#d1d5db`/`--color-gray-500:#888`/`--color-gray-600:#4b5563`/`--color-slate-100:#f1f5f9`/`--color-slate-400:#94a3b8`（等值零视觉变化）；迁移 **25 处**同值中性色（`#888`×8 + `#94a3b8`×6 + `#fff/#ffffff` + `#4b5563` + `#000` + `#d1d5db` + `#f1f5f9`，含 `var(--token, #hex)` 回退位→`var(--token, var(--color-*))`）；组件硬编码色值 **250→238**（相对 cycle-38 基线 366 → **−35%**）。新增 `docs/guides/ur1-color-convergence-proposal.md`：剩余复用色（主题深色 `#0d1117` 等 22 处 + 状态/图表 Tailwind 系 ~23 处）需**设计定语义命名**（`--surface-dark-*`/`--bg-*`/`--chart-*`/`--status-*`），单次色（68 值）建议 UR-3 归并——均非纯自动化，待拍板。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit **13/13**（新增 A13「中性色已 token 化」）+ css-var-reference-guard 9 + design-token-audit 13 零失败
+
 ## 周期 63 已交付（2026-11-16，自动周期第十五轮）
 
 - ✅ **UI-REFACTOR UR-4 行高方案 A：line-height 等值 token 化** —— 新增 8 个行高 token `--lh-none:1`/`--lh-tight:1.1`/`--lh-snug:1.4`/`--lh-normal:1.5`/`--lh-relaxed:1.6`/`--lh-loose:1.7`/`--lh-155:1.55`/`--lh-185:1.85`（等值零视觉变化）；迁移 **37 处** line-height（1×7 + 1.1×1 + 1.4×6 + 1.5×6 + 1.55×7 + 1.6×6 + 1.7×3 + 1.85×1）→`var(--lh-*)`；styles.css 真实 line-height 声明 **0 处原始值**。方案 B（归一化 `1.55→1.5/1.6`、`1.1→1`、`1.85→1.7`）留待视觉 QA。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit **12/12**（新增 A12「line-height 已 token 化」）+ css-var-reference-guard 9 + design-token-audit 13 零失败
