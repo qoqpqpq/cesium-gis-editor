@@ -521,3 +521,27 @@ UR-1/UR-2 中「可安全自动化、等值零视觉变化、可离线验证」�
 ### 产出
 - `docs/guides/td-5501-triage.md`（分诊报告，含汇总表+核实证据+建议处置+优先级）
 - `docs/cycles/risk-ledger.md`：TD-5501 → 分诊完成(c56)
+
+<!-- ===== cycle 57 (2026-11-16, model: sensenova-6.8-flash) ===== -->
+## Cycle 57 — TD-5501 修过时 spec（#1-3 Permissions-Policy + #6-7 protocol），全量失败 9→3
+
+**状态**: completed　**模型**: sensenova-6.8-flash
+**任务**（用户选定）：修过时 spec 路径/断言。**原则：对准真实实现，非弱化断言。**
+
+### 修的 5 个 spec + 1 个顺带
+| spec | 修前 | 修后 | 修法（对准现实） |
+|---|---|---|---|
+| csp-permissions-policy.cjs | 10/6 | **16/0** | 新增 `PP_SRC` 指向 `server/middleware/permissionsPolicy.js`；PP 断言(L37-41+计数)改用 PP_SRC；helmet 配置断言仍在 index.js |
+| helmet-8-upgrade.cjs | 19/1 | **20/0** | setHeader 断言指向 middleware；并加强为"middleware 有 setHeader 且 index.js `app.use(permissionsPolicy()` 接线" |
+| helmet-permissions-policy.cjs | 3/3 | **6/0** | section3 改用 PP_SRC，描述更新为"已迁移到 middleware(cycle 9 P2-2)" |
+| protocol-shared.cjs | 18/1 | **19/0** | TOOL_OPEN/CLOSE const 定义断言指向 `server/agent/protocol/constants.js`（index.js 仅 re-export） |
+| protocol-sync-script.cjs | 6/3 | **9/0** | 根因是 `check-protocol-sync.cjs` 脚本过期：协议字面提取改读 constants.js；Check5 两处 `[^/]+` 放宽为 `.+?`（真实正则体含转义 `\/`）；spec 硬编码 `4/4`→动态 `(\d+)/\1 PASS`、`checks.length===4`→`>=4` |
+| sandbox-perf-benchmark.cjs | 1 fail | **转绿** | 顺带（依赖上述修复链） |
+
+### 关键技术点
+- Permissions-Policy 实现在 `server/middleware/permissionsPolicy.js`（L65 setHeader），`server/index.js` L123-124 仅 `app.use(permissionsPolicy())` —— 3 个 spec 仍扫 index.js 源码故失配。运行时头实际正常（上轮 curl 已证）。
+- protocol 常量下沉到 `server/agent/protocol/constants.js`（L13-14 TOOL_OPEN/CLOSE），index.js re-export。
+- `check-protocol-sync.cjs` Check5 的 `[^/]+` 禁止正则体含 `/`，但真实正则含 `\/` → 放宽为 `.+?`（仍强制 `/gi` 结尾，非弱化）。
+
+### 验收
+全量 spec：**失败文件 9 → 3**（metadata-ip-maintenance、metadata-ip-sync-script、viewstate-browser-decompress，均为 TD-5501 暂缓项）。无新增回归。

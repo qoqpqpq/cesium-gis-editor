@@ -123,7 +123,9 @@ function main() {
   // 提取 client 协议字面（const TOOL_RE = /.../）
   const clientRegexLiterals = extractRegexLiterals(clientSrc);
   // 提取 server 协议字面（TOOL_RE 常量）
-  const serverProtocol = extractProtocol(serverSrc);
+  // 周期 57：TOOL_OPEN/TOOL_CLOSE/TOOL_RE 等常量定义已下沉到 constants.js
+  // （index.js 仅 re-export），协议字面提取改读 constants.js。
+  const serverProtocol = extractProtocol(serverConstantsSrc || serverSrc);
 
   const checks = [];
 
@@ -184,10 +186,11 @@ function main() {
     const constChecks = [
       { name: 'TOOL_OPEN', pattern: /TOOL_OPEN\s*=\s*['"]<tool>['"]/ },
       { name: 'TOOL_CLOSE', pattern: /TOOL_CLOSE\s*=\s*['"]<\/tool>['"]/ },
-      { name: 'TOOL_RE', pattern: /TOOL_RE\s*=\s*\/[^/]+\/gi/ },
+      { name: 'TOOL_RE', pattern: /TOOL_RE\s*=\s*\/.+?\/gi/ },
       { name: 'TOOL_CALLS_JSON_RE', pattern: /TOOL_CALLS_JSON_RE\s*=\s*\/[^/]+\/gi/ },
       { name: 'TOOL_CALLS_INLINE_RE', pattern: /TOOL_CALLS_INLINE_RE\s*=\s*\/[^/]+\/g/ },
-      { name: 'TOOL_CALL_JSON_RE', pattern: /TOOL_CALL_JSON_RE\s*=\s*\/[^/]+\/gi/ },
+      // 周期 57：真实正则体含转义 \/（如 <\/tool>），[^/]+ 会失配，放宽为 .+?（仍强制 /gi 结尾）
+      { name: 'TOOL_CALL_JSON_RE', pattern: /TOOL_CALL_JSON_RE\s*=\s*\/.+?\/gi/ },
     ];
     for (const cc of constChecks) {
       checks.push({

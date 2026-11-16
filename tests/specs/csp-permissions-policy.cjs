@@ -32,13 +32,20 @@ const SRC = fs.readFileSync(
   'utf8',
 );
 
+// 周期 57：Permissions-Policy 实现已迁到自研 middleware（cycle 9 P2-2）。
+// PP 相关静态断言对准真实实现文件；helmet 配置断言仍对准 server/index.js。
+const PP_SRC = fs.readFileSync(
+  path.resolve(__dirname, '../../server/middleware/permissionsPolicy.js'),
+  'utf8',
+);
+
 // ---- 1. 静态扫描：4 项 header 配置都在源文件里 ----
 const staticChecks = [
-  ['Permissions-Policy 头', /res\.setHeader\(\s*['"]Permissions-Policy['"]/.test(SRC)],
-  ['camera=() 限制', /camera=\(\)/.test(SRC)],
-  ['geolocation=() 限制', /geolocation=\(\)/.test(SRC)],
-  ['microphone=() 限制', /microphone=\(\)/.test(SRC)],
-  ['payment=() 限制', /payment=\(\)/.test(SRC)],
+  ['Permissions-Policy 头', /res\.setHeader\(\s*['"]Permissions-Policy['"]/.test(PP_SRC)],
+  ['camera=() 限制', /camera=\(\)/.test(PP_SRC)],
+  ['geolocation=() 限制', /geolocation=\(\)/.test(PP_SRC)],
+  ['microphone=() 限制', /microphone=\(\)/.test(PP_SRC)],
+  ['payment=() 限制', /payment=\(\)/.test(PP_SRC)],
   ['COOP same-origin', /crossOriginOpenerPolicy:\s*\{\s*policy:\s*['"]same-origin['"]/.test(SRC)],
   ['X-Frame-Options DENY', /xFrameOptions:\s*\{\s*action:\s*['"]deny['"]/.test(SRC)],
   ['Referrer-Policy strict-origin-when-cross-origin', /referrerPolicy:\s*\{\s*policy:\s*['"]strict-origin-when-cross-origin['"]/.test(SRC)],
@@ -133,8 +140,8 @@ const staticChecks = [
 
   // ---- 3. 源文件 Permissions-Policy 至少 10 项关键 API ----
   await test('Permissions-Policy 至少 10 项（源文件）', async () => {
-    // 从源码里统计 `"xxx=()"` 数量
-    const matches = SRC.match(/['"][a-z-]+=\(\)|['"][a-z-]+=\(self\)['"]/g) || [];
+    // 周期 57：PP 头值在 middleware 文件中，从 PP_SRC 统计 `"xxx=()"` 数量
+    const matches = PP_SRC.match(/['"][a-z-]+=\(\)|['"][a-z-]+=\(self\)['"]/g) || [];
     assert.ok(matches.length >= 10, `源文件实际 ${matches.length} 项`);
   });
 

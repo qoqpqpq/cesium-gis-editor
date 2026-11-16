@@ -72,7 +72,8 @@ const SCRIPT_PATH = path.resolve(__dirname, '../../scripts/check-protocol-sync.c
       cwd: path.resolve(__dirname, '../..'),
       timeout: 10000,
     });
-    assert.match(result, /4\/4 PASS/);
+    // 周期 57：检查项数量随实现演进（现 10 项），断言"全部通过"(N/N 两侧相等)而非硬编码 4/4
+    assert.match(result, /(\d+)\/\1 PASS/);
     assert.match(result, /protocol-sync-check/);
   });
 
@@ -86,7 +87,8 @@ const SCRIPT_PATH = path.resolve(__dirname, '../../scripts/check-protocol-sync.c
     const parsed = JSON.parse(result);
     assert.strictEqual(parsed.ok, true, 'json.ok 应为 true');
     assert.ok(Array.isArray(parsed.checks));
-    assert.strictEqual(parsed.checks.length, 4);
+    // 周期 57：检查项已增至 10 项，断言结构完整（≥4）而非硬编码恰好 4
+    assert.ok(parsed.checks.length >= 4, `checks 应 ≥4 项，实际 ${parsed.checks.length}`);
   });
 
   // ---- 4. 行为：缺文件 → exit 2 ----
@@ -144,7 +146,8 @@ const SCRIPT_PATH = path.resolve(__dirname, '../../scripts/check-protocol-sync.c
       cwd: path.resolve(__dirname, '../..'),
       timeout: 10000,
     });
-    assert.match(result, /4\/4 PASS/);
+    // 周期 57：断言"全部通过"(N/N 两侧相等)，不硬编码检查项数量
+    assert.match(result, /(\d+)\/\1 PASS/);
   });
 
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);

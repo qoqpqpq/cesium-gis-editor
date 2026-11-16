@@ -47,6 +47,14 @@ const SRC = fs.readFileSync(
   'utf8',
 );
 
+// 周期 57：Permissions-Policy 实现已从 server/index.js 迁到自研 middleware
+// （cycle 9 P2-2，见 server/middleware/permissionsPolicy.js L65 res.setHeader）。
+// 本 spec 第 3 节的源码断言改为对准真实实现文件，避免"过时源码正则"误报。
+const PP_SRC = fs.readFileSync(
+  path.resolve(__dirname, '../../server/middleware/permissionsPolicy.js'),
+  'utf8',
+);
+
 (async () => {
   console.log('=== helmet-permissions-policy ===');
 
@@ -89,17 +97,17 @@ const SRC = fs.readFileSync(
     assert.match(src, /permissionsPolicy/, 'helmet 应含 permissionsPolicy 选项');
   });
 
-  // ---- 3. server/index.js 当前仍手写（向后兼容） ----
-  await test('server/index.js 当前手写 Permissions-Policy（向后兼容）', () => {
-    assert.match(SRC, /res\.setHeader\(\s*['"]Permissions-Policy['"]/, '应手写 header');
+  // ---- 3. Permissions-Policy 仍为手写 middleware（cycle 9 P2-2 已迁移到 middleware） ----
+  await test('Permissions-Policy 手写 middleware 保留（res.setHeader）', () => {
+    assert.match(PP_SRC, /res\.setHeader\(\s*['"]Permissions-Policy['"]/, '应手写 header');
   });
 
   await test('手写 Permissions-Policy 含 camera=()', () => {
-    assert.match(SRC, /camera=\(\)/);
+    assert.match(PP_SRC, /camera=\(\)/);
   });
 
   await test('手写 Permissions-Policy 含 geolocation=()', () => {
-    assert.match(SRC, /geolocation=\(\)/);
+    assert.match(PP_SRC, /geolocation=\(\)/);
   });
 
   // ---- 4. 评估：替代路径 ----

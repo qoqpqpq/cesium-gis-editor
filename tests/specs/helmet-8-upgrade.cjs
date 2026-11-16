@@ -29,6 +29,11 @@ const http = require('node:http');
 const ROOT = path.resolve(__dirname, '..', '..');
 const PKG = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const SERVER_SRC = fs.readFileSync(path.join(ROOT, 'server', 'index.js'), 'utf8');
+// 周期 57：Permissions-Policy 实现已迁到自研 middleware（cycle 9 P2-2）。
+const PP_MIDDLEWARE_SRC = fs.readFileSync(
+  path.join(ROOT, 'server', 'middleware', 'permissionsPolicy.js'),
+  'utf8',
+);
 
 let pass = 0;
 let fail = 0;
@@ -89,9 +94,11 @@ function httpGet(pathname, host) {
     assert.match(SERVER_SRC, /referrerPolicy:\s*\{\s*policy:\s*"strict-origin-when-cross-origin"/);
   });
   await test('手写 Permissions-Policy middleware 保留（helmet 8.x 仍不直接支持）', () => {
-    assert.match(SERVER_SRC, /res\.setHeader\(\s*\n?\s*"Permissions-Policy"/);
-    assert.match(SERVER_SRC, /accelerometer=\(\)/);
-    assert.match(SERVER_SRC, /fullscreen=\(self\)/);
+    // 周期 57：setHeader 已迁到 middleware 文件；index.js 负责接线 app.use(permissionsPolicy())
+    assert.match(PP_MIDDLEWARE_SRC, /res\.setHeader\(\s*['"]Permissions-Policy['"]/);
+    assert.match(SERVER_SRC, /app\.use\(permissionsPolicy\(/);
+    assert.match(PP_MIDDLEWARE_SRC, /accelerometer=\(\)/);
+    assert.match(PP_MIDDLEWARE_SRC, /fullscreen=\(self\)/);
   });
   await test('CSP 至少 12 项 directive', () => {
     // 至少有 12 项 contentSecurityPolicy directives

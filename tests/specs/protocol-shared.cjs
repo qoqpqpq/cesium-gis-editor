@@ -38,6 +38,11 @@ const PROTOCOL_INDEX_SRC = fs.readFileSync(
   path.resolve(__dirname, '../../server/agent/protocol/index.js'),
   'utf8',
 );
+// 周期 57：TOOL_OPEN/TOOL_CLOSE 常量定义在 constants.js（index.js re-export）
+const PROTOCOL_CONSTANTS_SRC = fs.readFileSync(
+  path.resolve(__dirname, '../../server/agent/protocol/constants.js'),
+  'utf8',
+);
 const PROTOCOL_PARSE_SRC = fs.readFileSync(
   path.resolve(__dirname, '../../server/agent/protocol/parse.js'),
   'utf8',
@@ -55,9 +60,9 @@ const PROTOCOL_PARSE_SRC = fs.readFileSync(
     assert.match(PROTOCOL_INDEX_SRC, /function\s+parseToolTags/);
     assert.match(PROTOCOL_INDEX_SRC, /parseToolTags/);
   });
-  await test('protocol/index.js 暴露 TOOL_OPEN / TOOL_CLOSE 常量', () => {
-    assert.match(PROTOCOL_INDEX_SRC, /const\s+TOOL_OPEN\s*=\s*['"]<tool>['"]/);
-    assert.match(PROTOCOL_INDEX_SRC, /const\s+TOOL_CLOSE\s*=\s*['"]<\/tool>['"]/);
+  await test('protocol 暴露 TOOL_OPEN / TOOL_CLOSE 常量（定义在 constants.js，index.js re-export）', () => {
+    assert.match(PROTOCOL_CONSTANTS_SRC, /const\s+TOOL_OPEN\s*=\s*['"]<tool>['"]/);
+    assert.match(PROTOCOL_CONSTANTS_SRC, /const\s+TOOL_CLOSE\s*=\s*['"]<\/tool>['"]/);
   });
   await test('parse.js 改为 re-export（向后兼容）', () => {
     assert.match(PROTOCOL_PARSE_SRC, /require\(['"]\.\/index['"]\)/);
