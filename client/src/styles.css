@@ -133,6 +133,17 @@
   --gap-20px: 20px; /* 原 padding:20px ×1 */
   --gap-28px: 28px; /* 原 padding:28px ×1 */
   --gap-30px: 30px; /* 原 padding:30px ×1 */
+  /* 字距（UR-2 步骤8 收敛：letter-spacing 组件实际值，等值零视觉变化）
+     值命名、非语义档；字距语义阶梯（tracking-tight/normal/wide）待设计拍板（UR-3 待办）。 */
+  --ls-0-5px: 0.5px;      /* 原 ×7 */
+  --ls-0-05em: 0.05em;    /* 原 ×3 */
+  --ls-1px: 1px;          /* 原 ×3 */
+  --ls-0-3px: 0.3px;      /* 原 ×3 */
+  --ls-0-4px: 0.4px;      /* 原 ×3 */
+  --ls-0-02em: 0.02em;    /* 原 ×2 */
+  --ls-neg-0-4px: -0.4px; /* 原 ×1 */
+  --ls-2px: 2px;          /* 原 ×1 */
+  --ls-0-2px: 0.2px;      /* 原 ×1 */
   /* 动效 */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --duration: 0.25s;
@@ -487,7 +498,7 @@ p {
   font-weight: var(--fw-medium);
   font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--ls-0-05em);
 }
 .usage-table-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -825,7 +836,7 @@ textarea.input {
   font-size: var(--fs-5xl);
   font-weight: var(--fw-extrabold);
   margin-bottom: var(--gap-6px);
-  letter-spacing: -0.4px;
+  letter-spacing: var(--ls-neg-0-4px);
   background: linear-gradient(90deg, #f1f4ff 30%, var(--text-soft));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1820,7 +1831,7 @@ textarea.input {
   color: var(--text-soft);
   writing-mode: vertical-rl;
   text-orientation: mixed;
-  letter-spacing: 2px;
+  letter-spacing: var(--ls-2px);
 }
 
 /* 折叠按钮 */
@@ -1828,7 +1839,7 @@ textarea.input {
   font-size: var(--fs-sm) !important;
   font-weight: var(--fw-bold);
   color: var(--text-soft) !important;
-  letter-spacing: 1px;
+  letter-spacing: var(--ls-1px);
 }
 
 @media (max-width: 1024px) {
@@ -2200,7 +2211,7 @@ textarea.input {
   white-space: nowrap;
   color: var(--text-soft);
   font-size: var(--fs-sm);
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-0-5px);
 }
 .opacity-slider {
   flex: 1;
@@ -2422,7 +2433,7 @@ textarea.input {
 .ai-code-tag {
   font-size: var(--fs-sm);
   color: var(--ai-code-tag);
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-0-5px);
 }
 .ai-code-body {
   margin: 0;
@@ -2480,7 +2491,7 @@ textarea.input {
   padding: 1px 6px;
   border-radius: var(--radius-sm);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: var(--ls-1px);
 }
 .tool-pending {
   background: var(--info-bg);
@@ -2537,7 +2548,7 @@ textarea.input {
   font-weight: var(--fw-semibold);
   cursor: pointer;
   transition: all 0.15s;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-0-5px);
 }
 .sandcastle-ai-btn:hover {
   filter: brightness(1.1);
@@ -2642,7 +2653,7 @@ textarea.input {
   font-weight: var(--fw-semibold);
   color: #a5b4fc;
   margin-right: var(--gap-4px);
-  letter-spacing: 0.02em;
+  letter-spacing: var(--ls-0-02em);
 }
 .ai-tool-chip {
   display: inline-flex;
@@ -2818,7 +2829,7 @@ textarea.input {
   padding: 1px 6px;
   border-radius: var(--radius-4);
   margin-right: var(--gap-6px);
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-0-5px);
 }
 
 /* 简单 Markdown */
@@ -3144,7 +3155,7 @@ textarea.input {
   line-height: var(--lh-none);
 }
 .run-label {
-  letter-spacing: 0.3px;
+  letter-spacing: var(--ls-0-3px);
 }
 .run-kbd {
   display: inline-block;
@@ -3156,7 +3167,7 @@ textarea.input {
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-  letter-spacing: 0.3px;
+  letter-spacing: var(--ls-0-3px);
   opacity: 0.9;
   line-height: var(--lh-snug);
 }
@@ -3489,7 +3500,7 @@ textarea.input {
   font-size: var(--fs-xs);
   color: var(--text-meta);
   font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-  letter-spacing: 0.2px;
+  letter-spacing: var(--ls-0-2px);
   user-select: none;
 }
 .output-tag {
@@ -3501,7 +3512,7 @@ textarea.input {
   background: var(--surface-dark-7);
   color: var(--color-blue-300);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: var(--ls-1px);
   padding: 2px 0;
   font-family: inherit;
 }
@@ -3664,7 +3675,7 @@ textarea.input {
   color: var(--text-soft);
   font-size: var(--fs-sm);
   margin-bottom: var(--gap-6px);
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-0-5px);
   text-transform: uppercase;
 }
 .loaded-files ul {
@@ -3993,7 +4004,7 @@ textarea.input {
   font-size: var(--fs-sm);
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-0-5px);
   margin-bottom: var(--gap-1);
 }
 
@@ -4160,7 +4171,7 @@ textarea.input {
   font-size: var(--fs-xs);
   color: var(--muted, var(--color-slate-400));
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--ls-0-5px);
   margin-bottom: var(--gap-4px);
 }
 
@@ -4680,7 +4691,7 @@ textarea.input {
   font-family: inherit;
   font-size: var(--fs-xs);
   font-weight: var(--fw-semibold);
-  letter-spacing: 0.05em;
+  letter-spacing: var(--ls-0-05em);
   padding: 2px 7px;
   border-radius: var(--radius-3);
   cursor: pointer;
@@ -4766,14 +4777,14 @@ textarea.input {
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-cell-label {
   color: var(--text-soft);
   font-size: var(--fs-sm);
-  letter-spacing: 0.05em;
+  letter-spacing: var(--ls-0-05em);
   font-weight: var(--fw-semibold);
 }
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-cell-value {
   color: var(--text-primary);
   font-size: var(--fs-md);
   font-weight: var(--fw-medium);
-  letter-spacing: 0.02em;
+  letter-spacing: var(--ls-0-02em);
   min-width: 0;
   transition: color var(--theme-transition-duration) var(--theme-transition-ease);
 }
@@ -5057,7 +5068,7 @@ textarea.input {
   border-bottom: 1px solid var(--white-08);
   font-size: var(--fs-sm);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: var(--ls-0-4px);
 }
 .attr-col-menu-item {
   display: flex;
@@ -5138,7 +5149,7 @@ textarea.input {
   white-space: nowrap;
   text-transform: uppercase;
   font-size: var(--fs-xs);
-  letter-spacing: 0.4px;
+  letter-spacing: var(--ls-0-4px);
   z-index: 1;
 }
 .attr-table tbody tr {
@@ -5241,7 +5252,7 @@ textarea.input {
   font-size: var(--fs-sm);
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: var(--ls-0-3px);
 }
 .analysis-row select,
 .analysis-row input[type=number] {
@@ -5306,7 +5317,7 @@ textarea.input {
   color: var(--primary-500) !important;
   font-weight: var(--fw-bold);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: var(--ls-0-4px);
   background: transparent !important;
 }
 .op-dropdown-option {
