@@ -5,7 +5,7 @@
 | ID | 类型 | 描述 | 严重级 | 状态 | 录入轮 | 备注 |
 | --- | --- | --- | --- | --- | --- | --- |
 | R-1501 | 技术债 | multiAgentPlanner 当前 planner 为确定性规则（capability/phase），尚未接真实 LLM 产出 steps；LLM planner 适配层待落 | 中 | **resolved (cycle 16)** | cycle 15 | 已落 `server/agent/llmPlannerAdapter.js`，复用 execute/verify 门禁；spec 31 PASS |
-| R-1502 | 已知缺陷 | checkpoint.cjs / probe-real-ai-tool-first.cjs 需运行中 server；自动周期离线环境无法跑，存在回归盲区 | 中 | open | cycle 15 | 下一轮在有 server 环境时补跑 |
+| R-1502 | 已知缺陷 | checkpoint.cjs / probe-real-ai-tool-first.cjs 需运行中 server；自动周期离线环境无法跑，存在回归盲区 | 中 | **verified (cycle 59)** | cycle 15 | server/index.js 已在 3001 运行；c59 补跑 **checkpoint --strict 9/9 + probe-real-ai-tool-first --strict 6/6 = 15/15 PASS**，端点契约/探活/schema 均绿，回归盲区关闭 |
 | R-1503 | 外部依赖 | 自动周期多模型故障转移（sensenova/deepseek/kimi）无法在 Agent 运行时自动切换，需 Harness 层配置 | 中 | open | cycle 15 | 降级时仅同模型内应对，已在 runbook 标注边界 |
 | R-1601 | 技术债 | llmPlannerAdapter 仅以注入 llmChat + mock 验证；真实平台端到端（真实 LLM 产出 steps）待有 API Key + 网络时验证 | 中 | open | cycle 16 | 离线环境无法跑真实 LLM 路径 |
 | R-1701 | 技术债 | workload identity 三函数已落但未接入 withGuardrail 主链；接入需评估对既有调用方/对外接口影响，可能触发变更准入评审 | 中 | **resolved (cycle 18)** | cycle 17 | 已 opt-in 接入主链（默认关闭，签名不变，既有调用方零影响）；spec 19 PASS |
