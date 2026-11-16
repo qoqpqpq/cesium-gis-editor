@@ -29,3 +29,11 @@
 - TD-5501 剩 3 项（metadata-ip-maintenance / metadata-ip-sync-script / viewstate-browser-decompress）仍需用户决策（补文档 vs 删 spec / 装 client 依赖）。
 - UI-REFACTOR UR-3 / UR-4 需人工设计判断 + 视觉核对。
 - R-1601 待真实 API Key + 网络。
+
+### c59 续（用户决策后，13:22 拍板）
+- 用户决策：T1 补文档 / T2 补文档（改对齐脚本）/ T3 装 client 依赖 / U3·U4·U0 继续 / R16 网络部分可达（OpenAI 不可达、DeepSeek/Moonshot/DashScope 可达）但无 Key / R15 为会话-调度（Harness 层）事项非仓库。
+- **TD-5501 归零**：
+  - T1 `metadata-ip-maintenance`：补 `docs/security/metadata-ips.md` 缺 3 IP（169.254.170.1 / 169.254.0.1 / fe80::a9f:feff:fecf:3c）+ `metadata-ip-maintenance` 维护命令说明 → **32/32 PASS**。
+  - T2 `metadata-ip-sync-script`：spec 对齐当前 `scripts/sync-metadata-ips.cjs` 真实 API（parse/parseArgs/parseMarkdown/parseJson/parseCsv/sync/DEFAULT_SOURCE + dry-run 不写文件断言），替代过时的 parseMarkdownTable/parseSourceSet 断言 → **11/11 PASS**。
+  - T3 `viewstate-browser-decompress`：`cd client && npm install pako@^2.2.0`（346 pkgs，license MIT AND Zlib）→ **15/15 PASS**。
+- **全量回归：5092 PASS / 0 FAIL**（唯一超时为 `helmet-8-permissionspolicy-recheck.cjs` exit124，既有环境相关 HTTP server spec，非本轮引入）。

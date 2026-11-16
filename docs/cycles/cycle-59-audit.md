@@ -11,3 +11,4 @@
 - 验证结果：checkpoint --strict 9/9 + probe-real-ai-tool-first --strict 6/6 = **15/15 PASS**。
 - 风险：无新增阻断/严重缺陷；R-1502 回归盲区关闭。
 - 异常：无。
+- c59 续（用户决策后）：TD-5501 归零——metadata-ip-maintenance 32/32、metadata-ip-sync-script 11/11、viewstate-browser-decompress 15/15；全量回归 **5092 PASS / 0 FAIL**。改动：docs/security/metadata-ips.md、tests/specs/metadata-ip-sync-script.cjs、client/package-lock.json、risk-ledger（TD-5501 → resolved）。
