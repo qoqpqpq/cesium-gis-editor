@@ -107,6 +107,12 @@
   --shadow-sm: 0 2px 8px var(--ink-25);
   --shadow-md: 0 6px 20px var(--ink-35);
   --shadow-lg: 0 14px 40px var(--ink-45);
+  /* 值命名档（UR-2 步骤7 收敛：组件规则重复值，等值零视觉变化）
+     值命名、非语义档；语义阶梯（sm/md/lg/xl）待设计拍板（UR-3 待办）。
+     注：styles.css 与 theme.css 均定义 --shadow-sm/md/lg，浅色主题下两处不等价
+     （alpha 0.25 vs 0.06），潜在不一致，需视觉 QA，不自动改。 */
+  --shadow-12-40-ink50: 0 12px 40px var(--ink-50); /* 原 box-shadow ×5（浮层面板） */
+  --shadow-1-4-ink30: 0 1px 4px var(--ink-30);     /* 原 box-shadow ×2 */
   /* 间距 */
   --gap-1: 8px;
   --gap-2: 12px;
@@ -2215,7 +2221,7 @@ textarea.input {
   border-radius: var(--radius-full);
   cursor: pointer;
   border: 2px solid var(--white-90);
-  box-shadow: 0 1px 4px var(--ink-30);
+  box-shadow: var(--shadow-1-4-ink30);
 }
 .opacity-slider::-moz-range-thumb {
   width: 14px;
@@ -2224,7 +2230,7 @@ textarea.input {
   border-radius: var(--radius-full);
   cursor: pointer;
   border: 2px solid var(--white-90);
-  box-shadow: 0 1px 4px var(--ink-30);
+  box-shadow: var(--shadow-1-4-ink30);
 }
 .opacity-value {
   min-width: 36px;
@@ -3578,7 +3584,7 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-md);
   backdrop-filter: blur(12px);
-  box-shadow: 0 12px 40px var(--ink-50);
+  box-shadow: var(--shadow-12-40-ink50);
   font-size: var(--fs-md);
   font-family: inherit;
   overflow: hidden;
@@ -3899,7 +3905,7 @@ textarea.input {
   border: 1px solid var(--white-12);
   border-radius: var(--radius-md);
   backdrop-filter: blur(12px);
-  box-shadow: 0 12px 40px var(--ink-50);
+  box-shadow: var(--shadow-12-40-ink50);
   font-size: var(--fs-md);
   font-family: inherit;
   display: flex;
@@ -4838,7 +4844,7 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-10);
   backdrop-filter: blur(12px);
-  box-shadow: 0 12px 40px var(--ink-50);
+  box-shadow: var(--shadow-12-40-ink50);
   font-size: var(--fs-md);
   color: var(--text);
   display: flex;
@@ -5204,7 +5210,7 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-10);
   backdrop-filter: blur(12px);
-  box-shadow: 0 12px 40px var(--ink-50);
+  box-shadow: var(--shadow-12-40-ink50);
   font-size: var(--fs-md);
   color: var(--text);
   overflow: hidden;
@@ -5424,7 +5430,7 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-10);
   backdrop-filter: blur(12px);
-  box-shadow: 0 12px 40px var(--ink-50);
+  box-shadow: var(--shadow-12-40-ink50);
   font-size: var(--fs-md);
   color: var(--text);
   overflow: hidden;
