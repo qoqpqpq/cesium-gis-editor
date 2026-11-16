@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 63 已交付（2026-11-16，自动周期第十五轮）
+
+- ✅ **UI-REFACTOR UR-4 行高方案 A：line-height 等值 token 化** —— 新增 8 个行高 token `--lh-none:1`/`--lh-tight:1.1`/`--lh-snug:1.4`/`--lh-normal:1.5`/`--lh-relaxed:1.6`/`--lh-loose:1.7`/`--lh-155:1.55`/`--lh-185:1.85`（等值零视觉变化）；迁移 **37 处** line-height（1×7 + 1.1×1 + 1.4×6 + 1.5×6 + 1.55×7 + 1.6×6 + 1.7×3 + 1.85×1）→`var(--lh-*)`；styles.css 真实 line-height 声明 **0 处原始值**。方案 B（归一化 `1.55→1.5/1.6`、`1.1→1`、`1.85→1.7`）留待视觉 QA。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit **12/12**（新增 A12「line-height 已 token 化」）+ css-var-reference-guard 9 + design-token-audit 13 零失败
+
 ## 周期 62 已交付（2026-11-16，自动周期第十四轮）
 
 - ✅ **UI-REFACTOR UR-4 字重 token 化（font-weight 阶梯）+ 行高审计基线** —— 新增 5 个字重 token `--fw-normal:400`/`--fw-medium:500`/`--fw-semibold:600`/`--fw-bold:700`/`--fw-extrabold:800`（等值零视觉变化）；迁移 **76 处** font-weight（600×50 + 500×13 + 700×6 + normal×4 + bold×2 + 800×1）→`var(--fw-*)`；styles.css 真实 font-weight 声明 **0 处原始值**。行高（line-height 37 处，8 个无单位比值 1/1.1/1.4/1.5/1.55/1.6/1.7/1.85）**只审计不改码**，基线+提案见 `docs/guides/ur4-line-height-baseline.md`（方案 A 等值 token 化待拍板，方案 B 归一化需视觉 QA）。等值零视觉变化、双主题未破（0 未定义 var、括号平衡 910/910）。回归 css-duplication-audit **11/11**（新增 A11「font-weight 已 token 化」）+ css-var-reference-guard 9 + design-token-audit 13 零失败
