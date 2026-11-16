@@ -231,6 +231,32 @@ function runJson() {
     assert.ok(!/\)undefined/.test(src), '发现 )undefined 替换污染');
   });
 
+  await ok('A19: 重复（≥2 次）box-shadow 原始值已 token 化（UR-2 阴影 scale 步骤7 生效）', () => {
+    const fs = require('fs');
+    let src = '';
+    for (const f of ['client/src/styles.css', 'client/src/theme.css']) {
+      const lines = fs.readFileSync(f, 'utf8').split('\n');
+      for (const l of lines) if (!/^\s*--[a-zA-Z0-9-]+:/.test(l)) src += l + '\n';
+    }
+    src = src.replace(/\/\*[\s\S]*?\*\//g, '');
+    // 1) 重复（≥2 次）的非 var() 原始 box-shadow 值必须为 0（单次值 x1 属组件专属，留 UR-3）
+    const re = /box-shadow:\s*([^;}]*)/g;
+    const raw = new Map();
+    let x;
+    while ((x = re.exec(src)) !== null) {
+      const v = x[1].trim();
+      if (!v || /^var\(/.test(v) || v === 'none') continue;
+      raw.set(v, (raw.get(v) || 0) + 1);
+    }
+    const offenders = [...raw].filter(([v, n]) => n >= 2).map(([v, n]) => `${v.slice(0, 50)} x${n}`);
+    assert.strictEqual(offenders.length, 0, `仍存在重复（≥2 次）box-shadow 原始值: ${offenders.join(', ')}`);
+    // 2) 反 C70-B01：box-shadow 值不得是裸自定义属性
+    const bare = src.match(/box-shadow:\s*--shadow/g);
+    assert.strictEqual(bare ? bare.length : 0, 0, `发现裸自定义属性引用: ${(bare || []).slice(0, 5).join(', ')}`);
+    // 3) 反 C70-B02：脚本替换不得拼出 )undefined
+    assert.ok(!/\)undefined/.test(src), '发现 )undefined 替换污染');
+  });
+
   console.log(`--- summary: pass=${pass} fail=${fail} ---`);
   process.exit(fail > 0 ? 1 : 0);
 })().catch((e) => {
