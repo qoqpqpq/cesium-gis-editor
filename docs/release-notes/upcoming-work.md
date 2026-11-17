@@ -19,6 +19,11 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 77 已交付（2026-11-17，自动周期第二十六轮 · 用户指令「做 UR-2 逻辑层 hook 抽取」）
+
+- ✅ **UI-REFACTOR UR-2 逻辑层结构重构：`index.jsx` 逻辑层整体搬迁到自定义 hook `useGisPage`**（功能零回归·纯搬迁保行为）—— `index.jsx` **1058→271（−787，−74.5%）**；新增 `useGisPage.js`（**942 行**逻辑层 hook，含全部 useState/useEffect/useRef/useCallback/事件绑定/处理器，返回 **68 个绑定**）；index.jsx 仅留 import + `useGisPage()` + 解构 + **渲染段（逐字节不变）**。验证：**逐字节校验 render/hook 逻辑体均与原文一致**（纯搬迁保行为）、括号平衡 0/0、解构 68 条含全部渲染关键引用（含 `async function` 的 `handleAiSend`/`runSandboxCode`）、`vite build` ✓ 6.29s（503 modules）、CSS 门禁 20/20+9/9+13/13、无其他文件导入 index.jsx 内部
+- ⏭️ **遗留**：`useGisPage.js` 可继续按职责拆 `useGisScene`/`useGisAi`/`useGisEvents`（低风险进一步结构优化）；**建议人工浏览器冒烟测试**（三列拖拽/折叠、代码执行、AI 助手、截图、分享链接——`vite build` 不验运行时渲染）；UR-3 设计拍板项不变（语义阶梯/单次色与 alpha 归并/`--shadow-sm/md/lg` 双文件不等价/多值简写复合 token/26 处单次 box-shadow）
+
 ## 周期 75 已交付（2026-11-17，自动周期第二十五轮 · 用户指令「做 index.jsx 视觉密度精简」）
 
 - ✅ **UI-REFACTOR UR-2 验收项：`index.jsx` 视觉密度与嵌套精简、抽取可复用样式**（功能零回归）—— 审计：index.jsx 1100 行 = 逻辑 ~860（78%）+ JSX ~240（22%）。JSX 内样式重复：折叠条 2 处 / 分隔条 2 处 / 列类名拼接 3 处。**抽取 5 个纯展示可复用位到新文件 `GisLayoutBits.jsx`**（`colClass`/`CollapseBar`/`HSplitter`/`ToastStack`/`AiSceneDescBanner`），index.jsx 改用之，**业务逻辑/状态/事件绑定 0 改动**。**index.jsx 1100→1058（−42 行，−3.8%）**；样式重复消除（`col-collapse-bar` 2→1、`gis-hsplitter` 2→1、列类名拼接 3→0）；主 return 22→16 JSX 块（视觉密度降）。`vite build` ✓ 6.31s（503 modules）；CSS 门禁 20/20+9/9+13/13 无回归；5 个新导入全部使用。功能零回归（纯展示移动，类名/props 原样）
