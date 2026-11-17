@@ -1,10 +1,10 @@
 {
-  "current_cycle": 77,
+  "current_cycle": 78,
   "previous_cycle": 50,
-  "last_run_status": "completed",
-  "last_run_at": "2026-11-17T10:00:00+08:00",
+  "last_run_status": "skipped",
+  "last_run_at": "2026-11-17T10:15:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
-  "cycle_completed_at": "2026-11-17T10:00:00+08:00",
+  "cycle_completed_at": "2026-11-17T10:15:00+08:00",
   "current_round": 2,
   "round_status": "completed",
   "round_completed_at": "2026-10-17T23:45:00+08:00",
@@ -1116,12 +1116,12 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 77,
-    "acquired_at": "2026-11-17T09:30:00+08:00",
-    "released_at": "2026-11-17T10:00:00+08:00",
+    "cycle": 78,
+    "acquired_at": "2026-11-17T10:15:00+08:00",
+    "released_at": "2026-11-17T10:15:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "completed",
   "await_confirm_reason": null,
-  "skip_reason": "cycle-75 已交付 index.jsx 视觉密度精简；下一可行项（UR-2 逻辑层 hook 抽取）回归风险较高需评审，UR-3 需设计拍板；无新用户指令，不擅自执行"
+  "skip_reason": "useGisPage 按职责拆分需共享状态提升（行为影响型重构）需评审；UR-3 需设计拍板；无新用户指令，不擅自执行"
 }
