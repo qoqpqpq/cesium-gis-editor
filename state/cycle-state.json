@@ -1124,5 +1124,16 @@
   "status": "completed",
   "await_confirm_reason": null,
   "skip_reason": "无新用户指令；useGisPage 拆分需评审（共享状态耦合）、UR-3 需设计拍板",
-  "task": "UR-2 接口收尾：裁剪 useGisPage() 解构 68→45"
+  "task": "UR-2 接口收尾：裁剪 useGisPage() 解构 68→45",
+  "decision_queue": [
+    "smoke-test-cycle77",
+    "useGisPage-split",
+    "ur3-shadow-sm-md-lg-unequal",
+    "ur3-semantic-scale",
+    "ur3-color-alpha-merge",
+    "ur3-shorthand-composite",
+    "ur3-single-box-shadow",
+    "ur3-editor-panel-density"
+  ],
+  "decision_recorded_at": "2026-11-17T13:20:00+08:00"
 }
