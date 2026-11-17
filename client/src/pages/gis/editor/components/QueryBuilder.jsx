@@ -13,7 +13,7 @@
 //   - 底部 [+ 添加规则] 按钮 + "导出 SQL 描述" 按钮
 //   - 字段下拉包含保留列 name/kind/layerId + 自定义 attrs 字段
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { compileQuery } from '../utils/queryCompiler.js';
 
 // 不同 op 的 value 输入类型

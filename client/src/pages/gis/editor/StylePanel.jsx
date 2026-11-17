@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import * as Cesium from 'cesium';
-import { StyleCommand, BatchStyleCommand } from './utils/commands.js';
+import { BatchStyleCommand } from './utils/commands.js';
 import { useUndoStack } from './hooks/useUndoStack.js';
 import { useDraggableResizable } from './hooks/useDraggableResizable.js';
 import { collectFields } from './utils/attrs.js';

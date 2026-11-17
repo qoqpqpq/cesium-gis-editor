@@ -3,7 +3,7 @@
 // 支持拖动顶点（更新 entity 的 positions），Shift+点 = 删除顶点，右键边 = 插入顶点
 // 吸附：拖动时找屏幕距离 < tolerance 的其他顶点/边
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import * as Cesium from 'cesium';
 import { safePickEllipsoid, whenViewerReady } from '../utils/picking.js';
 import { snapAll } from '../utils/snap.js';

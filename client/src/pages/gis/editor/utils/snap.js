@@ -3,7 +3,6 @@
 // 边吸附：扫 polyline / polygon 边，screen 距离 < tolPx 时返回最近点的 terrain Cartesian
 // 排除调用方自身的 featureId（避免自吸附干扰）
 
-import * as Cesium from 'cesium';
 
 const DEFAULT_TOL = 12;
 

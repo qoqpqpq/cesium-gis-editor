@@ -1,7 +1,6 @@
 // exporter — 把 editor DataSource 转 GeoJSON / KML，以及触发下载
 
 import * as Cesium from 'cesium';
-import { cartesiansToLngLatHeights } from './geometry.js';
 
 // 提取一个 entity 的 GeoJSON geometry（不含 properties）
 function entityToGeometry(entity) {

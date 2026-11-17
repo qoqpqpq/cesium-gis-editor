@@ -3,11 +3,11 @@
 //     + measure 类型（area / length，仅展示数值）
 // 一旦点「应用」→ AnalysisCommand（复合命令，整体可 undo）
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDraggableResizable } from '../hooks/useDraggableResizable.js';
-import { runOp, runOpServer, measureOp, localMeasure, isBooleanOp, SINGLE_LAYER_OPS, DOUBLE_LAYER_OPS } from '../utils/analysis.js';
-import { autoChooseMode, resolveRunMode, LARGE_DATASET_VERTEX_THRESHOLD, LARGE_BOOLEAN_POLYGON_THRESHOLD } from '../utils/autoMode.js';
+import { runOp, runOpServer, localMeasure, isBooleanOp, SINGLE_LAYER_OPS, DOUBLE_LAYER_OPS } from '../utils/analysis.js';
+import { autoChooseMode, resolveRunMode } from '../utils/autoMode.js';
 import { rebuildFromSnapshot, AnalysisCommand } from '../utils/commands.js';
 
 const OPS = [

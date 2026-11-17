@@ -2,7 +2,7 @@
 // 来源：GeoLibre 文章的"分析前先做三项检查"框架
 // 显示 位置 / 几何 / 属性 三个分类卡 + 摘要
 
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useDraggableResizable } from '../hooks/useDraggableResizable.js';
 import { runThreeCheck } from '../utils/threeCheck.js';
 

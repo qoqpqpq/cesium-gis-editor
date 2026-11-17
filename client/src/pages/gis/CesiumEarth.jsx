@@ -1,11 +1,10 @@
 // Cesium 三维地球容器
 // - 通过 forwardRef 暴露动作 API（flyTo / addMarker / drawRect / ...）
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import * as Cesium from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { useTheme } from '../../components/ThemeProvider.jsx';
 import { snapshotCamera, applyCameraSnapshot } from '../../utils/viewState.js';
-import { gisApi } from '../../api/index.js';
 import CursorReadout from './editor/CursorReadout.jsx';
 import { addEditorFeature } from './editor/utils/featureFactory.js';
 import { notifyEditorDataChange } from './editor/EditorDataBridge.js';

@@ -3,7 +3,6 @@
 // 行内操作:👁 显隐 / 选择(单击高亮) / 飞向 / 删除
 // 图层行操作:👁 整体显隐 / 全选 / 全不选 / 反选 / 删除图层
 
-import { useState } from 'react';
 
 const KIND_LABEL = {
   point: '点', polyline: '折线', polygon: '多边形',

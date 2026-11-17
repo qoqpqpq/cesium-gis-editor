@@ -17,9 +17,9 @@
 //
 // 离线/纯前端：所有逻辑都在本地执行，无外部依赖
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { parseNlQuery } from './editor/utils/nlQueryParser.js';
-import { buildSuggestions, describeSuggestion, suggestionToQuery, KIND_META } from './editor/utils/aiSuggestions.js';
+import { buildSuggestions, suggestionToQuery, KIND_META } from './editor/utils/aiSuggestions.js';
 import { exportSceneReport, downloadReport } from './editor/utils/aiDocumentExporter.js';
 import { suggestCesiumCode } from './editor/utils/nlCodeSuggester.js';
 
