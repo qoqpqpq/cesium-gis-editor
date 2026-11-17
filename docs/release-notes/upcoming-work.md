@@ -19,6 +19,11 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 75 已交付（2026-11-17，自动周期第二十五轮 · 用户指令「做 index.jsx 视觉密度精简」）
+
+- ✅ **UI-REFACTOR UR-2 验收项：`index.jsx` 视觉密度与嵌套精简、抽取可复用样式**（功能零回归）—— 审计：index.jsx 1100 行 = 逻辑 ~860（78%）+ JSX ~240（22%）。JSX 内样式重复：折叠条 2 处 / 分隔条 2 处 / 列类名拼接 3 处。**抽取 5 个纯展示可复用位到新文件 `GisLayoutBits.jsx`**（`colClass`/`CollapseBar`/`HSplitter`/`ToastStack`/`AiSceneDescBanner`），index.jsx 改用之，**业务逻辑/状态/事件绑定 0 改动**。**index.jsx 1100→1058（−42 行，−3.8%）**；样式重复消除（`col-collapse-bar` 2→1、`gis-hsplitter` 2→1、列类名拼接 3→0）；主 return 22→16 JSX 块（视觉密度降）。`vite build` ✓ 6.31s（503 modules）；CSS 门禁 20/20+9/9+13/13 无回归；5 个新导入全部使用。功能零回归（纯展示移动，类名/props 原样）
+- ⏭️ **遗留**：业务逻辑层结构重构（~860 行：`handleAiSend`/事件绑定 `useEffect`/`captureSceneContext` 抽 hook）属结构重构、回归风险较高，留 UR-3 或独立任务（需评审）；`GisLayoutBits` 组件可被其他页面复用；UR-3 设计待拍板项不变（语义阶梯/单次 box-shadow/单次色与 alpha 归并/`--shadow-sm/md/lg` 双文件不等价/多值简写复合 token）
+
 ## 周期 72 已跳过（2026-11-17，自动周期第二十四轮）
 
 - ⏭️ **skipped**：无可执行任务。UR-2 纯自动化 scale（字号/字重/行高/圆角/gap/padding-margin 单值/阴影重复值/字距）已全部完成；UR-3/UR-4 剩余项（字距/间距语义阶梯、26 处单次 box-shadow、单次色与 alpha 变体归并、`--shadow-sm/md/lg` 双文件不等价、多值简写复合 token、`index.jsx` 视觉密度精简）均需**设计拍板或视觉 QA**，无量化可验证的纯迁移入口。**不启动、不造需求**。待人工给出设计方向或指定任务后，下一轮再续。
