@@ -8,11 +8,6 @@ import { executeCesiumCode } from './sandbox.js';
 import { buildSceneContext, formatSceneContext, headlineOf } from './aiContext.js';
 import { runAgentLoop } from './aiAgent.js';
 import { toolDocsForPrompt } from './aiTools.js';
-import CesiumEarth from './CesiumEarth.jsx';
-import AiSidePanel from './AiSidePanel.jsx';
-import CodeEditor from './CodeEditor.jsx';
-import FileLoader from './FileLoader.jsx';
-import EditorPanel from './editor/EditorPanel.jsx';
 import { readViewStateFromUrl, buildShareUrl } from '../../utils/viewState.js';
 import * as sessionKeys from '../../utils/sessionKeys.js';
 
