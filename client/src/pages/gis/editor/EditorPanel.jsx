@@ -24,7 +24,7 @@ import { safePickEllipsoid, whenViewerReady } from './utils/picking.js';
 import { detectCoordCols, parseDelimited, rowsToGeoJson, rowsToGeoJsonFromWkt } from './utils/tabular.js';
 import { readAttrs } from './utils/attrs.js';
 import { buildShareUrl, snapshotCamera } from '../../../utils/viewState.js';
-import { AddCommand, ClearAllCommand, DeleteCommand, RenameCommand, StyleCommand, VisibilityCommand, snapshotEntity, BatchDeleteCommand, BatchAttrCommand, LayerCreateCommand, LayerVisibilityCommand, LayerAssignCommand } from './utils/commands.js';
+import { AddCommand, ClearAllCommand, DeleteCommand, RenameCommand, VisibilityCommand, BatchDeleteCommand, BatchAttrCommand, LayerCreateCommand, LayerVisibilityCommand, LayerAssignCommand } from './utils/commands.js';
 import { buildFeatureOptions, DEFAULT_STYLE as FACTORY_DEFAULT_STYLE } from './utils/featureFactory.js';
 import { addEditorFeature } from './utils/featureFactory.js';
 import { subscribeEditorDataChange } from './EditorDataBridge.js';
