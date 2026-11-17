@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 // 路由级代码分割 — 首屏只下载 GIS 页面
 const GIS = lazy(() => import('./pages/gis/index.jsx'));

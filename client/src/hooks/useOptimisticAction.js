@@ -28,7 +28,7 @@
 
 'use strict';
 
-import { serializeError, isReact19, initUseActionStateGuard } from '../utils/useActionStateGuard.js';
+import { serializeError, isReact19 } from '../utils/useActionStateGuard.js';
 
 let _React = null;
 let _reactLoadError = null;
