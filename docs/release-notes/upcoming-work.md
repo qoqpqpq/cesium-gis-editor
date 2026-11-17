@@ -19,6 +19,11 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 83 已交付（2026-11-17，自动周期第二十七轮 · UR-2 结构清理）
+
+- ✅ **UR-2 结构清理：清除 `useGisPage.js` 未用组件 import**（cycle-77 搬迁遗留，5 个纯表现层组件 import 因注释/字符串内组件名被误判带入，实际零代码引用）—— `useGisPage.js` **942→936**；构建 ✓ 6.45s（503 modules）；CSS 门禁 20/20+9/9+13/13；零行为改动（仅删未用符号）
+- ⏭️ **遗留**：cycle-77 迁移建议人工浏览器冒烟测试；`useGisPage` 按职责拆 `useGisScene`/`useGisAi`/`useGisEvents` 需评审（共享状态耦合）；UR-3 设计拍板项不变（语义阶梯/单次色与 alpha 归并/`--shadow-sm/md/lg` 双文件不等价/多值简写复合 token/26 处单次 box-shadow）
+
 ## 周期 77 已交付（2026-11-17，自动周期第二十六轮 · 用户指令「做 UR-2 逻辑层 hook 抽取」）
 
 - ✅ **UI-REFACTOR UR-2 逻辑层结构重构：`index.jsx` 逻辑层整体搬迁到自定义 hook `useGisPage`**（功能零回归·纯搬迁保行为）—— `index.jsx` **1058→271（−787，−74.5%）**；新增 `useGisPage.js`（**942 行**逻辑层 hook，含全部 useState/useEffect/useRef/useCallback/事件绑定/处理器，返回 **68 个绑定**）；index.jsx 仅留 import + `useGisPage()` + 解构 + **渲染段（逐字节不变）**。验证：**逐字节校验 render/hook 逻辑体均与原文一致**（纯搬迁保行为）、括号平衡 0/0、解构 68 条含全部渲染关键引用（含 `async function` 的 `handleAiSend`/`runSandboxCode`）、`vite build` ✓ 6.29s（503 modules）、CSS 门禁 20/20+9/9+13/13、无其他文件导入 index.jsx 内部
