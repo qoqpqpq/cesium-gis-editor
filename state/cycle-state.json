@@ -1,10 +1,10 @@
 {
-  "current_cycle": 84,
+  "current_cycle": 85,
   "previous_cycle": 50,
-  "last_run_status": "completed",
-  "last_run_at": "2026-11-17T11:50:00+08:00",
+  "last_run_status": "skipped",
+  "last_run_at": "2026-11-17T12:10:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
-  "cycle_completed_at": "2026-11-17T11:50:00+08:00",
+  "cycle_completed_at": "2026-11-17T12:10:00+08:00",
   "current_round": 2,
   "round_status": "completed",
   "round_completed_at": "2026-10-17T23:45:00+08:00",
@@ -1116,13 +1116,13 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 84,
-    "acquired_at": "2026-11-17T11:40:00+08:00",
-    "released_at": "2026-11-17T11:50:00+08:00",
+    "cycle": 85,
+    "acquired_at": "2026-11-17T12:10:00+08:00",
+    "released_at": "2026-11-17T12:10:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "completed",
   "await_confirm_reason": null,
-  "skip_reason": "无新用户指令；useGisPage 拆分需评审（共享状态耦合）、UR-3 需设计拍板；连续第五次 skipped",
+  "skip_reason": "cycle-77 遗留清理已完成（83 未用 import、84 解构裁剪）；无未用 import 残留；useGisPage 拆分需评审、UR-3 需设计拍板；无新用户指令",
   "task": "UR-2 接口收尾：裁剪 useGisPage() 解构 68→45"
 }
