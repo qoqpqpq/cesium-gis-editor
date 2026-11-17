@@ -1,10 +1,10 @@
 {
-  "current_cycle": 74,
+  "current_cycle": 75,
   "previous_cycle": 50,
-  "last_run_status": "skipped",
-  "last_run_at": "2026-11-17T04:12:00+08:00",
-  "cycle_started_at": "2026-11-17T01:12:00+08:00",
-  "cycle_completed_at": "2026-11-17T04:12:00+08:00",
+  "last_run_status": "completed",
+  "last_run_at": "2026-11-17T09:05:00+08:00",
+  "cycle_started_at": "2026-11-17T08:32:00+08:00",
+  "cycle_completed_at": "2026-11-17T09:05:00+08:00",
   "current_round": 2,
   "round_status": "completed",
   "round_completed_at": "2026-10-17T23:45:00+08:00",
@@ -1116,9 +1116,9 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 74,
-    "acquired_at": "2026-11-17T04:12:00+08:00",
-    "released_at": "2026-11-17T04:12:00+08:00",
+    "cycle": 75,
+    "acquired_at": "2026-11-17T08:32:00+08:00",
+    "released_at": "2026-11-17T09:05:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "completed",
