@@ -19,6 +19,12 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 97-99 已交付（2026-11-18，自动周期 · UR-3 结构清理子阶段）
+
+- ✅ **UR-3 结构清理：清除 `client/src` 全部未用导入（共 18 处）**—— cycle-97 `EditorPanel.jsx` 2 处（`StyleCommand`/`snapshotEntity`）；cycle-98 `gis/` 10 文件 14 处（`useState`/`useEffect`/`useMemo`/`useRef`、`StyleCommand`、`gisApi`、`describeSuggestion`、`measureOp`、`LARGE_DATASET_VERTEX_THRESHOLD`、`LARGE_BOOLEAN_POLYGON_THRESHOLD`、`cartesiansToLngLatHeights`、`Cesium`）；cycle-99 `App.jsx`/`ThemeToggle.jsx`/`useOptimisticAction.js` 4 处（`useEffect`/`useState`/`React`/`initUseActionStateGuard`）。各期构建 ✓、括号平衡 0、剩余未用导入归零、CSS 门禁 20/20+9/9+13/13、零行为改动。
+- 📌 **cycle-94 可行性分析（供拍板）**：UR-3 各设计项经实测多数**非纯机械可自动**——3c 色+alpha 归并：16 hex 重复对**全是 token 定义别名**（使用处已 var()）、单次色无可去重、6/8 token 被主题覆盖（替换会翻转主题）；3e 26 单次 box-shadow：重复对全为 var() 引用、单次值唯一 → **无操作**；3a/3b/3d/3f 需设计/视觉 QA（定 alpha/语义名/密度目标）。
+- ⏭️ **遗留**：cycle-77 迁移建议人工浏览器冒烟测试（项 1，:3001 在线）；`useGisPage` 拆分（项 2）建议暂缓（共享状态耦合/事件绑定跨层）；UR-3 设计拍板项需用户方向（3a 定 alpha、3b 定语义名、3f 定密度目标）。
+
 ## 周期 84 已交付（2026-11-17，自动周期第二十八轮 · UR-2 接口收尾）
 
 - ✅ **UR-2 接口收尾：裁剪 `index.jsx` 的 `useGisPage()` 解构 68→45**（仅保留渲染实际引用的绑定，23 个多余绑定移除）—— `index.jsx` **271→248**；渲染段逐字节不变；构建 ✓ 6.43s（503 modules）；零行为改动（仅解构块替换）
