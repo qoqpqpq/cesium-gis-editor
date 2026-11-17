@@ -24,6 +24,7 @@ import EditorErrorFallback from '../../components/EditorErrorFallback.jsx';
 import { readViewStateFromUrl, buildShareUrl } from '../../utils/viewState.js';
 import * as sessionKeys from '../../utils/sessionKeys.js';
 import AiKeySettings from '../../components/AiKeySettings.jsx';
+import { colClass, CollapseBar, HSplitter, ToastStack, AiSceneDescBanner } from './GisLayoutBits.jsx';
 
 const COLLAPSED_W = 36; // 折叠后的窄条宽度
 const MIN_W = 240;      // 最小展开宽度
@@ -888,37 +889,13 @@ export default function GIS() {
     >
       {/* 阶段 3B：场景 AI 说明横幅（打开分享链接时显示） */}
       {aiSceneDesc && (
-        <div className="ai-scene-desc-banner" role="region" aria-label="场景 AI 说明">
-          <div className="ai-scene-desc-head">
-            <span className="ai-scene-desc-icon" aria-hidden="true">🤖</span>
-            <span className="ai-scene-desc-title">场景说明</span>
-            {aiSceneDesc.model && (
-              <span className="ai-scene-desc-model">by {aiSceneDesc.model}</span>
-            )}
-            <button
-              type="button"
-              className="ai-scene-desc-close"
-              aria-label="关闭场景说明"
-              onClick={() => setAiSceneDesc(null)}
-            >✕</button>
-          </div>
-          <div className="ai-scene-desc-body">
-            {aiSceneDesc.description.split('\n').map((line, i) => (
-              <p key={i}>{line || '\u00a0'}</p>
-            ))}
-          </div>
-        </div>
+        <AiSceneDescBanner desc={aiSceneDesc} onClose={() => setAiSceneDesc(null)} />
       )}
 
       {/* ===== 左列：代码编辑器 + 控制台 ===== */}
-      <div
-        className={'gis-col gis-col-left' + (leftCollapsed ? ' collapsed' : '')}
-      >
+      <div className={colClass('left', leftCollapsed)}>
         {leftCollapsed ? (
-          <div className="col-collapse-bar" onClick={() => setLeftCollapsed(false)} title="展开代码编辑器">
-            <span className="col-collapse-icon">{'<'}</span>
-            <span className="col-collapse-label">代码</span>
-          </div>
+          <CollapseBar icon={'<'} label="代码" title="展开代码编辑器" onClick={() => setLeftCollapsed(false)} />
         ) : (
           <CodeEditor
             ctxRef={ctxRef}
@@ -933,14 +910,10 @@ export default function GIS() {
       </div>
 
       {/* 垂直分割条 1（左|中）— 始终渲染；折叠时由 CSS 把该轨道收缩为 0 */}
-      <div
-        className="gis-hsplitter"
-        onMouseDown={leftCollapsed ? undefined : startDrag('left')}
-        title={leftCollapsed ? '' : '拖拽调节宽度'}
-      />
+      <HSplitter collapsed={leftCollapsed} onMouseDown={startDrag('left')} title="拖拽调节宽度" />
 
       {/* ===== 中列：Cesium 地球 ===== */}
-      <div className="gis-col gis-col-center">
+      <div className={colClass('center', false)}>
         <div className="gis-scene">
           <CesiumEarth
             ref={cesiumRef}
@@ -986,13 +959,7 @@ export default function GIS() {
             />
           )}
 
-          <div className="toast-stack">
-            {toasts.map((t) => (
-              <div key={t.id} className={'toast toast-' + t.level}>
-                {t.text}
-              </div>
-            ))}
-          </div>
+          <ToastStack toasts={toasts} />
 
           {/* 文件上传面板（左下，避开 Cesium 自带控件） */}
           <FileLoader
@@ -1035,21 +1002,12 @@ export default function GIS() {
       </div>
 
       {/* 垂直分割条 2（中|右）— 始终渲染；折叠时由 CSS 把该轨道收缩为 0 */}
-      <div
-        className="gis-hsplitter"
-        onMouseDown={rightCollapsed ? undefined : startDrag('right')}
-        title={rightCollapsed ? '' : '拖拽调节宽度'}
-      />
+      <HSplitter collapsed={rightCollapsed} onMouseDown={startDrag('right')} title="拖拽调节宽度" />
 
       {/* ===== 右列：AI 助手 ===== */}
-      <div
-        className={'gis-col gis-col-right' + (rightCollapsed ? ' collapsed' : '')}
-      >
+      <div className={colClass('right', rightCollapsed)}>
         {rightCollapsed ? (
-          <div className="col-collapse-bar" onClick={() => setRightCollapsed(false)} title="展开 AI 助手">
-            <span className="col-collapse-icon">{'>'}</span>
-            <span className="col-collapse-label">AI</span>
-          </div>
+          <CollapseBar icon={'>'} label="AI" title="展开 AI 助手" onClick={() => setRightCollapsed(false)} />
         ) : (
           <>
             <AiStatusBanner />
