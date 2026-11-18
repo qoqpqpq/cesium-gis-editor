@@ -22,7 +22,7 @@
   --accent-danger: var(--danger);
   --border-default: var(--border);
   --border-strong: var(--border-strong);
-  --radius-base: var(--radius-md, 12px);
+  --radius-base: var(--radius-md); /* 周期115/UR-3 3d 收口：--radius-md:12px 在 :root 恒定义，fallback 永不可达（同类见周期112 shadow-elevated） */
   --shadow-base: var(--shadow);
   /* 周期 112 / UR-3 3a（用户 2026-11-18 拍板：保持主题各自值，仅消除重复定义）
      移除与 --shadow-lg 值级重复的硬编码 fallback：--shadow-lg 在暗主题(:root)与

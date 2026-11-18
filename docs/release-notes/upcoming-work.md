@@ -19,6 +19,11 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 115 已交付（2026-11-18，自动周期 · UR-3 3d 可行性判定 + 陈旧 fallback 收口）
+
+- ✅ **UR-3 3d 收口（同类值级重复 fallback）**——`theme.css:25 --radius-base: var(--radius-md, 12px)`：`--radius-md:12px` 在 `:root` 恒定义（styles.css:100，无亮/暗覆写），fallback **永不可达** → 收口为 `var(--radius-md)`（严格等值；`--radius-base` 无使用点，作语义别名保留，同周期 112 对 `--shadow-elevated` 处置）。新增门禁 `tests/specs/stale-fallback-audit.cjs`（3 条：`--radius-base` 无字面 fallback / `--shadow-elevated` 周期112 回归保护 / 全 CSS radius 族零 `var(--radius-*, <字面量>)`）。回归 css-duplication-audit **20/20** + css-var-reference-guard **9/9** + design-token-audit **13/13** + tracking/spacing/shadow 门禁 5/5+5/5+6/6 + 括号净深度 0；**`vite build` ✓ 6.41s**（505 modules）。双主题未破、无行为改动。
+- 📊 **UR-3 3d 可行性判定（诚实结论）**——审计 `padding`/`margin` 多值简写：**254 处声明、102 个唯一组合**；覆盖 50% 需前 16 组合、70% 需前 32、90% 需前 77。**结论：无等值机械语义化入口**——按组合建复合 token 会产出 100+ 个**值命名**复合 token（纯 churn，无语义增益），且各使用点需按语义角色（cell/toolbar/panel…）命名方有设计意义，属**角色化设计 QA** 而非机械迁移。**建议**：3d 转由设计角色化拍板（给出每组合的语义名 + 视觉 QA），或维持现状（简写组合本身可读、不阻塞功能）；本轮不强行 token 化。**不造需求、不伪造语义。**
+
 ## 周期 114 已交付（2026-11-18，自动周期 · UR-3 3b-2 字距 tracking 命名空间）
 
 - ✅ **UR-3 3b-2：字距 tracking 命名空间落位（用户 2026-11-18 拍板：推荐命名族，等值映射，零视觉变化）**——`styles.css` 以 `--tracking-*` 为规范定义（9 个，值与原 `--ls-*` 逐一相等：`0.5px/0.05em/1px/0.3px/0.4px/0.02em/-0.4px/2px/0.2px`），全部 `--ls-*`（9 个）改为 `--tracking-*` 纯别名，**24 处既有引用零改动**、计算值不变。命名采用 `--tracking-*` 而非 `--font-*`：字距在排版术语为 **tracking**（非 font-size；`--font-*` 保留给字号/字重/行高族），与 cycle-71 记录的「tracking-tight/normal/wide」推荐一致。当前为值命名档（诚实边界：现有值混合 em/px 且为微调值，无干净语义 tier 可等值映射，归并会改变观感 → 不强行语义化）；语义 tier 可在此命名空间后续叠加。新增门禁 `tests/specs/tracking-token-namespace.cjs`（5 条：定义值逐一相等且唯一 / `--ls-*` 纯别名无字面值 / 无下划线 / 非僵尸 / 别名数=9）。回归 css-duplication-audit **20/20** + css-var-reference-guard **9/9** + design-token-audit **13/13** + spacing/shadow 门禁 5/5+6/6 + 括号净深度 0；**`vite build` ✓ 6.32s**（505 modules）。双主题未破、无行为改动。
@@ -324,5 +329,5 @@
 - ✅ P2 OTel SDK 评估（周期 14）→ 移至周期 14 已交付
 - ✅ P2 mem0 self-host 评估（周期 10）→ 移至周期 10 已交付
 - ✅ P2 AI Agent 3-layer memory（周期 10）→ 移至周期 10 已交付
-- 📌 **周期 114 剩余（用户已拍板，待执行）**：3d 多值简写复合（padding 212 + margin 47，`--space-*` 语义档已就绪，需复合/方向性 token 设计）；3f `EditorPanel.jsx` 视觉密度按常规密度精简；`--radius-base: var(--radius-md, 12px)` 同 3a 类值级重复 fallback（可随 3d 一并收口）。**不做**：3c 色+alpha 归并、3e 26 单次 box-shadow（cycle-94 实测无操作/主题相关）；项2 `useGisPage` 拆分按用户拍板**暂缓**。
+- 📌 **周期 115 剩余（用户已拍板，待执行）**：3f `EditorPanel.jsx` 视觉密度按常规密度精简（内边距/间距/圆角收敛到 token 一致值，需视觉 QA 定目标值）。**判定/不做**：3d 多值简写经本轮可行性判定**无等值机械语义化入口** → 建议由设计角色化拍板（或维持现状），本轮不强行 token 化；3c 色+alpha 归并、3e 26 单次 box-shadow 维持 cycle-94 结论（无操作）；项2 `useGisPage` 拆分按用户拍板**暂缓**。
 - ⏭️ **遗留**：cycle-77 人工浏览器冒烟测试 —— 现可经 **https://129.204.202.173:5175/** 执行（9 项：三列布局/拖拽分栏/面板折叠/代码执行沙箱/AI 助手/截图下载/分享链接/重置清空/双主题）；等待用户回报 `通过`/`失败：<现象>`。
