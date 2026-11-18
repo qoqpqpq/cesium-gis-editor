@@ -1115,10 +1115,10 @@
   "specs_added": 0,
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
-    "held": true,
+    "held": false,
     "cycle": 112,
     "acquired_at": "2026-11-18T15:10:00+08:00",
-    "released_at": null,
+    "released_at": "2026-11-18T15:30:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "await_confirm",
