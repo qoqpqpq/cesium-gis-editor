@@ -116,26 +116,45 @@
      tests/specs/shadow-token-duplicate-definition.cjs。 */
   --shadow-12-40-ink50: 0 12px 40px var(--ink-50); /* 原 box-shadow ×5（浮层面板） */
   --shadow-1-4-ink30: 0 1px 4px var(--ink-30);     /* 原 box-shadow ×2 */
-  /* 间距 */
-  --gap-1: 8px;
-  --gap-2: 12px;
-  --gap-3: 18px;
-  --gap-4: 24px;
-  /* 细间距档（UR-2 步骤5 收敛：组件规则实际值，等值零视觉变化）
-     命名带 px 后缀以避开已占用的 --gap-1..4 语义档（8/12/18/24px）；
-     值命名、非语义档，间距语义阶梯待设计拍板（UR-3 待办）。 */
-  --gap-1px: 1px;   /* 原 gap:1px ×2 */
-  --gap-2px: 2px;   /* 原 gap:2px ×6 */
-  --gap-3px: 3px;   /* 原 gap:3px ×2 */
-  --gap-4px: 4px;   /* 原 gap:4px ×24 + row-gap:4px ×1 */
-  --gap-5px: 5px;   /* 原 gap:5px ×2 */
-  --gap-6px: 6px;   /* 原 gap:6px ×50 */
-  --gap-10px: 10px; /* 原 gap:10px ×13 */
-  --gap-14px: 14px; /* 原 gap:14px ×4 */
-  --gap-16px: 16px; /* 原 gap:16px ×2 */
-  --gap-20px: 20px; /* 原 padding:20px ×1 */
-  --gap-28px: 28px; /* 原 padding:28px ×1 */
-  --gap-30px: 30px; /* 原 padding:30px ×1 */
+  /* 间距语义阶梯（UR-3 3b，用户 2026-11-18 拍板：推荐命名 --space-*，等值映射）
+     规范定义：--space-1..6 为对齐 4px 网格的语义档（4/8/12/16/20/24px）；
+     非网格值（1/2/3/5/6/10/14/18/28/30px）如实标注为值命名档（非语义档，诚实边界）。
+     所有 --gap-* 均为 --space-* 的纯别名（var() 间接），保持既有 264 处引用零改动、
+     零视觉变化；UR-3 3d 多值简写依赖此处 --space-* 语义档。 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  /* 值命名档（非语义档，等值映射保留，不冒充语义） */
+  --space-1px: 1px;
+  --space-2px: 2px;
+  --space-3px: 3px;
+  --space-5px: 5px;
+  --space-6px: 6px;
+  --space-10px: 10px;
+  --space-14px: 14px;
+  --space-18px: 18px;
+  --space-28px: 28px;
+  --space-30px: 30px;
+  /* --gap-* 别名层（兼容既有引用；3d 多值简写语义档就绪） */
+  --gap-1: var(--space-2);     /* 8px 语义档 */
+  --gap-2: var(--space-3);     /* 12px 语义档 */
+  --gap-3: var(--space-18px);  /* 18px 值命名（非网格） */
+  --gap-4: var(--space-6);     /* 24px 语义档 */
+  --gap-1px: var(--space-1px);
+  --gap-2px: var(--space-2px);
+  --gap-3px: var(--space-3px);
+  --gap-4px: var(--space-1);   /* 4px 语义档 */
+  --gap-5px: var(--space-5px);
+  --gap-6px: var(--space-6px);
+  --gap-10px: var(--space-10px);
+  --gap-14px: var(--space-14px);
+  --gap-16px: var(--space-4);  /* 16px 语义档 */
+  --gap-20px: var(--space-5);  /* 20px 语义档 */
+  --gap-28px: var(--space-28px);
+  --gap-30px: var(--space-30px);
   /* 字距（UR-2 步骤8 收敛：letter-spacing 组件实际值，等值零视觉变化）
      值命名、非语义档；字距语义阶梯（tracking-tight/normal/wide）待设计拍板（UR-3 待办）。 */
   --ls-0-5px: 0.5px;      /* 原 ×7 */
