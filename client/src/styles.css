@@ -3969,7 +3969,7 @@ textarea.input {
 
 .et-tab {
   flex: 1;
-  padding: 8px 4px;
+  padding: var(--space-2) var(--space-1);
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -4015,15 +4015,15 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
+  padding: var(--space-10px) var(--space-14px);
   border-bottom: 1px solid var(--white-08);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
 }
 
 .editor-loading-hint {
-  margin: 8px 12px;
-  padding: 6px 10px;
+  margin: var(--space-2) var(--space-3);
+  padding: var(--space-6px) var(--space-10px);
   background: var(--warn-bg);
   border: 1px solid var(--warn-border);
   border-radius: var(--radius-6);
@@ -4033,7 +4033,7 @@ textarea.input {
 }
 
 .editor-popup-section {
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-14px);
 }
 
 .editor-section-title {
@@ -4055,7 +4055,7 @@ textarea.input {
   flex-direction: column;
   align-items: center;
   gap: var(--gap-4px);
-  padding: 8px 4px;
+  padding: var(--space-2) var(--space-1);
   background: var(--white-04);
   border: 1px solid var(--white-08);
   border-radius: var(--radius-sm);
@@ -4088,7 +4088,7 @@ textarea.input {
 
 .editor-draft-hint {
   margin-top: var(--gap-1);
-  padding: 6px 8px;
+  padding: var(--space-6px) var(--space-2);
   background: var(--info-bg);
   border-radius: var(--radius-6);
   font-size: var(--fs-sm);
@@ -4096,7 +4096,7 @@ textarea.input {
 }
 .editor-measure-readout {
   margin-top: var(--gap-1);
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-10px);
   background: var(--warn-bg);
   border: 1px solid var(--warn-border);
   border-radius: var(--radius-6);
@@ -4177,7 +4177,7 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--white-08);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-lg);
@@ -4193,7 +4193,7 @@ textarea.input {
   justify-content: space-between;
   gap: var(--gap-6px);
   margin-bottom: var(--gap-3);
-  padding: 12px 8px;
+  padding: var(--space-3) var(--space-2);
   background: var(--primary-08);
   border-radius: var(--radius-sm);
 }
@@ -4267,7 +4267,7 @@ textarea.input {
   display: flex;
   justify-content: flex-end;
   gap: var(--gap-1);
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--white-08);
 }
 
@@ -4331,7 +4331,7 @@ textarea.input {
   display: inline-flex;
   align-items: center;
   gap: var(--gap-4px);
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   background: var(--white-04);
   border: 1px solid var(--white-08);
   border-radius: var(--radius-6);
@@ -4347,7 +4347,7 @@ textarea.input {
 }
 .editor-layer-tab .icon-btn {
   font-size: var(--fs-xs);
-  padding: 0 2px;
+  padding: 0 var(--space-2px);
   color: inherit;
 }
 
@@ -4396,7 +4396,7 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: var(--gap-4px);
-  padding: 5px 8px;
+  padding: var(--space-5px) var(--space-2);
   font-size: var(--fs-sm);
   cursor: pointer;
   user-select: none;
@@ -4404,7 +4404,7 @@ textarea.input {
 .editor-layer-header:hover { background: var(--white-04); }
 .editor-layer-header .expand-btn {
   font-size: var(--fs-2xs);
-  padding: 0 2px;
+  padding: 0 var(--space-2px);
   width: 16px;
   height: 16px;
   display: inline-flex;
@@ -4423,7 +4423,7 @@ textarea.input {
   font-size: var(--fs-xs);
   color: var(--muted);
   background: var(--white-06);
-  padding: 1px 6px;
+  padding: var(--space-1px) var(--space-6px);
   border-radius: var(--radius-sm);
   min-width: 20px;
   text-align: center;
@@ -4431,13 +4431,13 @@ textarea.input {
 .editor-layer-features {
   list-style: none;
   margin: 0;
-  padding: 0 0 4px 18px;
+  padding: 0 0 var(--space-1) var(--space-18px);
   border-top: 1px solid var(--white-06);
   max-height: 220px;
   overflow-y: auto;
 }
 .editor-layer-empty {
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   font-size: var(--fs-xs);
   color: var(--muted);
   font-style: italic;
@@ -4446,7 +4446,7 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: var(--gap-4px);
-  padding: 3px 6px;
+  padding: var(--space-3px) var(--space-6px);
   font-size: var(--fs-xs);
   color: var(--text-soft);
   border-radius: var(--radius-4);
@@ -4459,7 +4459,7 @@ textarea.input {
 }
 .editor-feature-row .editor-feature-kind {
   min-width: 28px;
-  padding: 0 4px;
+  padding: 0 var(--space-1);
   background: var(--primary-18);
   color: var(--primary-tint-fg);
   border-radius: var(--radius-3);
@@ -4474,7 +4474,7 @@ textarea.input {
 }
 .editor-feature-row .icon-btn {
   font-size: var(--fs-xs);
-  padding: 0 3px;
+  padding: 0 var(--space-3px);
   color: inherit;
   opacity: 0.7;
 }
@@ -4482,7 +4482,7 @@ textarea.input {
 .editor-layer-bulk-actions {
   display: flex;
   gap: var(--gap-4px);
-  padding: 4px 6px 2px;
+  padding: var(--space-1) var(--space-6px) var(--space-2px);
   border-top: 1px dashed var(--white-08);
   margin-top: var(--gap-2px);
 }
@@ -4493,7 +4493,7 @@ textarea.input {
   border-radius: var(--radius-4);
   color: var(--text-soft);
   font-size: var(--fs-xs);
-  padding: 2px 4px;
+  padding: var(--space-2px) var(--space-1);
   cursor: pointer;
 }
 .editor-layer-bulk-actions button:hover {
@@ -4520,7 +4520,7 @@ textarea.input {
 }
 .editor-hint {
   margin-top: var(--gap-6px);
-  padding: 6px 8px;
+  padding: var(--space-6px) var(--space-2);
   background: var(--primary-08);
   border-left: 2px solid var(--primary-30);
   border-radius: var(--radius-3);
@@ -4537,7 +4537,7 @@ textarea.input {
 .editor-action-row .btn-link {
   background: none;
   border: 1px solid var(--white-10);
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-10px);
   border-radius: var(--radius-6);
   color: var(--text-soft);
   font-family: inherit;
@@ -4575,7 +4575,7 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-10);
   backdrop-filter: blur(10px);
-  padding: 10px 12px;
+  padding: var(--space-10px) var(--space-3);
   font-size: var(--fs-md);
   color: var(--text);
   box-shadow: 0 8px 24px var(--ink-40);
@@ -4618,7 +4618,7 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-4);
   color: var(--text);
-  padding: 4px 6px;
+  padding: var(--space-1) var(--space-6px);
   font-family: inherit;
   font-size: var(--fs-md);
 }
@@ -4632,20 +4632,20 @@ textarea.input {
 /* 要素列表：嵌入编辑器弹窗底部 */
 .editor-feature-list {
   border-top: 1px solid var(--white-08);
-  padding: 10px 14px 12px;
+  padding: var(--space-10px) var(--space-14px) var(--space-3);
   max-height: 240px;
   overflow-y: auto;
 }
 .editor-feature-list ul {
   list-style: none;
   padding: 0;
-  margin: 6px 0 0;
+  margin: var(--space-6px) 0 0;
 }
 .editor-feature-list li {
   display: flex;
   align-items: center;
   gap: var(--gap-6px);
-  padding: 4px 6px;
+  padding: var(--space-1) var(--space-6px);
   border-radius: var(--radius-6);
   font-size: var(--fs-sm);
   color: var(--text-soft);
@@ -4655,7 +4655,7 @@ textarea.input {
 .editor-feature-kind {
   display: inline-block;
   min-width: 36px;
-  padding: 1px 4px;
+  padding: var(--space-1px) var(--space-1);
   background: var(--primary-20);
   color: var(--primary-tint-fg);
   border-radius: var(--radius-3);
@@ -4675,7 +4675,7 @@ textarea.input {
   border: 1px solid var(--accent);
   border-radius: var(--radius-3);
   color: var(--text);
-  padding: 2px 4px;
+  padding: var(--space-2px) var(--space-1);
   font-family: inherit;
   font-size: var(--fs-sm);
 }
@@ -4686,7 +4686,7 @@ textarea.input {
   color: var(--text);
   font-family: inherit;
   font-size: var(--fs-xs);
-  padding: 1px 2px;
+  padding: var(--space-1px) var(--space-2px);
 }
 
 /* 实时坐标读数：左下角 */
@@ -4698,7 +4698,7 @@ textarea.input {
   display: flex;
   flex-direction: column;
   gap: var(--gap-6px);
-  padding: 6px 12px;
+  padding: var(--space-6px) var(--space-3);
   background: var(--overlay-85);
   border: 1px solid var(--white-08);
   border-radius: var(--radius-sm);
@@ -4728,7 +4728,7 @@ textarea.input {
   font-size: var(--fs-xs);
   font-weight: var(--fw-semibold);
   letter-spacing: var(--ls-0-05em);
-  padding: 2px 7px;
+  padding: var(--space-2px) var(--space-2); /* 周期116/3f: 7px 收敛到常规档 8px */
   border-radius: var(--radius-3);
   cursor: pointer;
   transition: background 0.1s, color 0.1s;
@@ -4767,7 +4767,7 @@ textarea.input {
   align-items: center;
   justify-content: space-between;
   gap: var(--gap-14px);
-  padding: 6px 12px;
+  padding: var(--space-6px) var(--space-3);
   font-size: var(--fs-md);
   background: var(--header-bg);
   border: 1px solid var(--border);
@@ -4789,7 +4789,7 @@ textarea.input {
   gap: var(--gap-2px);
 }
 .editor-cursor-readout.editor-cursor-readout--docked .editor-coord-fmt-btn {
-  padding: 3px 9px;
+  padding: var(--space-3px) var(--space-2); /* 周期116/3f: 9px 收敛到常规档 8px */
   font-size: var(--fs-xs);
   border-radius: var(--radius-5);
   min-width: 32px;
@@ -4833,7 +4833,7 @@ textarea.input {
   min-width: 18px;
   height: 18px;
   margin-right: var(--gap-4px);
-  padding: 0 5px;
+  padding: 0 var(--space-5px);
   font-size: var(--fs-sm);
   font-weight: var(--fw-bold);
   font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
@@ -4902,7 +4902,7 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
+  padding: var(--space-10px) var(--space-14px);
   border-bottom: 1px solid var(--white-08);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
@@ -4918,7 +4918,7 @@ textarea.input {
   color: var(--primary-tint-fg);
   border: 1px solid var(--primary-30);
   border-radius: var(--radius-6);
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-10px);
   font-size: var(--fs-sm);
   cursor: pointer;
   font-family: inherit;
@@ -4954,7 +4954,7 @@ textarea.input {
 .attr-saved-badge {
   font-size: var(--fs-xs);
   margin-left: var(--gap-4px);
-  padding: 1px 6px;
+  padding: var(--space-1px) var(--space-6px);
   border-radius: var(--radius-4);
 }
 .attr-saved-badge[data-state="saved"] {
@@ -4971,7 +4971,7 @@ textarea.input {
   color: var(--text);
   border: 1px solid var(--primary-30);
   border-radius: var(--radius-4);
-  padding: 3px 8px;
+  padding: var(--space-3px) var(--space-2);
   font-size: var(--fs-sm);
   font-family: inherit;
   outline: none;
@@ -4985,7 +4985,7 @@ textarea.input {
 .query-builder-wrap {
   background: var(--bg-soft);
   border-bottom: 1px solid var(--ink-15);
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-10px);
 }
 .query-builder {
   font-size: var(--fs-sm);
@@ -5024,7 +5024,7 @@ textarea.input {
 .query-builder-empty {
   color: var(--muted);
   font-size: var(--fs-xs-half);
-  padding: 4px 0;
+  padding: var(--space-1) 0;
   font-style: italic;
 }
 .query-builder-rules {
@@ -5040,7 +5040,7 @@ textarea.input {
   gap: var(--gap-6px);
   align-items: center;
   background: var(--card);
-  padding: 4px 6px;
+  padding: var(--space-1) var(--space-6px);
   border-radius: var(--radius-4);
   border: 1px solid var(--ink-15);
 }
@@ -5050,7 +5050,7 @@ textarea.input {
   color: var(--text);
   border: 1px solid var(--primary-30);
   border-radius: var(--radius-3);
-  padding: 2px 6px;
+  padding: var(--space-2px) var(--space-6px);
   font-size: var(--fs-sm);
   font-family: inherit;
   outline: none;
@@ -5063,7 +5063,7 @@ textarea.input {
 .qb-op { min-width: 80px; }
 .qb-value { min-width: 110px; flex: 1 1 110px; max-width: 220px; }
 .qb-value-num { min-width: 80px; flex: 0 0 80px; max-width: 100px; }
-.qb-value-none { color: var(--muted); font-style: italic; padding: 0 8px; }
+.qb-value-none { color: var(--muted); font-style: italic; padding: 0 var(--space-2); }
 .qb-bbox {
   display: flex;
   gap: var(--gap-4px);
@@ -5072,7 +5072,7 @@ textarea.input {
   width: 78px;
   min-width: 78px;
 }
-.qb-remove { padding: 0 6px; }
+.qb-remove { padding: 0 var(--space-6px); }
 .attr-table-btn.active {
   background: var(--primary-30);
   border-color: var(--primary-70);
@@ -5098,7 +5098,7 @@ textarea.input {
   backdrop-filter: blur(8px);
 }
 .attr-col-menu-head {
-  padding: 6px 10px;
+  padding: var(--space-6px) var(--space-10px);
   font-weight: var(--fw-semibold);
   color: var(--muted);
   border-bottom: 1px solid var(--white-08);
@@ -5110,7 +5110,7 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: var(--gap-6px);
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-10px);
   cursor: pointer;
 }
 .attr-col-menu-item:hover {
@@ -5128,7 +5128,7 @@ textarea.input {
   font-family: monospace;
 }
 .attr-col-menu-foot {
-  padding: 6px 10px;
+  padding: var(--space-6px) var(--space-10px);
   border-top: 1px solid var(--white-08);
   display: flex;
   justify-content: flex-end;
@@ -5141,7 +5141,7 @@ textarea.input {
   display: flex;
   gap: var(--gap-6px);
   align-items: center;
-  padding: 6px 10px;
+  padding: var(--space-6px) var(--space-10px);
   background: var(--white-04);
   border-bottom: 1px solid var(--white-08);
 }
@@ -5151,7 +5151,7 @@ textarea.input {
   color: #e2e8f0;
   border: 1px solid var(--primary-30);
   border-radius: var(--radius-4);
-  padding: 3px 8px;
+  padding: var(--space-3px) var(--space-2);
   font-size: var(--fs-md);
   font-family: inherit;
   outline: none;
@@ -5178,7 +5178,7 @@ textarea.input {
   top: 0;
   background: rgba(15, 18, 25, 0.96);
   text-align: left;
-  padding: 6px 8px;
+  padding: var(--space-6px) var(--space-2);
   font-weight: var(--fw-semibold);
   color: var(--muted);
   border-bottom: 1px solid var(--white-08);
@@ -5199,7 +5199,7 @@ textarea.input {
   background: var(--warn-bg);
 }
 .attr-table tbody td {
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   vertical-align: middle;
   max-width: 200px;
 }
@@ -5210,21 +5210,21 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-3);
   color: var(--text);
-  padding: 2px 4px;
+  padding: var(--space-2px) var(--space-1);
   width: 100%;
   font-family: inherit;
   font-size: var(--fs-sm);
 }
 .attr-table-cell {
   display: inline-block;
-  padding: 1px 4px;
+  padding: var(--space-1px) var(--space-1);
   min-height: 18px;
   font-family: inherit;
 }
 .attr-table-kind {
   display: inline-block;
   min-width: 30px;
-  padding: 1px 4px;
+  padding: var(--space-1px) var(--space-1);
   background: var(--primary-18);
   color: var(--primary-tint-fg);
   border-radius: var(--radius-3);
@@ -5266,7 +5266,7 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
+  padding: var(--space-10px) var(--space-14px);
   border-bottom: 1px solid var(--white-08);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
@@ -5274,7 +5274,7 @@ textarea.input {
   user-select: none;
 }
 .analysis-body {
-  padding: 10px 14px;
+  padding: var(--space-10px) var(--space-14px);
   display: flex;
   flex-direction: column;
   gap: var(--gap-10px);
@@ -5296,7 +5296,7 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-4);
   color: var(--text);
-  padding: 5px 8px;
+  padding: var(--space-5px) var(--space-2);
   font-family: inherit;
   font-size: var(--fs-md);
   color-scheme: dark;
@@ -5319,7 +5319,7 @@ textarea.input {
   border: 1px solid var(--white-10);
   border-radius: var(--radius-4);
   color: var(--text);
-  padding: 5px 8px;
+  padding: var(--space-5px) var(--space-2);
   font-family: inherit;
   font-size: var(--fs-md);
   cursor: pointer;
@@ -5340,7 +5340,7 @@ textarea.input {
   background: #0d1320 !important;
   border: 1px solid var(--primary-500) !important;
   border-radius: var(--radius-6);
-  padding: 4px 0;
+  padding: var(--space-1) 0;
   max-height: 280px;
   overflow-y: auto;
   box-shadow: 0 16px 40px var(--ink-70), 0 0 0 1px var(--primary-20);
@@ -5348,7 +5348,7 @@ textarea.input {
   isolation: isolate;
 }
 .op-dropdown-group-label {
-  padding: 6px 12px 2px;
+  padding: var(--space-6px) var(--space-3) var(--space-2px);
   font-size: var(--fs-xs);
   color: var(--primary-500) !important;
   font-weight: var(--fw-bold);
@@ -5357,7 +5357,7 @@ textarea.input {
   background: transparent !important;
 }
 .op-dropdown-option {
-  padding: 7px 16px;
+  padding: var(--space-2) var(--space-4); /* 周期116/3f: 7px 收敛到常规档 8px */
   color: var(--on-primary) !important;
   font-size: var(--fs-md);
   cursor: pointer;
@@ -5453,7 +5453,7 @@ textarea.input {
 }
 .analysis-result {
   margin-top: var(--gap-1);
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-10px);
   background: var(--primary-12);
   border-radius: var(--radius-6);
   font-size: var(--fs-sm);
@@ -5486,7 +5486,7 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   background: var(--white-06);
   cursor: move;
   user-select: none;
@@ -5494,7 +5494,7 @@ textarea.input {
   color: var(--primary-70);
 }
 .print-export-body {
-  padding: 10px 12px;
+  padding: var(--space-10px) var(--space-3);
   display: flex;
   flex-direction: column;
   gap: var(--gap-1);
@@ -5516,7 +5516,7 @@ textarea.input {
   color: var(--text);
   border: 1px solid var(--primary-30);
   border-radius: var(--radius-3);
-  padding: 3px 6px;
+  padding: var(--space-3px) var(--space-6px);
   font-size: var(--fs-sm);
   font-family: inherit;
   outline: none;
@@ -5544,7 +5544,7 @@ textarea.input {
   gap: var(--gap-6px);
 }
 .print-export-grid .attr-table-btn {
-  padding: 8px 6px;
+  padding: var(--space-2) var(--space-6px);
   text-align: center;
   font-size: var(--fs-md);
 }
@@ -5555,7 +5555,7 @@ textarea.input {
 }
 .print-export-result {
   margin-top: var(--gap-6px);
-  padding: 6px 8px;
+  padding: var(--space-6px) var(--space-2);
   background: var(--primary-12);
   border-radius: var(--radius-4);
   font-size: var(--fs-sm);
@@ -5574,7 +5574,7 @@ textarea.input {
   color: var(--text-soft);
   cursor: pointer;
   font-size: var(--fs-lg);
-  padding: 0 4px;
+  padding: 0 var(--space-1);
 }
 .print-export-header .close:hover {
   color: var(--text);
@@ -5651,12 +5651,12 @@ textarea.input {
   text-align: center;
 }
 .editor-error-title {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-6px);
   font-size: var(--fs-lg);
   color: var(--danger, var(--danger-soft-fg));
 }
 .editor-error-message {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
   color: var(--text-muted, var(--color-slate-400));
   font-size: var(--fs-md);
   line-height: var(--lh-snug);
@@ -5665,7 +5665,7 @@ textarea.input {
   background: var(--accent, var(--accent-500));
   color: var(--surface-0, var(--surface-dark-1));
   border: none;
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-10px);
   border-radius: var(--radius-4);
   font-weight: var(--fw-semibold);
   cursor: pointer;
@@ -5677,7 +5677,7 @@ textarea.input {
   align-items: center;
   gap: var(--gap-6px);
   margin-top: var(--gap-6px);
-  padding: 4px 6px;
+  padding: var(--space-1) var(--space-6px);
   font-size: var(--fs-sm);
   color: var(--muted);
   cursor: pointer;
@@ -5741,7 +5741,7 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
+  padding: var(--space-10px) var(--space-14px);
   border-bottom: 1px solid var(--white-08);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-base);
@@ -5749,7 +5749,7 @@ textarea.input {
 }
 
 .three-check-body {
-  padding: 10px 14px;
+  padding: var(--space-10px) var(--space-14px);
   max-height: 480px;
   overflow-y: auto;
 }
@@ -5771,7 +5771,7 @@ textarea.input {
 }
 
 .three-check-summary {
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-10px);
   border-radius: var(--radius-6);
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
@@ -5792,7 +5792,7 @@ textarea.input {
 
 .three-check-card {
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-10px);
   margin-bottom: var(--gap-6px);
   border: 1px solid transparent;
 }
@@ -5834,14 +5834,14 @@ textarea.input {
 
 .three-check-list {
   list-style: none;
-  margin: 4px 0 0 0;
+  margin: var(--space-1) 0 0 0;
   padding: 0;
 }
 
 .three-check-item {
   display: flex;
   gap: var(--gap-6px);
-  padding: 3px 0;
+  padding: var(--space-3px) 0;
   font-size: var(--fs-sm);
   border-bottom: 1px solid var(--white-04);
 }

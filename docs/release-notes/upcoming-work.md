@@ -19,6 +19,11 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 116 已交付（2026-11-18，自动周期 · UR-3 3f editor 面板密度 token 化）
+
+- ✅ **UR-3 3f：editor 面板规则视觉密度收敛到 token 一致值（用户 2026-11-18 拍板：按常规密度精简）**——审计 editor 子组件相关规则（`editor-*`/`analysis-*`/`attr-*`/`op-*`/`qb-*`/`print-export-*`/`three-check-*`/`query-builder-*`/`et-tab-*`/`style-panel-tabs`/`thematic-info`，260 块）：UR-2 已 token 化全部**单值**，但**多值简写**遗留 86 处裸 px。本轮将 86 处多值简写裸 px 逐值收敛为 `--space-*` token：**83 处严格等值**（值→同值 token，零视觉变化），**3 处 ±1px 视觉规范化**（`7px`→`8px`、`9px`→`8px`、`7px`→`8px`，收敛到常规档 `--space-2`；按拍板"常规密度"，已如实记录）。editor 规则 spacing/radius **0 处离档裸 px**，230 处全 token 化（19 种 token）。新增门禁 `tests/specs/editor-density-tokenized.cjs`（3 条：0 离档裸 px / token 种类≥10 / var() 使用≥40）。回归 css-duplication-audit **20/20** + css-var-reference-guard **9/9** + design-token-audit **13/13** + tracking/spacing/shadow/stale 门禁 5/5+5/5+6/6+3/3 + 括号净深度 0；**`vite build` ✓ 6.36s**（505 modules）。双主题未破。
+- 📌 **说明**：`EditorPanel.jsx` 本身为逻辑容器（1305 行、约 9 个 JSX 标签、无 className、1 处 `display:none`），**无密度样式**；本轮 3f 的密度收敛作用于其子组件（StylePanel/AnalysisPanel/PrintExportPanel/QueryBuilder/ThreeCheckPanel/LayersTree/AttributeTablePanel/EditorToolbar 等）在 `styles.css` 的规则。
+
 ## 周期 115 已交付（2026-11-18，自动周期 · UR-3 3d 可行性判定 + 陈旧 fallback 收口）
 
 - ✅ **UR-3 3d 收口（同类值级重复 fallback）**——`theme.css:25 --radius-base: var(--radius-md, 12px)`：`--radius-md:12px` 在 `:root` 恒定义（styles.css:100，无亮/暗覆写），fallback **永不可达** → 收口为 `var(--radius-md)`（严格等值；`--radius-base` 无使用点，作语义别名保留，同周期 112 对 `--shadow-elevated` 处置）。新增门禁 `tests/specs/stale-fallback-audit.cjs`（3 条：`--radius-base` 无字面 fallback / `--shadow-elevated` 周期112 回归保护 / 全 CSS radius 族零 `var(--radius-*, <字面量>)`）。回归 css-duplication-audit **20/20** + css-var-reference-guard **9/9** + design-token-audit **13/13** + tracking/spacing/shadow 门禁 5/5+5/5+6/6 + 括号净深度 0；**`vite build` ✓ 6.41s**（505 modules）。双主题未破、无行为改动。
@@ -329,5 +334,5 @@
 - ✅ P2 OTel SDK 评估（周期 14）→ 移至周期 14 已交付
 - ✅ P2 mem0 self-host 评估（周期 10）→ 移至周期 10 已交付
 - ✅ P2 AI Agent 3-layer memory（周期 10）→ 移至周期 10 已交付
-- 📌 **周期 115 剩余（用户已拍板，待执行）**：3f `EditorPanel.jsx` 视觉密度按常规密度精简（内边距/间距/圆角收敛到 token 一致值，需视觉 QA 定目标值）。**判定/不做**：3d 多值简写经本轮可行性判定**无等值机械语义化入口** → 建议由设计角色化拍板（或维持现状），本轮不强行 token 化；3c 色+alpha 归并、3e 26 单次 box-shadow 维持 cycle-94 结论（无操作）；项2 `useGisPage` 拆分按用户拍板**暂缓**。
+- 📌 **周期 116 收尾**：UR-3 六项（3a/3b/3b-2/3c/3d/3e/3f）已全部按拍板处置完毕——3a/3b/3b-2/3f 已执行交付，3c/3e 无操作，3d 无等值机械入口（转角色化设计拍板）。**剩余**：项1 cycle-77 人工冒烟（经公网 `https://129.204.202.173:5175/` 执行，待用户回报）；项2 `useGisPage` 拆分按用户拍板**暂缓**；3d 若用户给出角色化命名方向可续；`--space-*` 语义档/`--tracking-*` 命名空间为 3d 后续提供基础。
 - ⏭️ **遗留**：cycle-77 人工浏览器冒烟测试 —— 现可经 **https://129.204.202.173:5175/** 执行（9 项：三列布局/拖拽分栏/面板折叠/代码执行沙箱/AI 助手/截图下载/分享链接/重置清空/双主题）；等待用户回报 `通过`/`失败：<现象>`。
