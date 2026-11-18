@@ -19,6 +19,12 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 117（2026-11-18，自动周期）：**skipped（无可执行自动任务，未造需求）**
+
+- 判定依据：UR-3 六项已全部按用户 2026-11-18 拍板处置完毕（3a/3b/3b-2/3f 交付；3c/3e 无操作；3d 无等值机械入口→转角色化设计拍板）。进度池中**无 P0/P1/P2 可自动执行的候选项**：项1 cycle-77 人工冒烟**需用户在浏览器执行**（公网 URL 健康：首页 200/2231B、`/api/health` 200）；项2 `useGisPage` 拆分**按用户拍板暂缓**；3d 需用户提供角色化命名方向。
+- 处置：本轮**不改代码**，仅落记录（符合运行手册「无验证项不启动；无可执行任务标记 skipped，禁止凭空造需求」）。同步状态复核：工作区 0 脏、分支 feat/auto-cycle、**IN_SYNC=YES（761c365）**、预览首页 200。
+- ⚠️ **待用户输入**（不回复则后续周期继续 skipped）：① 冒烟回报 `通过` / `失败：<现象>`；② 3d 是否给出角色化命名方向（或确认维持现状）；③ 是否解除 `useGisPage` 暂缓。
+
 ## 周期 116 已交付（2026-11-18，自动周期 · UR-3 3f editor 面板密度 token 化）
 
 - ✅ **UR-3 3f：editor 面板规则视觉密度收敛到 token 一致值（用户 2026-11-18 拍板：按常规密度精简）**——审计 editor 子组件相关规则（`editor-*`/`analysis-*`/`attr-*`/`op-*`/`qb-*`/`print-export-*`/`three-check-*`/`query-builder-*`/`et-tab-*`/`style-panel-tabs`/`thematic-info`，260 块）：UR-2 已 token 化全部**单值**，但**多值简写**遗留 86 处裸 px。本轮将 86 处多值简写裸 px 逐值收敛为 `--space-*` token：**83 处严格等值**（值→同值 token，零视觉变化），**3 处 ±1px 视觉规范化**（`7px`→`8px`、`9px`→`8px`、`7px`→`8px`，收敛到常规档 `--space-2`；按拍板"常规密度"，已如实记录）。editor 规则 spacing/radius **0 处离档裸 px**，230 处全 token 化（19 种 token）。新增门禁 `tests/specs/editor-density-tokenized.cjs`（3 条：0 离档裸 px / token 种类≥10 / var() 使用≥40）。回归 css-duplication-audit **20/20** + css-var-reference-guard **9/9** + design-token-audit **13/13** + tracking/spacing/shadow/stale 门禁 5/5+5/5+6/6+3/3 + 括号净深度 0；**`vite build` ✓ 6.36s**（505 modules）。双主题未破。
