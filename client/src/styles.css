@@ -108,9 +108,12 @@
   --shadow-md: 0 6px 20px var(--ink-35);
   --shadow-lg: 0 14px 40px var(--ink-45);
   /* 值命名档（UR-2 步骤7 收敛：组件规则重复值，等值零视觉变化）
-     值命名、非语义档；语义阶梯（sm/md/lg/xl）待设计拍板（UR-3 待办）。
-     注：styles.css 与 theme.css 均定义 --shadow-sm/md/lg，浅色主题下两处不等价
-     （alpha 0.25 vs 0.06），潜在不一致，需视觉 QA，不自动改。 */
+     值命名、非语义档。
+     UR-3 3a 已结（用户 2026-11-18 拍板：保持主题各自值，仅消除重复定义）：
+     styles.css(:root 暗) 与 theme.css(亮主题块) 均定义 --shadow-sm/md/lg 属
+     「主题覆写」而非重复定义，按拍板保持两处各自 alpha（0.25/0.35/0.45 vs
+     0.06/0.10/0.14），不做统一、不做自动改；重复定义的门禁见
+     tests/specs/shadow-token-duplicate-definition.cjs。 */
   --shadow-12-40-ink50: 0 12px 40px var(--ink-50); /* 原 box-shadow ×5（浮层面板） */
   --shadow-1-4-ink30: 0 1px 4px var(--ink-30);     /* 原 box-shadow ×2 */
   /* 间距 */

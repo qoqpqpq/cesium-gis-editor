@@ -24,7 +24,10 @@
   --border-strong: var(--border-strong);
   --radius-base: var(--radius-md, 12px);
   --shadow-base: var(--shadow);
-  --shadow-elevated: var(--shadow-lg, 0 14px 40px rgba(0,0,0,0.45));
+  /* 周期 112 / UR-3 3a（用户 2026-11-18 拍板：保持主题各自值，仅消除重复定义）
+     移除与 --shadow-lg 值级重复的硬编码 fallback：--shadow-lg 在暗主题(:root)与
+     亮主题块均已定义，该 fallback 永不可达，删除为严格等值（零视觉变化）。 */
+  --shadow-elevated: var(--shadow-lg);
   --theme-transition-duration: 160ms;
   --theme-transition-ease: cubic-bezier(0.16, 1, 0.3, 1);
 

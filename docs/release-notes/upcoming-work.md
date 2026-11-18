@@ -19,6 +19,12 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 111-112 已交付（2026-11-18，自动周期 · 公网预览 + UR-3 3a 结项）
+
+- 🔌 **周期 111：公网预览通道打通（用户 2026-11-18「开放外网访问」拍板）**——新增独立 Caddy 实例 `/etc/caddy/Caddyfile.gis`（`https://129.204.202.173:5175` → `reverse_proxy 127.0.0.1:3001`，复用现成 LE 证书，与 dsh 主 Caddy 完全隔离）。**公网实测**：首页 200/2231B、`/api/health` 200 `{"status":"ok"}`、主 JS 包 200/172775B。两个真实故障已定位修复：① 自动 HTTPS 重定向需绑 `:80`（无权限）→ `auto_https disable_redirects`；② `ssrf-guard` Host 白名单（`server/routes/gis.js` 仅 `localhost/127.0.0.1/::1`）对带端口公网 Host 返 403 → 反代注入 `Host: 127.0.0.1`。⚠️ 安全取舍已记录：长期方案应设 `ALLOWED_HOSTS=129.204.202.173` 并透传真实 Host。
+- 📋 **周期 111：用户 8 项决策队列已获全部回复**（记录于 `state/auto-cycle-decisions.md`）：项1 冒烟=先开公网（已开通，待用户回报）；项2 `useGisPage` 拆分=**暂缓**；3a shadow=**保持主题各自值，仅消除重复定义**；3b/3d=**按推荐语义命名推进**；3f=**按常规密度精简**。
+- ✅ **周期 112：UR-3 3a 结项（`--shadow-*` 重复定义消除，等值零视觉变化）**——按拍板执行：跨文件同名 `--shadow-sm/md/lg`（styles.css `:root` 暗 vs theme.css 亮主题块）判定为**主题覆写而非重复定义，原样保留**；真正值级重复 1 处 = `theme.css:27 --shadow-elevated: var(--shadow-lg, 0 14px 40px rgba(0,0,0,0.45))` 的硬编码 fallback 与 `--shadow-lg` 重复且永不可达 → 删除为 `var(--shadow-lg)`（暗/亮两主题均已定义 `--shadow-lg`，严格等值）。新增**回归门禁 `tests/specs/shadow-token-duplicate-definition.cjs`（6 条）**：G1 禁 `var(--shadow-*, <字面量>)` 值级重复 / G2 禁同作用域同名 `--shadow*` 重复定义 / G3+G3b 正向锁定双主题覆写形态（防误删）/ G3c 锁定亮主题 alpha 0.06 刻意不等价（防"统一"）/ G4 锁定 `--shadow-elevated` 仅引用 token。**变异测试**：还原 fallback → G1+G4 FAIL（EXIT=1），还原 → 6/6。回归 css-duplication-audit **20/20** + css-var-reference-guard **9/9** + design-token-audit **13/13** + 括号净深度 0；**`vite build` ✓ 6.44s**（505 modules，主 JS 172.56 kB）。双主题未破。
+
 ## 周期 97-99 已交付（2026-11-18，自动周期 · UR-3 结构清理子阶段）
 
 - ✅ **UR-3 结构清理：清除 `client/src` 全部未用导入（共 18 处）**—— cycle-97 `EditorPanel.jsx` 2 处（`StyleCommand`/`snapshotEntity`）；cycle-98 `gis/` 10 文件 14 处（`useState`/`useEffect`/`useMemo`/`useRef`、`StyleCommand`、`gisApi`、`describeSuggestion`、`measureOp`、`LARGE_DATASET_VERTEX_THRESHOLD`、`LARGE_BOOLEAN_POLYGON_THRESHOLD`、`cartesiansToLngLatHeights`、`Cesium`）；cycle-99 `App.jsx`/`ThemeToggle.jsx`/`useOptimisticAction.js` 4 处（`useEffect`/`useState`/`React`/`initUseActionStateGuard`）。各期构建 ✓、括号平衡 0、剩余未用导入归零、CSS 门禁 20/20+9/9+13/13、零行为改动。
@@ -310,3 +316,5 @@
 - ✅ P2 OTel SDK 评估（周期 14）→ 移至周期 14 已交付
 - ✅ P2 mem0 self-host 评估（周期 10）→ 移至周期 10 已交付
 - ✅ P2 AI Agent 3-layer memory（周期 10）→ 移至周期 10 已交付
+- 📌 **周期 112 剩余（用户已拍板，待执行）**：3b/3d 语义阶梯命名（`--gap-*px` 数值档 → `--space-*` 语义档；`--ls-*` → `--font-*`，按推荐命名等值映射）；3f `EditorPanel.jsx` 视觉密度按常规密度精简。**不做**：3c 色+alpha 归并、3e 26 单次 box-shadow（cycle-94 实测无操作/主题相关）；项2 `useGisPage` 拆分按用户拍板**暂缓**。
+- ⏭️ **遗留**：cycle-77 人工浏览器冒烟测试 —— 现可经 **https://129.204.202.173:5175/** 执行（9 项：三列布局/拖拽分栏/面板折叠/代码执行沙箱/AI 助手/截图下载/分享链接/重置清空/双主题）；等待用户回报 `通过`/`失败：<现象>`。
