@@ -155,17 +155,31 @@
   --gap-20px: var(--space-5);  /* 20px 语义档 */
   --gap-28px: var(--space-28px);
   --gap-30px: var(--space-30px);
-  /* 字距（UR-2 步骤8 收敛：letter-spacing 组件实际值，等值零视觉变化）
-     值命名、非语义档；字距语义阶梯（tracking-tight/normal/wide）待设计拍板（UR-3 待办）。 */
-  --ls-0-5px: 0.5px;      /* 原 ×7 */
-  --ls-0-05em: 0.05em;    /* 原 ×3 */
-  --ls-1px: 1px;          /* 原 ×3 */
-  --ls-0-3px: 0.3px;      /* 原 ×3 */
-  --ls-0-4px: 0.4px;      /* 原 ×3 */
-  --ls-0-02em: 0.02em;    /* 原 ×2 */
-  --ls-neg-0-4px: -0.4px; /* 原 ×1 */
-  --ls-2px: 2px;          /* 原 ×1 */
-  --ls-0-2px: 0.2px;      /* 原 ×1 */
+  /* 字距（UR-3 3b-2，用户 2026-11-18 拍板：推荐命名族 tracking，等值映射）
+     规范定义采用 --tracking-* 命名空间（字距在排版术语为 tracking，非 font-size；
+     --font-* 保留给字号/字重/行高族）。
+     当前为值命名档：现有值混合 em/px 且为微调值（0.2~2px、0.02/0.05em、-0.4px），
+     无干净语义 tier（tracking-tight/normal/wide）可等值映射，归并会改变观感（非等值），
+     故不强行语义化——诚实边界；语义 tier 可在此命名空间上后续叠加。 */
+  --tracking-0-5px: 0.5px;
+  --tracking-0-05em: 0.05em;
+  --tracking-1px: 1px;
+  --tracking-0-3px: 0.3px;
+  --tracking-0-4px: 0.4px;
+  --tracking-0-02em: 0.02em;
+  --tracking-neg-0-4px: -0.4px;
+  --tracking-2px: 2px;
+  --tracking-0-2px: 0.2px;
+  /* --ls-* 别名层（兼容既有 24 处引用，计算值不变） */
+  --ls-0-5px: var(--tracking-0-5px);
+  --ls-0-05em: var(--tracking-0-05em);
+  --ls-1px: var(--tracking-1px);
+  --ls-0-3px: var(--tracking-0-3px);
+  --ls-0-4px: var(--tracking-0-4px);
+  --ls-0-02em: var(--tracking-0-02em);
+  --ls-neg-0-4px: var(--tracking-neg-0-4px);
+  --ls-2px: var(--tracking-2px);
+  --ls-0-2px: var(--tracking-0-2px);
   /* 动效 */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --duration: 0.25s;

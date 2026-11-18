@@ -19,6 +19,10 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 114 已交付（2026-11-18，自动周期 · UR-3 3b-2 字距 tracking 命名空间）
+
+- ✅ **UR-3 3b-2：字距 tracking 命名空间落位（用户 2026-11-18 拍板：推荐命名族，等值映射，零视觉变化）**——`styles.css` 以 `--tracking-*` 为规范定义（9 个，值与原 `--ls-*` 逐一相等：`0.5px/0.05em/1px/0.3px/0.4px/0.02em/-0.4px/2px/0.2px`），全部 `--ls-*`（9 个）改为 `--tracking-*` 纯别名，**24 处既有引用零改动**、计算值不变。命名采用 `--tracking-*` 而非 `--font-*`：字距在排版术语为 **tracking**（非 font-size；`--font-*` 保留给字号/字重/行高族），与 cycle-71 记录的「tracking-tight/normal/wide」推荐一致。当前为值命名档（诚实边界：现有值混合 em/px 且为微调值，无干净语义 tier 可等值映射，归并会改变观感 → 不强行语义化）；语义 tier 可在此命名空间后续叠加。新增门禁 `tests/specs/tracking-token-namespace.cjs`（5 条：定义值逐一相等且唯一 / `--ls-*` 纯别名无字面值 / 无下划线 / 非僵尸 / 别名数=9）。回归 css-duplication-audit **20/20** + css-var-reference-guard **9/9** + design-token-audit **13/13** + spacing/shadow 门禁 5/5+6/6 + 括号净深度 0；**`vite build` ✓ 6.32s**（505 modules）。双主题未破、无行为改动。
+
 ## 周期 113 已交付（2026-11-18，自动周期 · UR-3 3b 间距语义阶梯）
 
 - ✅ **UR-3 3b：间距语义阶梯 `--space-*` 落位（用户 2026-11-18 拍板：推荐命名，等值映射，零视觉变化）**——`styles.css` 建立规范定义：语义档 `--space-1..6`（对齐 4px 网格：4/8/12/16/20/24px）+ 值命名档 `--space-1px/2px/3px/5px/6px/10px/14px/18px/28px/30px`（非网格值，如实标注非语义档，诚实边界，不冒充语义）；全部 16 个 `--gap-*` 改为 `--space-*` 的**纯别名**（`var()` 间接），**264 处既有引用零改动**、计算值不变。新增门禁 `tests/specs/spacing-token-semantic-ladder.cjs`（5 条：语义档值唯一 / `--gap-*` 纯别名无字面 px / 非网格值命名档存在 / 无下划线（guard 兼容）/ 语义档非僵尸）。回归 css-duplication-audit **20/20** + css-var-reference-guard **9/9** + design-token-audit **13/13** + shadow 门禁 6/6 + 括号净深度 0；**`vite build` ✓ 6.32s**（505 modules）。双主题未破、无行为改动。3d 多值简写的语义档前置依赖就此就绪。
@@ -320,5 +324,5 @@
 - ✅ P2 OTel SDK 评估（周期 14）→ 移至周期 14 已交付
 - ✅ P2 mem0 self-host 评估（周期 10）→ 移至周期 10 已交付
 - ✅ P2 AI Agent 3-layer memory（周期 10）→ 移至周期 10 已交付
-- 📌 **周期 113 剩余（用户已拍板，待执行）**：3b-2 字距语义阶梯（`--ls-*` 值档 → 语义档，按推荐命名等值映射；与 `--space-*` 同法：语义档为规范定义 + `--ls-*` 纯别名）；3d 多值简写复合（padding 212 + margin 47，依赖 `--space-*` 语义档已就绪）；3f `EditorPanel.jsx` 视觉密度按常规密度精简。**不做**：3c 色+alpha 归并、3e 26 单次 box-shadow（cycle-94 实测无操作/主题相关）；项2 `useGisPage` 拆分按用户拍板**暂缓**。
+- 📌 **周期 114 剩余（用户已拍板，待执行）**：3d 多值简写复合（padding 212 + margin 47，`--space-*` 语义档已就绪，需复合/方向性 token 设计）；3f `EditorPanel.jsx` 视觉密度按常规密度精简；`--radius-base: var(--radius-md, 12px)` 同 3a 类值级重复 fallback（可随 3d 一并收口）。**不做**：3c 色+alpha 归并、3e 26 单次 box-shadow（cycle-94 实测无操作/主题相关）；项2 `useGisPage` 拆分按用户拍板**暂缓**。
 - ⏭️ **遗留**：cycle-77 人工浏览器冒烟测试 —— 现可经 **https://129.204.202.173:5175/** 执行（9 项：三列布局/拖拽分栏/面板折叠/代码执行沙箱/AI 助手/截图下载/分享链接/重置清空/双主题）；等待用户回报 `通过`/`失败：<现象>`。
