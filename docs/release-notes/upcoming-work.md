@@ -19,6 +19,18 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 138 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice8 打磨 + 全量回归** → **UR-4 完成**）
+
+**范围判定**：Cesium 控件层（theme.css L460-541，infobox/toolbar/credits/selection/performance/geocoder）已 token 化、暗主题也走 token → 不重复改。聚焦 `#1f242d` 3 处清零 + 面板外裸 px 全局 token 化 + 值命名档终审 + 全量回归。
+
+**实施**：安全全局 token 化 v2（**仅处理不含 `var(` 的裸 px 声明**，杜绝 `\bNpx\b` 误匹配 `var(--space-Npx)`/`var(--gap-Npx)` token 名内 `px` 造成污染）→ **123 处裸 px 替换**；`#1f242d` 3 处（`.gis-hsplitter` bg/`.code-dock` border/`.console-header` border-bottom）→ `var(--border)` 剩余 0；负间距 `-3px`→`-var(--space-3px)`；未映射大号间距（32/40/60px，3 处）刻意保留。
+
+**验收**：15 道设计门禁全 PASS ＋ 括号配平 0 ＋ `vite build` 6.34s/505 modules ＋ 线上核验（`var(--space-2)` 在服务 CSS、`#1f242d`=0）＋ 有界回归（172 specs：**170 PASS** + 1 超时假阴性 helmet-8（断言 pass=4/4，与基线一致）+ 1 跳过 sandbox-perf flaky，**无真实回归**）。
+
+**踩坑**：首版脚本 `\bNpx\b` 误匹配 `var(--gap-20px)`/`var(--space-7px)` token 名内 `px` → 污染 `var(--X-var(--space-Y))`；`css-var-reference-guard` 报未定义 `--gap-5`/`--space-var`。回退 HEAD → v2 加 `var(` 守卫 → 0 污染。
+
+**UR-4 结案**：Slice1-8 全部交付 → **Geo Dark UI 全面重设计完成**（Geo Dark + Geo Light 成对 + 全家族 token 化 + 残留字面量清零 + 值命名档终审）。P1 达成。
+
 ## 周期 137 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice7 亮主题配套**）
 
 **改前**：亮主题块存在且完整，但暗定义·亮未覆盖·被使用的主题相关 token 存在缺口（亮主题借用暗值 → 浅底不可读/深色浮层泄漏）。精算 **31 候选** → 筛自动适配别名（`--border-default`/`--surface-1`/`--text-primary`）、原始色板（`--indigo-*`）、主题无关（`--theme-transition-*`）、同值 no-op（`--on-*`/`--nav-active-color` 均白）→ **16 真实覆写**。
