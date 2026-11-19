@@ -10,20 +10,9 @@ import { runAgentLoop } from './aiAgent.js';
 import { toolDocsForPrompt } from './aiTools.js';
 import { readViewStateFromUrl, buildShareUrl } from '../../utils/viewState.js';
 import * as sessionKeys from '../../utils/sessionKeys.js';
+import { usePanelLayout, COLLAPSED_W } from './usePanelLayout.js';
+import { useAiState } from './useAiState.js';
 
-
-const COLLAPSED_W = 36; // 折叠后的窄条宽度
-const MIN_W = 240;      // 最小展开宽度
-const CENTER_MIN = 180; // 中列保底宽度（让出更多空间给左右侧）
-
-function loadNum(key, fallback) {
-  try { const v = parseFloat(localStorage.getItem(key)); return Number.isFinite(v) ? v : fallback; }
-  catch (_) { return fallback; }
-}
-function loadBool(key, fallback) {
-  try { const v = localStorage.getItem(key); return v == null ? fallback : v === 'true'; }
-  catch (_) { return fallback; }
-}
 
 
 export function useGisPage() {
@@ -32,6 +21,26 @@ export function useGisPage() {
   const ctxRef = useRef(null);
   const containerRef = useRef(null);
   const sandboxToastShownRef = useRef(false);
+
+  // 三列面板布局（列宽/折叠/拖拽/resize/localStorage）已拆到 usePanelLayout 子钩子
+  const {
+    calcThird, leftW, setLeftW, rightW, setRightW,
+    leftCollapsed, setLeftCollapsed, rightCollapsed, setRightCollapsed,
+    startDrag,
+  } = usePanelLayout(containerRef);
+
+  // AI 会话/平台/确认弹窗状态已拆到 useAiState 子钩子
+  const {
+    aiMessages, setAiMessages,
+    aiStreaming, setAiStreaming,
+    aiAbortRef, aiXhrRef,
+    writeConfirm, setWriteConfirm, writeConfirmResolveRef, confirmWrite,
+    lastError, setLastError,
+    aiPlatforms, setAiPlatforms,
+    keySettingsOpen, setKeySettingsOpen,
+    aiCurrentPlatform, setAiCurrentPlatform,
+    aiSessionId,
+  } = useAiState();
 
   // 坐标格式（dec / dms / utm / mgrs）—— 提升到 index 层
   // 让 CesiumEarth 内的 CursorReadout 底栏共享同一选择
@@ -48,60 +57,12 @@ export function useGisPage() {
   const [toasts, setToasts] = useState([]);
   const toastIdRef = useRef(0);
 
-  // AI 会话
-  const [aiMessages, setAiMessages] = useState([]);
-  const [aiStreaming, setAiStreaming] = useState(false);
-  const aiAbortRef = useRef(null);
-  const aiXhrRef = useRef(null);
-
   // 阶段 2C: 启动时如果 URL 里有 view state,延迟到 viewer ready 后还原
   const pendingViewStateRef = useRef(null);
   useEffect(() => {
     const v = readViewStateFromUrl();
     if (v) pendingViewStateRef.current = v;
   }, []);
-
-  // AI 写工具确认弹窗（promise 模式：confirmWrite({...}) → Promise<{approved}>
-  const [writeConfirm, setWriteConfirm] = useState(null);
-  const writeConfirmResolveRef = useRef(null);
-  const confirmWrite = useCallback((req) => {
-    return new Promise((resolve) => {
-      writeConfirmResolveRef.current = resolve;
-      setWriteConfirm(req);
-    });
-  }, []);
-
-  // 最近一次代码执行错误（用于"🔧 让 AI 修代码"按钮）
-  const [lastError, setLastError] = useState(null);
-
-  // 可用 AI 平台列表 + 当前选中的平台
-  const [aiPlatforms, setAiPlatforms] = useState([]);
-  const [keySettingsOpen, setKeySettingsOpen] = useState(false); // 🔑 Key 设置弹窗
-
-  // Header 里的 🔑 按钮通过 window 事件触发（App.jsx 里的按钮不在 GIS 组件作用域内）
-  useEffect(() => {
-    const handler = () => setKeySettingsOpen(true);
-    window.addEventListener('gis-open-key-settings', handler);
-    return () => window.removeEventListener('gis-open-key-settings', handler);
-  }, []);
-  const [aiCurrentPlatform, setAiCurrentPlatform] = useState(() => {
-    try { return localStorage.getItem('ai-platform') || ''; } catch (_) { return ''; }
-  });
-
-  // AI 会话 id（每次首次发送时建一个，刷新页面保持；清空对话时也保留）
-  // 用于把 usage 关联到同一会话，前端 UsagePanel 按 sessionId 展开明细
-  const [aiSessionId] = useState(() => {
-    try {
-      let v = localStorage.getItem('ai-session-id');
-      if (!v) {
-        v = 'sess_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-        localStorage.setItem('ai-session-id', v);
-      }
-      return v;
-    } catch (_) {
-      return 'sess_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-    }
-  });
 
   // 阶段 3B：场景 AI 说明横幅
   // - 打开分享链接时（URL hash 带 aiDescription）显示
@@ -466,87 +427,8 @@ export function useGisPage() {
   const [tdtTokenOverride, setTdtTokenOverride] = useState('');
   const [cesiumTokenOverride, setCesiumTokenOverride] = useState('');
 
-  // ===== 三列宽度 & 折叠状态 =====
-  // 初始默认三列各占 1/3（基于当前视口宽度），保留用户已拖拽保存的自定义宽度
-  const calcThird = () => {
-    const mainPad = 24;       // .main-full padding-left + padding-right
-    const gisPad = 24;        // .gis-container padding-left + padding-right
-    const splitters = 14;     // 两个 7px 分隔条
-    const usable = (window.innerWidth || 1920) - mainPad - gisPad - splitters;
-    return Math.max(420, Math.round(usable / 3));
-  };
-  const [leftW, setLeftW] = useState(() => {
-    const v = loadNum('gis-left-w', 0);
-    return v >= 420 ? v : calcThird();
-  });
-  const [rightW, setRightW] = useState(() => {
-    const v = loadNum('gis-right-w', 0);
-    return v >= 420 ? v : calcThird();
-  });
-  const [leftCollapsed, setLeftCollapsed] = useState(() => loadBool('gis-left-collapsed', false));
-  const [rightCollapsed, setRightCollapsed] = useState(() => loadBool('gis-right-collapsed', false));
-
+  // 三列宽度 & 折叠状态逻辑已拆到 usePanelLayout 子钩子（见本钩子顶部调用）。
   // Test Suite 已删除
-
-  useEffect(() => { try { localStorage.setItem('gis-left-w', String(leftW)); } catch (_) {} }, [leftW]);
-  useEffect(() => { try { localStorage.setItem('gis-right-w', String(rightW)); } catch (_) {} }, [rightW]);
-  useEffect(() => { try { localStorage.setItem('gis-left-collapsed', String(leftCollapsed)); } catch (_) {} }, [leftCollapsed]);
-  useEffect(() => { try { localStorage.setItem('gis-right-collapsed', String(rightCollapsed)); } catch (_) {} }, [rightCollapsed]);
-
-  // 窗口 resize 时自动收紧列宽，防止 grid 溢出
-  useEffect(() => {
-    const handleResize = () => {
-      const containerW = containerRef.current?.getBoundingClientRect()?.width;
-      if (!containerW) return;
-      const SPLITTERS = 14; // 两个 7px 分隔条
-      const CENTER_MIN = 180;
-      const MIN_W = 240;
-      const maxTotal = containerW - SPLITTERS - CENTER_MIN;
-      if (leftW + rightW > maxTotal) {
-        // 等比缩：各自最多缩到 MIN_W
-        const ratio = (maxTotal - MIN_W * 2) / (leftW + rightW - MIN_W * 2);
-        if (ratio < 1) {
-          const newLeft = Math.round(MIN_W + (leftW - MIN_W) * ratio);
-          const newRight = Math.round(MIN_W + (rightW - MIN_W) * ratio);
-          setLeftW(Math.max(MIN_W, newLeft));
-          setRightW(Math.max(MIN_W, newRight));
-        }
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [leftW, rightW]);
-
-  // 拖拽调节列宽：mousedown 时直接绑定 mousemove/mouseup
-  const startDrag = useCallback((type) => (e) => {
-    e.preventDefault();
-    const containerW = containerRef.current?.getBoundingClientRect()?.width || window.innerWidth;
-    const SPLITTERS = 14; // 两个分割条宽度
-    const startX = e.clientX;
-    const startW = type === 'left' ? leftW : rightW;
-    // 本列最大宽度 = 容器 - splitters - 另一列 - 中列保底
-    const otherW = type === 'left' ? rightW : leftW;
-    const myMax = Math.max(MIN_W, containerW - SPLITTERS - otherW - CENTER_MIN);
-
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    const onMove = (ev) => {
-      const delta = ev.clientX - startX;
-      const raw = type === 'left' ? startW + delta : startW - delta;
-      const next = Math.max(MIN_W, Math.min(myMax, raw));
-      if (type === 'left') setLeftW(Math.round(next));
-      else setRightW(Math.round(next));
-    };
-    const onUp = () => {
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  }, [leftW, rightW]);
 
   // 监听 editorCode 变化
   useEffect(() => {
@@ -555,35 +437,6 @@ export function useGisPage() {
     };
     window.addEventListener('gis-apply-code', handler);
     return () => window.removeEventListener('gis-apply-code', handler);
-  }, []);
-
-  // 加载可用 AI 平台列表（当前会话里配了 Key 的平台；纯 session，不读服务端 DB）
-  useEffect(() => {
-    const refresh = () => {
-      setAiPlatforms(
-        sessionKeys.getAll().map((k) => ({ platform: k.platform, label: k.platform })),
-      );
-    };
-    refresh();
-    window.addEventListener('ai-keys-changed', refresh);
-    return () => window.removeEventListener('ai-keys-changed', refresh);
-  }, []);
-
-  // 持久化选中平台
-  useEffect(() => {
-    try {
-      if (aiCurrentPlatform) localStorage.setItem('ai-platform', aiCurrentPlatform);
-      else localStorage.removeItem('ai-platform');
-    } catch (_) {}
-  }, [aiCurrentPlatform]);
-
-  // 卸载清理
-  useEffect(() => {
-    return () => {
-      try { aiXhrRef.current && aiXhrRef.current.abort(); } catch (_) {}
-      aiXhrRef.current = null;
-      aiAbortRef.current = null;
-    };
   }, []);
 
   function pushToast(text, level = 'info', ttlMs = 3500) {

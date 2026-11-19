@@ -19,6 +19,16 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 139 已交付（2026-11-19，自动周期 · **useGisPage 拆分 1/4 —— 布局 + AI 状态簇**）
+
+**改前**：`useGisPage.js` = 936 行单钩子巨石（状态/effect/回调/执行逻辑全内聚）。**识别 4 簇**：① 面板布局（列宽/折叠/拖拽/resize/localStorage）、② AI 会话状态（aiMessages/abort/xhr/writeConfirm/lastError/aiPlatforms/keySettings/aiCurrentPlatform/aiSessionId + 关联 effect）、③ 编辑器/场景状态、④ 核心执行（captureCtx/runSandboxCode/handleAiSend/handleStop）。
+
+**本轮（簇 ① ②，自洽零耦合）**：新 `usePanelLayout.js`（109 行，`usePanelLayout(containerRef)` + 常量/loadNum/loadBool，导出 COLLAPSED_W）；新 `useAiState.js`（96 行，含 gis-open-key-settings/ai-keys-changed/ai-platform 持久化/卸载清理 4 effect）；`useGisPage.js` 936 → **789 行**（删 6 块，顶部无条件调用两子钩子，Hook 顺序稳定）。`aiSceneDesc`+`pendingViewStateRef` 保留（依赖 view state）。
+
+**验收**：3 文件语法 OK；残留未定义引用 0；重复声明 0；`vite build` 6.58s；线上 HTTP 200 + 主 JS bundle 含 `gis-left-collapsed`/`col-resize`/`ai-session-id`/`gis-open-key-settings`/`ai-platform`（子钩子已打包接线）；15 门禁 15/15 PASS（CSS 未动）。**行为零变化**（纯搬迁）。
+
+**边界**：簇 ③ ④ 未拆（④ 依赖 cesiumRef/editorRef/ctxRef，③ 的 pushToast 被 ④ 使用，需整体规划）→ 拆分 2/4 下一轮。
+
 ## 周期 138 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice8 打磨 + 全量回归** → **UR-4 完成**）
 
 **范围判定**：Cesium 控件层（theme.css L460-541，infobox/toolbar/credits/selection/performance/geocoder）已 token 化、暗主题也走 token → 不重复改。聚焦 `#1f242d` 3 处清零 + 面板外裸 px 全局 token 化 + 值命名档终审 + 全量回归。
