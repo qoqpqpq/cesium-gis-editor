@@ -19,6 +19,16 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 141 已交付（2026-11-19，自动周期 · **useGisPage 拆分 3/4 —— 核心执行/场景快照/重置清空簇**）
+
+**定界**：簇 ④ 内部分两类——① 纯执行（自洽，仅 9 依赖）② AI 编排胶水（L100-407 大 effect + `handleAiSend` + `handleStop`，耦合 AI 状态）→ 本轮抽 ①，留 ②。
+
+**实施**：新 `useGisCore.js`（174 行）：`captureCtx`（沙箱 viewer 代理）/`runSandboxCode`/`captureSceneContext`/`clearLastError`/`handleResetScene`/`handleClearScene`/`handleConsoleLog`/`handleApplyCode` + `gis-reset-scene`/`gis-clear-scene` effect，verbatim 搬迁，依赖经对象注入（`{cesiumRef, editorRef, ctxRef, pendingViewStateRef, sandboxToastShownRef, pushToast, setLastError, setLoadedFiles, setEditorCode}`，无 AI 耦合）。`useGisPage.js`：751 → **610 行**（−141，删 150 行迁移块）；清理 2 行未使用导入（`./sandbox.js`、`./aiContext.js`）；`sceneContext` 状态+轮询 effect 留用。
+
+**验收**：语法 OK（2 文件）；残留未定义引用 0；未使用导入清理；`vite build` 6.21s；线上 HTTP 200 + 主 chunk 含 `沙箱已就绪`/`Viewer 尚未就绪`/`场景已重置`/`gis-reset-scene`/`已应用到编辑器`/`gis-apply-code`；15 门禁 15/15 PASS。**行为零变化**（纯搬迁 + 依赖注入）。
+
+**边界**：AI 编排胶水（约 300 行）未拆——依赖 aiCurrentPlatform/aiPlatforms/aiSessionId/editorCode/sceneContext/aiApi/sessionKeys，需与 AI 状态整体规划 → 拆分 4/4 下一轮。
+
 ## 周期 140 已交付（2026-11-19，自动周期 · **useGisPage 拆分 2/4 —— 编辑器/Token/Toast/坐标格式状态簇**）
 
 **关键判定**：`sceneContext`+2s 轮询 effect **不随 ③ 迁移**（绑定 `window.__runSandbox`/`__layers`/`__layerVisible`，引用 ④ 的 `runSandboxCode`/`cesiumRef`/`editorRef`）→ 留 ④。本轮 ③ = coordFormat/toasts+pushToast/editorCode/loadedFiles/showTokenDialog/tdtTokenOverride/cesiumTokenOverride（纯状态，零耦合 ④）。
