@@ -429,7 +429,7 @@ const CesiumEarth = forwardRef(function CesiumEarth(
           hierarchy: positions,
           material: Cesium.Color.fromCssColorString('rgba(108, 140, 255, 0.3)'),
           outline: true,
-          outlineColor: Cesium.Color.fromCssColorString('#6c8cff'),
+          outlineColor: Cesium.Color.fromCssColorString('#3b9eff'),
         },
       });
     },
@@ -446,7 +446,7 @@ const CesiumEarth = forwardRef(function CesiumEarth(
         style: {
           pointSize: 14,
           pointColor: color,
-          strokeColor: '#6c8cff',
+          strokeColor: '#3b9eff',
           strokeWidth: 2,
           fillColor: 'rgba(108,140,255,0.35)',
         },

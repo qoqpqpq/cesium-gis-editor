@@ -3,29 +3,29 @@
 @import './theme.css';
 :root {
   /* 颜色 */
-  --bg: #0b1020;
-  --bg-soft: #121935;
+  --bg: #0d1117;
+  --bg-soft: #141b24;
   --surface: var(--white-04);
   --surface-strong: var(--white-08);
   --card: var(--surface);
   --card-strong: var(--surface-strong);
   --border: var(--white-08);
   --border-strong: var(--white-14);
-  --text: #f1f4ff;
-  --text-soft: #a8b0c6;
-  --muted: #7c87a8;
+  --text: #e6edf3;
+  --text-soft: #9aa7b8;
+  --muted: #6e7d91;
   --primary: var(--primary-500);
-  --primary-strong: #4f6cff;
+  --primary-strong: #2f81f7;
   --accent: var(--accent-500);
   --accent-warm: var(--accent-warm-500);
-  --success: #4ade80;
-  --warn: #fbbf24;
-  --danger: #ef4444;
-  --danger-soft-fg: #f87171;   /* 软危险前景(UR-1 迁移: 原组件硬编码 #f87171) */
+  --success: #3fb950;
+  --warn: #d29922;
+  --danger: #f85149;
+  --danger-soft-fg: #ff9492;   /* 软危险前景(UR-1 迁移: 原组件硬编码 #f87171；周期131 Geo Dark 换色) */
   --on-accent-fg: #ffffff;      /* 彩色/品牌底上的前景文字(UR-1 迁移: 原 color:#fff) */
-  --text-meta: #6b7280;         /* 次要/元信息文字(UR-1 迁移: 原 color:#6b7280) */
-  --primary-tint-fg: #b6c4ff;   /* primary 淡色前景(UR-1 迁移: 原 color:#b6c4ff) */
-  --grad-brand: linear-gradient(135deg, #6366f1, #8b5cf6); /* 品牌渐变(UR-1 去重: 原 3 处重复) */
+  --text-meta: #6e7683;         /* 次要/元信息文字(UR-1 迁移: 原 color:#6b7280) */
+  --primary-tint-fg: #9ecbff;   /* primary 淡色前景(UR-1 迁移: 原 color:#b6c4ff) */
+  --grad-brand: linear-gradient(135deg, #2f81f7, #22d3ee); /* 品牌渐变(UR-1 去重; 周期131 Geo Dark: azure→cyan) */
   /* ===== 字号阶梯(UR-2 迁移: 取当前最高频实际值, 等值零视觉变化) ===== */
   --fs-2xs: 9px;    /* 原 font-size:9px ×3 */
   --fs-xs: 10px;    /* 原 font-size:10px ×44 */
@@ -96,10 +96,10 @@
   --radius-6: 6px;    /* 原 6px ×32 */
   --radius-9: 9px;    /* 原 9px ×2 */
   --radius-10: 10px;  /* 原 10px ×22 */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-sm: 6px;    /* 周期131 Geo Dark：专业仪表盘密度，8→6px */
+  --radius-md: 8px;    /* 周期131 Geo Dark：12→8px */
+  --radius-lg: 12px;   /* 周期131 Geo Dark：16→12px */
+  --radius-xl: 16px;   /* 周期131 Geo Dark：20→16px */
   --radius-full: 50%;   /* 原 50% ×6（圆形语义） */
   --radius-pill: 999px; /* 原 999px ×10（胶囊语义） */
   /* 阴影 */
@@ -200,9 +200,9 @@ body {
     "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 1200px 700px at 18% 10%, rgba(40, 60, 160, 0.25), transparent 60%),
-    radial-gradient(ellipse 900px 600px at 88% 25%, rgba(20, 90, 130, 0.2), transparent 55%),
-    radial-gradient(ellipse 1100px 800px at 50% 100%, rgba(60, 30, 120, 0.18), transparent 60%);
+    radial-gradient(ellipse 1200px 700px at 18% 10%, rgba(31, 111, 235, 0.12), transparent 60%),
+    radial-gradient(ellipse 900px 600px at 88% 25%, rgba(34, 211, 238, 0.08), transparent 55%),
+    radial-gradient(ellipse 1100px 800px at 50% 100%, rgba(47, 129, 247, 0.08), transparent 60%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: 100% 100%;

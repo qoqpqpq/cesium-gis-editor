@@ -48,15 +48,15 @@
   --white-70: rgba(255, 255, 255, 0.70);
 
   /* 主色 alpha 系列(蓝紫光晕) */
-  --primary-06: rgba(108, 140, 255, 0.06);
-  --primary-08: rgba(108, 140, 255, 0.08);
-  --primary-12: rgba(108, 140, 255, 0.12);
-  --primary-18: rgba(108, 140, 255, 0.18);
-  --primary-20: rgba(108, 140, 255, 0.20);
-  --primary-25: rgba(108, 140, 255, 0.25);
-  --primary-30: rgba(108, 140, 255, 0.30);
-  --primary-35: rgba(108, 140, 255, 0.35);
-  --primary-40: rgba(108, 140, 255, 0.40);
+  --primary-06: rgba(59, 158, 255, 0.06);
+  --primary-08: rgba(59, 158, 255, 0.08);
+  --primary-12: rgba(59, 158, 255, 0.12);
+  --primary-18: rgba(59, 158, 255, 0.18);
+  --primary-20: rgba(59, 158, 255, 0.20);
+  --primary-25: rgba(59, 158, 255, 0.25);
+  --primary-30: rgba(59, 158, 255, 0.30);
+  --primary-35: rgba(59, 158, 255, 0.35);
+  --primary-40: rgba(59, 158, 255, 0.40);
   /* Tailwind indigo-500 (#6366f1) 系列 — 用于 AI 工具调用 chip / 高亮边框 */
   --indigo-08: rgba(99, 102, 241, 0.08);
   --indigo-15: rgba(99, 102, 241, 0.15);
@@ -67,9 +67,9 @@
   --indigo-40: rgba(99, 102, 241, 0.40);
 
   /* 主色 concrete 值,本身常用 */
-  --primary-500: #6c8cff;
-  --accent-500: #5ad1ff;
-  --accent-warm-500: #c4a3ff;
+  --primary-500: #3b9eff;  /* 周期131 Geo Dark: azure（原 indigo 已弃用） */
+  --accent-500: #22d3ee;    /* 周期131 Geo Dark: cyan（原 sky 已弃用） */
+  --accent-warm-500: #f5a623; /* 周期131 Geo Dark: amber（原 violet 已弃用） */
 
   /* 黑色 alpha 系列(暗主题加深底 / 亮主题加阴影) */
   --ink-08: rgba(0, 0, 0, 0.08);
@@ -98,8 +98,8 @@
   --level-error-fg: #fecaca;
 
   /* 链接 - 默认色, hover 色 */
-  --link: #6c8cff;
-  --link-hover: #4f6cff;
+  --link: #3b9eff;        /* 周期131 Geo Dark: azure（原 indigo 已弃用） */
+  --link-hover: #2f81f7;  /* 周期131 Geo Dark: azure strong */
 
   /* 强调色上的文字(按钮文字, 在彩色背景上)-- 以 L33 暗主题 :root 处定义为准,亮主题覆写在 :root[data-theme=light] */
 
@@ -118,56 +118,56 @@
   --footer-fg: rgba(255, 255, 255, 0.7);
 
   /* 选中态高亮(文本选中) */
-  --selection-bg: rgba(108, 140, 255, 0.35);
+  --selection-bg: rgba(59, 158, 255, 0.35);
   --selection-fg: #ffffff;
 
   /* ===== Step B 通用控件补充 token ===== */
   /* .tag / 强调色软背景胶囊 */
-  --primary-soft-bg: rgba(108, 140, 255, 0.18);
+  --primary-soft-bg: rgba(59, 158, 255, 0.18);
   --primary-soft-fg: #c8d3ff;
-  --primary-soft-border: rgba(108, 140, 255, 0.25);
+  --primary-soft-border: rgba(59, 158, 255, 0.25);
   /* .badge 中性软背景 */
   --neutral-soft-bg: rgba(255, 255, 255, 0.08);
-  --neutral-soft-fg: #c8d3ff;
+  --neutral-soft-fg: #a8d4ff;
   --neutral-soft-border: rgba(255, 255, 255, 0.10);
   /* .error 危险提示面板 */
-  --danger-bg: rgba(239, 68, 68, 0.08);
-  --danger-border: rgba(239, 68, 68, 0.30);
+  --danger-bg: rgba(248, 81, 73, 0.08);
+  --danger-border: rgba(248, 81, 73, 0.30);
   /* danger 系列 alpha 变体（hover / strong / active） */
-  --danger-soft-bg: rgba(239, 68, 68, 0.14);
-  --danger-soft-border: rgba(239, 68, 68, 0.40);
-  --danger-strong-bg: rgba(239, 68, 68, 0.18);
-  --danger-strong-border: rgba(239, 68, 68, 0.50);
-  --danger-active-bg: rgba(239, 68, 68, 0.32);
-  --danger-hover-bg: rgba(239, 68, 68, 0.45);
+  --danger-soft-bg: rgba(248, 81, 73, 0.14);
+  --danger-soft-border: rgba(248, 81, 73, 0.40);
+  --danger-strong-bg: rgba(248, 81, 73, 0.18);
+  --danger-strong-border: rgba(248, 81, 73, 0.50);
+  --danger-active-bg: rgba(248, 81, 73, 0.32);
+  --danger-hover-bg: rgba(248, 81, 73, 0.45);
   /* .warn 警告面板 */
-  --warn-bg: rgba(251, 191, 36, 0.12);
-  --warn-border: rgba(251, 191, 36, 0.30);
+  --warn-bg: rgba(210, 153, 34, 0.12);
+  --warn-border: rgba(210, 153, 34, 0.30);
   /* .success 成功面板 */
-  --success-bg: rgba(34, 197, 94, 0.10);
-  --success-border: rgba(34, 197, 94, 0.30);
+  --success-bg: rgba(63, 185, 80, 0.10);
+  --success-border: rgba(63, 185, 80, 0.30);
   /* .info / .accent-cool 蓝色提示面板 */
   --info-bg: rgba(34, 211, 238, 0.12);
   --info-border: rgba(34, 211, 238, 0.30);
   /* .accent-warm 暖色提示面板 */
-  --accent-warm-bg: rgba(196, 163, 255, 0.12);
-  --accent-warm-border: rgba(196, 163, 255, 0.30);
+  --accent-warm-bg: rgba(245, 166, 35, 0.12);
+  --accent-warm-border: rgba(245, 166, 35, 0.30);
   /* 黑底 alpha（遮罩 / modal backdrop） */
-  --overlay-85: rgba(11, 13, 17, 0.85);
-  --overlay-92: rgba(11, 13, 17, 0.92);
-  --overlay-95: rgba(11, 13, 17, 0.95);
-  --overlay-96: rgba(11, 13, 17, 0.96);
-  --surface-elevated: rgba(30, 35, 50, 0.92);   /* toolbar / dropdown / popover */
+  --overlay-85: rgba(13, 17, 23, 0.85);
+  --overlay-92: rgba(13, 17, 23, 0.92);
+  --overlay-95: rgba(13, 17, 23, 0.95);
+  --overlay-96: rgba(13, 17, 23, 0.96);
+  --surface-elevated: rgba(26, 32, 41, 0.94);   /* toolbar / dropdown / popover */
   /* .input 暗主题加深底;亮主题需浅底 */
   --input-bg: rgba(0, 0, 0, 0.25);
 
   /* ===== Header / Brand 专用 token (phase-0 polish 合入后) ===== */
   /* 暗主题用冷灰渐变(浅色文字在深底);亮主题用深色渐变(深色文字在浅底). */
-  --brand-title-gradient: linear-gradient(90deg, #e6e9f4, #a8b0c6);
+  --brand-title-gradient: linear-gradient(90deg, #e6edf3, #9aa7b8);
   --brand-mark-bg: linear-gradient(135deg, var(--primary), var(--accent));
   --nav-active-color: #ffffff;
   --nav-divider: rgba(255, 255, 255, 0.06);
-  --header-bg: rgba(11, 16, 32, 0.75);
+  --header-bg: rgba(13, 17, 23, 0.78);
   /* ThemeToggle:暗主题用半透明白底+浅文字 */
   --toggle-bg: rgba(255, 255, 255, 0.06);
   --toggle-bg-hover: rgba(255, 255, 255, 0.12);
@@ -184,13 +184,13 @@
   --white-80: rgba(255, 255, 255, 0.8);
   --white-85: rgba(255, 255, 255, 0.85);
   --white-90: rgba(255, 255, 255, 0.9);
-  --primary-10: rgba(108, 140, 255, 0.1);
-  --primary-15: rgba(108, 140, 255, 0.15);
-  --primary-16: rgba(108, 140, 255, 0.16);
-  --primary-22: rgba(108, 140, 255, 0.22);
-  --primary-32: rgba(108, 140, 255, 0.32);
-  --primary-45: rgba(108, 140, 255, 0.45);
-  --primary-70: rgba(108, 140, 255, 0.7);
+  --primary-10: rgba(59, 158, 255, 0.1);
+  --primary-15: rgba(59, 158, 255, 0.15);
+  --primary-16: rgba(59, 158, 255, 0.16);
+  --primary-22: rgba(59, 158, 255, 0.22);
+  --primary-32: rgba(59, 158, 255, 0.32);
+  --primary-45: rgba(59, 158, 255, 0.45);
+  --primary-70: rgba(59, 158, 255, 0.7);
   --ink-20: rgba(0, 0, 0, 0.2);
   --ink-28: rgba(0, 0, 0, 0.28);
   --ink-35: rgba(0, 0, 0, 0.35);

@@ -37,7 +37,7 @@ function applyTheme(resolved) {
     meta.setAttribute('name', 'theme-color');
     document.head.appendChild(meta);
   }
-  meta.setAttribute('content', resolved === 'light' ? '#f6f8fc' : '#0b1020');
+  meta.setAttribute('content', resolved === 'light' ? '#f6f8fc' : '#0d1117');
 }
 
 export function ThemeProvider({ children, defaultMode = 'dark' }) {

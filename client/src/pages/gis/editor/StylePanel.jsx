@@ -229,7 +229,7 @@ export default function StylePanel({ api, open, selectedIds, features, refresh, 
             </div>
             <div className="editor-style-row">
               <label>线颜色</label>
-              <input type="color" value={hexFromCss(draft.strokeColor) || '#6c8cff'}
+              <input type="color" value={hexFromCss(draft.strokeColor) || '#3b9eff'}
                 onChange={(e) => apply({ strokeColor: e.target.value })} />
             </div>
             <div className="editor-style-row">
@@ -240,11 +240,11 @@ export default function StylePanel({ api, open, selectedIds, features, refresh, 
             </div>
             <div className="editor-style-row">
               <label>填充</label>
-              <input type="color" value={hexFromCss(draft.fillColor) || '#6c8cff'}
+              <input type="color" value={hexFromCss(draft.fillColor) || '#3b9eff'}
                 onChange={(e) => apply({ fillColor: rgbaFromHex(e.target.value, alphaFromCss(draft.fillColor)) })} />
               <input type="range" min="0" max="1" step="0.05"
                 value={alphaFromCss(draft.fillColor)}
-                onChange={(e) => apply({ fillColor: rgbaFromHex(hexFromCss(draft.fillColor) || '#6c8cff', parseFloat(e.target.value)) })}
+                onChange={(e) => apply({ fillColor: rgbaFromHex(hexFromCss(draft.fillColor) || '#3b9eff', parseFloat(e.target.value)) })}
                 style={{ width: 60 }} />
               <span className="editor-style-val">{alphaFromCss(draft.fillColor).toFixed(2)}</span>
             </div>

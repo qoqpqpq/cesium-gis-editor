@@ -19,6 +19,31 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 131 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice1 主题基底替换**）
+
+> 用户 2026-11-19 09:25 新拍板：**主题/界面/UI 需完全重新设计**（当前这套不满意），可用插件/skill 找一套或自行设计；视觉方向经 `ask_user_question` 确认为 **深色专业 GIS 仪表盘**。
+> 排序拍板：**UI 全面重设计 → 完成后再做 `useGisPage` 拆分**；UR-3 3d 由本次重设计吸收结案。
+
+**Slice1 交付内容**（只改 token「值」，不改任何组件规则；组件规则引用不变）：
+
+- **配色**：indigo-violet → **graphite 中性 + azure/cyan 强调**。`--bg #0b1020→#0d1117`、`--bg-soft #121935→#141b24`、`--text #f1f4ff→#e6edf3`、`--text-soft→#9aa7b8`、`--muted→#6e7d91`；品牌 `--primary-500 #6c8cff→#3b9eff`、`--accent-500 #5ad1ff→#22d3ee`、`--accent-warm-500 #c4a3ff→#f5a623`；语义三色 `#4ade80/#fbbf24/#ef4444 → #3fb950/#d29922/#f85149`；全部 alpha 系列（primary/danger/warn/success/warm/overlay/elevated/header）同步换色。
+- **密度**：圆角收敛 `sm/md/lg/xl = 8/12/16/20 → 6/8/12/16`（专业仪表盘更紧），字号阶梯保持（`--fs-base` 已是 13px 高密度）。
+- **背景**：body 三束 radial 光晕去紫（indigo 0.25/violet 0.18 → azure 0.12/cyan 0.08/azure 0.08），克制不抢地图。
+- **地图同源**：GIS 要素默认描边/填充 `#6c8cff → #3b9eff`（useDrawing / useSelection / featureFactory / StylePanel / CesiumEarth / examples），地图向量色与 UI 品牌色同源；`--link/--link-hover`、`meta theme-color` 同步。
+- **旧色系清零**：`#6c8cff / #c4a3ff / #0b1020` 在 `client/src` 内 **0 残留（含注释）**。
+- **新门禁**：`tests/specs/geo-dark-palette-audit.cjs`（6 项：D1 bg / D2 primary / D3 旧色系 0 / D4 radius-md ≤8px / D5 语义三色 / D6 地图要素同源 azure），**6/6 PASS**，防后续组件级重构把配色改回旧体系。
+
+**验收**：8 道既有设计门禁全 PASS（css-duplication-audit / css-var-reference-guard / design-token-audit / shadow-token-duplicate-definition / spacing-token-semantic-ladder / tracking-token-namespace / stale-fallback-audit / editor-density-tokenized）+ 新门禁 6/6 + 括号配平净深度 0 + `vite build` 6.33s 505 modules + 线上核验 `#0d1117/#3b9eff/#22d3ee` 均已进入 `https://129.204.202.173:5175/` 服务 CSS。
+
+**后续 Slice 路线图（UI 全面重设计，按序推进）**：
+- [ ] Slice2 editor 面板族视觉重构（header/tab/行高/hover·active 态）
+- [ ] Slice3 按钮/表单/输入控件族（button·input·tab·tag·badge）
+- [ ] Slice4 表格与树（属性表 / QueryBuilder / 图层树 / AnalysisPanel）
+- [ ] Slice5 全局 chrome（Header·导航·右侧面板折叠手柄·主题切换）
+- [ ] Slice6 Cesium 控件层适配 Geo Dark（infobox/toolbar/credits/performance-display）
+- [ ] Slice7 亮主题配套（与 Geo Dark 成对的浅色调，保双主题不破）
+- [ ] Slice8 **`useGisPage` 拆分（用户拍板：UI 全部完成后再做）**
+
 ## 周期 117 / 118 / 119 / 120 / 121 / 122 / 123 / 124 / 125 / 126 / 127 / 128 / 129 / 130（2026-11-18~19，自动周期）：**skipped（无可执行自动任务，未造需求）**
 
 - 判定依据：UR-3 六项已全部按用户 2026-11-18 拍板处置完毕（3a/3b/3b-2/3f 交付；3c/3e 无操作；3d 无等值机械入口→转角色化设计拍板）。进度池中**无 P0/P1/P2 可自动执行的候选项**：项1 cycle-77 人工冒烟**需用户在浏览器执行**（公网 URL 健康：首页 200/2231B、`/api/health` 200）；项2 `useGisPage` 拆分**按用户拍板暂缓**；3d 需用户提供角色化命名方向。
@@ -28,7 +53,8 @@
 - **周期 120 复核（23:10）**：同 117/118/119，仍无可执行自动任务 → skipped（工作区 0 脏；预览首页 200；推送 RC=0）。
 - **周期 121 复核（00:10, 11-19）**：同 117-120，仍无可执行自动任务 → skipped（连续第 5 次；工作区 0 脏；预览首页 200；推送 RC=0；IN_SYNC=YES）。已跨日，周期 117-120 记录归档于 docs/cycles/ 与 docs/release-notes/，state/cycle-state.json 持续为 await_confirm。
 - **周期 122 / 123 / 124 / 125 / 126 / 127 / 128 / 129 / 130 复核（01:10 / 02:10 / 03:10 / 04:10 / 05:10 / 06:10 / 07:10 / 08:10 / 09:10, 11-19）**：同 117-121，仍无可执行自动任务 → skipped（连续第 6-14 次；工作区 0 脏；预览首页 200；IN_SYNC=YES）。为免文档冗长，后续连续 skipped 周期合并登记于本条。
-- ⚠️ **待用户输入**（不回复则后续周期继续 skipped）：① 冒烟回报 `通过` / `失败：<现象>`；② 3d 是否给出角色化命名方向（或确认维持现状）；③ 是否解除 `useGisPage` 暂缓。
+- ✅ **用户 2026-11-19 09:25 已回复**（本条待办结案，转入周期 131 新需求）：① 冒烟——地球加载正常（`EditorPanel` 位置已答复：GIS 页面**右侧**可折叠面板），面板确认项仍待回报；② 3d 角色化命名——**由 Geo Dark 重设计吸收结案**（新体系直接按语义 token 定义间距，不再单独机械替换）；③ `useGisPage`——**确认暂缓，UI 全面重设计全部完成后再做**。
+- ⚠️ **当前状态：不再 skipped**。进度池 P1 = **UR-4 UI 全面重设计（Geo Dark，Slice2 → Slice8）**，由自动周期逐轮推进；仅 Slice8 `useGisPage` 排在 UI 之后。
 
 ## 周期 116 已交付（2026-11-18，自动周期 · UR-3 3f editor 面板密度 token 化）
 

@@ -64,7 +64,7 @@ export function useSelection({ api, mode, onChange }) {
         if (e.polyline) {
           const baseW = style.strokeWidth || 2;
           e.polyline.width = sel ? Math.max(3, baseW + 2) : baseW;
-          const baseC = Cesium.Color.fromCssColorString(style.strokeColor || '#6c8cff');
+          const baseC = Cesium.Color.fromCssColorString(style.strokeColor || '#3b9eff');
           if (sel) baseC.withAlpha(1);
           e.polyline.material = sel
             ? Cesium.Color.fromCssColorString('#fbbf24')
@@ -75,7 +75,7 @@ export function useSelection({ api, mode, onChange }) {
           e.polygon.outlineWidth = sel ? Math.max(3, baseW + 2) : baseW;
           e.polygon.outlineColor = sel
             ? Cesium.Color.fromCssColorString('#fbbf24')
-            : Cesium.Color.fromCssColorString(style.strokeColor || '#6c8cff');
+            : Cesium.Color.fromCssColorString(style.strokeColor || '#3b9eff');
         }
         if (e.point) {
           const baseSize = style.pointSize || 10;

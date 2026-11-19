@@ -12,7 +12,7 @@ import { newFeatureId } from './geometry.js';
 // 缺省样式 —— 与 EditorPanel.DEFAULT_STYLE 同源
 export const DEFAULT_STYLE = {
   pointSize: 10, pointColor: '#fbbf24',
-  strokeColor: '#6c8cff', strokeWidth: 2,
+  strokeColor: '#3b9eff', strokeWidth: 2,
   fillColor: 'rgba(108, 140, 255, 0.35)',
 };
 
@@ -115,7 +115,7 @@ export function buildFeatureOptions(feature, rawInput) {
     opts.polyline = {
       positions: cbPos,
       width: s.strokeWidth || 2,
-      material: Cesium.Color.fromCssColorString(s.strokeColor || '#6c8cff'),
+      material: Cesium.Color.fromCssColorString(s.strokeColor || '#3b9eff'),
     };
     // 透传 clampToGround（AI 代码常用，让描边贴地）
     if (rawInput && rawInput.polyline && rawInput.polyline.clampToGround != null) {
@@ -127,7 +127,7 @@ export function buildFeatureOptions(feature, rawInput) {
       hierarchy: cbHierarchy,
       material: Cesium.Color.fromCssColorString(s.fillColor || 'rgba(108,140,255,0.35)'),
       outline: true,
-      outlineColor: Cesium.Color.fromCssColorString(s.strokeColor || '#6c8cff'),
+      outlineColor: Cesium.Color.fromCssColorString(s.strokeColor || '#3b9eff'),
       outlineWidth: s.strokeWidth || 2,
     };
     // 透传 arcType（默认 GEODESIC 让大区域边缘不穿地）

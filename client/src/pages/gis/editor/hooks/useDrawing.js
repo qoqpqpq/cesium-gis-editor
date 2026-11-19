@@ -19,7 +19,7 @@ import { snapAll } from '../utils/snap.js';
 const DEFAULT_STYLE = {
   pointSize: 10,
   pointColor: '#fbbf24',
-  strokeColor: '#6c8cff',
+  strokeColor: '#3b9eff',
   strokeWidth: 2,
   fillColor: 'rgba(108, 140, 255, 0.35)',
 };

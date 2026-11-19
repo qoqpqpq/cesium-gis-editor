@@ -97,7 +97,7 @@ entities.add({
     ]),
     material: Cesium.Color.fromCssColorString('rgba(108,140,255,0.3)'),
     outline: true,
-    outlineColor: Cesium.Color.fromCssColorString('#6c8cff'),
+    outlineColor: Cesium.Color.fromCssColorString('#3b9eff'),
   },
 });
 viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(tokyo.lon, tokyo.lat, 1_500_000), duration: 1.2 });
