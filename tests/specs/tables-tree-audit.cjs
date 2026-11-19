@@ -88,11 +88,11 @@ const usageBody = ut.map(([, v]) => v).join('\n');
 const usagePx = (usageBody.replace(/var\([^)]*\)/g, '').match(/\b\d+px\b/g) || []);
 check('S6: .usage-table* 零裸 px', usagePx.length === 0, `命中 ${usagePx.length}`);
 
-// S7: success-active-bg 已定义且被引用
+// S7: success-active-bg 已定义且被引用（周期137: 成对 = 暗 :root 1 + 亮块 1）
 const saDef = (theme.match(/--success-active-bg\s*:/g) || []).length;
 const saUse = /background:\s*var\(--success-active-bg\)/.test(rules.get('.attr-table-btn.primary:hover') || '');
-check('S7: --success-active-bg 已定义且被 primary:hover 引用', saDef === 1 && saUse,
-  `定义=${saDef}、引用=${saUse}`);
+check('S7: --success-active-bg 已定义且被 primary:hover 引用', saDef === 2 && saUse,
+  `定义=${saDef}（暗:root+亮块成对）、引用=${saUse}`);
 
 console.log(`--- summary: pass=${pass} fail=${fails.length} ---`);
 if (fails.length) { console.log(`--- ${fails.join('、')} ---`); process.exit(1); }

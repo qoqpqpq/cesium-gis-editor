@@ -313,6 +313,28 @@
   --warn-border: rgba(217, 119, 6, 0.25);
   --success-bg: rgba(22, 163, 74, 0.08);
   --success-border: rgba(22, 163, 74, 0.25);
+
+  /* ===== 周期137 Slice7: 补齐暗定义·亮未覆盖的主题相关 token（成对适配，防亮主题借用暗值） ===== */
+  --danger-soft-bg: rgba(220, 38, 38, 0.10);
+  --danger-soft-border: rgba(220, 38, 38, 0.28);
+  --danger-soft-fg: #b91c1c;                 /* red-700：软危险前景在浅底可读（暗为 #ff9492 浅红，浅底不可读） */
+  --danger-strong-bg: rgba(220, 38, 38, 0.14);
+  --danger-strong-border: rgba(220, 38, 38, 0.36);
+  --danger-active-bg: rgba(220, 38, 38, 0.22);
+  --danger-hover-bg: rgba(220, 38, 38, 0.28);
+  --success-active-bg: rgba(22, 163, 74, 0.25);   /* 与 --success-bg 0.08 / --success-border 0.25 同源 */
+  --overlay-85: rgba(255, 255, 255, 0.85);
+  --overlay-92: rgba(255, 255, 255, 0.92);        /* toast/浮层在亮主题翻白 */
+  --overlay-95: rgba(250, 251, 253, 0.95);
+  --overlay-96: rgba(250, 251, 253, 0.96);
+  --surface-elevated: rgba(255, 255, 255, 0.95);  /* 亮主题浮层抬升面 */
+  --on-accent-fg: #ffffff;
+  --on-primary: #ffffff;
+  --nav-active-color: #ffffff;
+  --primary-tint-fg: #2545c0;                /* primary 淡色前景：浅底用深靛蓝（暗为 #9ecbff 浅蓝） */
+  --text-meta: #5d6779;                      /* 元信息文字：与 --muted 同级可读灰（暗为 #6e7683） */
+  --grad-brand: linear-gradient(135deg, #4f6cff, #0891b2);  /* 品牌渐变与亮主题 primary/accent 同源 */
+
   --info-bg: rgba(8, 145, 178, 0.08);
   --info-border: rgba(8, 145, 178, 0.25);
   --accent-warm-bg: rgba(168, 85, 247, 0.08);
