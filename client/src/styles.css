@@ -3963,8 +3963,8 @@ textarea.input {
 
 .et-tabs {
   display: flex;
-  border-bottom: 1px solid var(--white-08);
-  background: var(--ink-20);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--white-04);
 }
 
 .et-tab {
@@ -3973,19 +3973,24 @@ textarea.input {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: var(--muted);
+  color: var(--text-soft);
   font-size: var(--fs-md);
   font-family: inherit;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color var(--duration), background-color var(--duration), border-color var(--duration);
   text-align: center;
 }
 
-.et-tab:hover { color: var(--text); }
+/* Geo Dark 统一规范：hover = 中性微亮底 */
+.et-tab:hover {
+  color: var(--text);
+  background: var(--white-04);
+}
 
+/* Geo Dark 统一规范：active = azure 品牌色 + 底部指示线（--accent cyan 保留给数据高亮） */
 .et-tab.active {
-  color: var(--accent, var(--color-blue-400));
-  border-bottom-color: var(--accent, var(--color-blue-400));
+  color: var(--primary);
+  border-bottom-color: var(--primary);
 }
 
 .et-tab-content {
@@ -3995,15 +4000,15 @@ textarea.input {
 }
 
 .et-highlight-section {
-  border-left: 2px solid rgba(96, 165, 250, 0.3);
-  background: rgba(96, 165, 250, 0.04);
-  border-radius: 0 6px 6px 0;
-  margin: 2px 8px 4px;
-  padding: 10px 12px !important;
+  border-left: 2px solid var(--primary-30);
+  background: var(--primary-06);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin: var(--space-2px) var(--space-2) var(--space-1);
+  padding: var(--space-10px) var(--space-3) !important;
 }
 
 .et-highlight-section .editor-section-title {
-  color: var(--accent, var(--color-blue-400));
+  color: var(--primary);
   margin-bottom: var(--gap-4px);
 }
 
@@ -4334,7 +4339,7 @@ textarea.input {
   padding: var(--space-1) var(--space-2);
   background: var(--white-04);
   border: 1px solid var(--white-08);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-sm);
   color: var(--text-soft);
   cursor: pointer;
@@ -5700,25 +5705,31 @@ textarea.input {
   display: flex;
   margin-bottom: var(--gap-10px);
   border: 1px solid var(--white-08);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 .style-panel-tab {
   flex: 1;
-  padding: 5px 0;
+  padding: var(--space-5px) 0;
   text-align: center;
   font-size: var(--fs-sm);
   cursor: pointer;
-  color: var(--muted);
+  color: var(--text-soft);
   background: var(--white-04);
   border-right: 1px solid var(--white-08);
+  transition: background-color var(--duration), color var(--duration);
+}
+/* Geo Dark 统一规范：补上此前缺失的 hover 态 */
+.style-panel-tab:hover {
+  background: var(--white-08);
 }
 .style-panel-tab:last-child {
   border-right: none;
 }
+/* Geo Dark 统一规范：active = azure 底色微光 + 实色文字（与 editor-layer-tab 一致） */
 .style-panel-tab.active {
-  background: var(--primary-20);
-  color: var(--primary-tint-fg);
+  background: var(--primary-18);
+  color: var(--text);
 }
 
 /* ===== ThreeCheckPanel ===== */

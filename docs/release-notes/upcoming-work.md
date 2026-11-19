@@ -19,6 +19,15 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 132 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice2 editor tab 族统一**）
+
+**改前 4 类不一致**：① active 态 hue 分裂（`.et-tab.active` 用 `--accent` cyan，另两族用 `--primary` azure）；② 死回退 `var(--accent, var(--color-blue-400))` ×3（`--accent` 恒定义，回退不可达）；③ `.style-panel-tab` 无 `:hover`（另两族均有）；④ 裸值 `padding: 5px 0` / `margin: 2px 8px 4px` / `padding: 10px 12px !important` / `border-radius: 0 6px 6px 0` / 裸 `rgba(96,165,250,*)`，半径 `--radius-6` 与 `--radius-sm` 并存。
+
+**统一规范**（写入该簇 16 个选择器）：inactive = `--text-soft`/`--white-04`/`--white-08` 边框；hover = `--white-08`；active = `--primary-18`/`--primary-30`/`--text`；底部指示器型额外 `border-bottom: 2px solid var(--primary)`；半径统一 `--radius-sm`、间距全走 `--space-*`、过渡统一 `var(--duration)`。
+
+**验收**：新增门禁 `editor-tab-family-audit` 7/7 PASS ＋ 9 道既有设计门禁全 PASS ＋ 括号配平净深度 0 ＋ `vite build` 6.45s/505 modules ＋ 线上核验（4 个 tab 规则各 1 处、死回退 0、裸 `padding:5px 0` 0）。
+范围边界：只统一 tab 簇，面板 header/表格/按钮/表单族留待 Slice3+。
+
 ## 周期 131 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice1 主题基底替换**）
 
 > 用户 2026-11-19 09:25 新拍板：**主题/界面/UI 需完全重新设计**（当前这套不满意），可用插件/skill 找一套或自行设计；视觉方向经 `ask_user_question` 确认为 **深色专业 GIS 仪表盘**。
@@ -36,7 +45,7 @@
 **验收**：8 道既有设计门禁全 PASS（css-duplication-audit / css-var-reference-guard / design-token-audit / shadow-token-duplicate-definition / spacing-token-semantic-ladder / tracking-token-namespace / stale-fallback-audit / editor-density-tokenized）+ 新门禁 6/6 + 括号配平净深度 0 + `vite build` 6.33s 505 modules + 线上核验 `#0d1117/#3b9eff/#22d3ee` 均已进入 `https://129.204.202.173:5175/` 服务 CSS。
 
 **后续 Slice 路线图（UI 全面重设计，按序推进）**：
-- [ ] Slice2 editor 面板族视觉重构（header/tab/行高/hover·active 态）
+- [x] **Slice2 editor tab 族统一（周期 132 已交付）**：3 套 tab 族（`.et-tab*` / `.editor-layer-tab*` / `.style-panel-tab*`）统一到一套 Geo Dark 规范（inactive / hover / active + 底部 azure 指示线），死回退 `var(--accent, var(--color-blue-400))` 清零、裸 px 清零、半径收敛 `--radius-sm`、补齐 `.style-panel-tab:hover`；新增 `editor-tab-family-audit` 门禁 7 项
 - [ ] Slice3 按钮/表单/输入控件族（button·input·tab·tag·badge）
 - [ ] Slice4 表格与树（属性表 / QueryBuilder / 图层树 / AnalysisPanel）
 - [ ] Slice5 全局 chrome（Header·导航·右侧面板折叠手柄·主题切换）
