@@ -370,7 +370,7 @@ p {
   display: inline-flex;
   align-items: center;
   gap: var(--gap-6px);
-  padding: 6px 12px;
+  padding: var(--space-6px) var(--space-3);
   background: var(--toggle-bg);
   color: var(--text);
   border: 1px solid var(--border);
@@ -451,7 +451,7 @@ p {
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   font-size: 0.85rem;
 }
 .usage-panel-btn {
@@ -459,7 +459,7 @@ p {
   color: var(--on-accent-fg);
   border: 1px solid var(--accent);
   border-radius: var(--radius-sm);
-  padding: 6px 12px;
+  padding: var(--space-6px) var(--space-3);
   font-size: 0.85rem;
   cursor: pointer;
   transition: opacity var(--duration) var(--ease);
@@ -567,7 +567,7 @@ p {
   width: 100%;
   background: transparent;
   border: none;
-  padding: 10px 14px;
+  padding: var(--space-10px) var(--space-14px);
   text-align: left;
   cursor: pointer;
   color: var(--text);
@@ -1528,7 +1528,7 @@ textarea.input {
   margin-bottom: var(--gap-2);
 }
 .key-switcher h4 {
-  margin: 0 0 8px 0;
+  margin: 0 0 var(--space-2) 0;
   font-size: var(--fs-md);
   color: var(--text-soft);
 }
@@ -1570,7 +1570,7 @@ textarea.input {
 }
 .key-badge {
   font-size: var(--fs-xs);
-  padding: 2px 6px;
+  padding: var(--space-2px) var(--space-6px);
   border-radius: var(--radius-4);
 }
 .key-badge.active {
@@ -1589,7 +1589,7 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
+  padding: var(--space-10px) var(--space-14px);
   cursor: pointer;
   user-select: none;
   transition: background var(--duration) var(--ease);
@@ -1607,7 +1607,7 @@ textarea.input {
   transition: transform var(--duration) var(--ease);
 }
 .panel-content {
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-14px);
   border-top: 1px solid var(--border);
 }
 .session-list {
@@ -1622,7 +1622,7 @@ textarea.input {
   background: var(--white-04);
   border: 1px solid var(--border);
   border-radius: var(--radius-10);
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-10px);
   cursor: pointer;
 }
 .session-item.active {
@@ -1847,7 +1847,7 @@ textarea.input {
   width: 36px;
   height: 100%;
   background: var(--surface-dark-3);
-  border: 1px solid #1f242d;
+  border: 1px solid var(--border);
   border-radius: var(--radius-10);
   display: flex;
   flex-direction: column;
@@ -1929,7 +1929,7 @@ textarea.input {
   padding-bottom: var(--gap-1);
 }
 .ai-panel-header h3 {
-  margin: 0 0 2px 0;
+  margin: 0 0 var(--space-2px) 0;
   font-size: var(--fs-xl);
 }
 
