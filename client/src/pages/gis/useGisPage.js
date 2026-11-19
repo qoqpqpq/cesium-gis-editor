@@ -1,6 +1,6 @@
 // useGisPage.js — GIS 页面逻辑层自定义 hook（UR-2 步骤10）
 // 自 index.jsx 整体搬迁：纯搬迁保行为，组件只留渲染 + 绑定解构。
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Cesium from 'cesium';
 import { aiApi } from '../../api/index.js';
 import { PRESETS } from './presets.js';
@@ -12,6 +12,7 @@ import { readViewStateFromUrl, buildShareUrl } from '../../utils/viewState.js';
 import * as sessionKeys from '../../utils/sessionKeys.js';
 import { usePanelLayout, COLLAPSED_W } from './usePanelLayout.js';
 import { useAiState } from './useAiState.js';
+import { useEditorState } from './useEditorState.js';
 
 
 
@@ -42,20 +43,18 @@ export function useGisPage() {
     aiSessionId,
   } = useAiState();
 
-  // 坐标格式（dec / dms / utm / mgrs）—— 提升到 index 层
-  // 让 CesiumEarth 内的 CursorReadout 底栏共享同一选择
-  const [coordFormat, setCoordFormat] = useState(() => {
-    try { return localStorage.getItem('editor.coordFormat') || 'dec'; } catch (_) { return 'dec'; }
-  });
-  useEffect(() => {
-    try { localStorage.setItem('editor.coordFormat', coordFormat); } catch (_) {}
-  }, [coordFormat]);
+  // 编辑器/底图 Token/Toast/坐标格式状态已拆到 useEditorState 子钩子
+  const {
+    coordFormat, setCoordFormat,
+    toasts, setToasts, toastIdRef, pushToast,
+    editorCode, setEditorCode,
+    loadedFiles, setLoadedFiles,
+    showTokenDialog, setShowTokenDialog,
+    tdtTokenOverride, setTdtTokenOverride,
+    cesiumTokenOverride, setCesiumTokenOverride,
+  } = useEditorState();
 
   // 视图
-
-  // Toast
-  const [toasts, setToasts] = useState([]);
-  const toastIdRef = useRef(0);
 
   // 阶段 2C: 启动时如果 URL 里有 view state,延迟到 viewer ready 后还原
   const pendingViewStateRef = useRef(null);
@@ -90,14 +89,6 @@ export function useGisPage() {
     window.addEventListener('hashchange', handler);
     return () => window.removeEventListener('hashchange', handler);
   }, []);
-
-  // 编辑器状态
-  const [editorCode, setEditorCode] = useState(() => {
-    try { return localStorage.getItem('gis-editor-code') || ''; } catch (_) { return ''; }
-  });
-
-  // 文件上传（FileLoader 管理的已加载数据源列表）
-  const [loadedFiles, setLoadedFiles] = useState([]);
 
   // AI 场景摘要：每 2s 轮询一次，确保 chip 与系统提示词不会停在旧的 entity 数上
   // 用户的编辑动作（画图、删除、属性改值）不冒泡到父组件，所以只能主动 poll
@@ -415,37 +406,8 @@ export function useGisPage() {
     };
   }, []);
 
-  // 底图 Token 弹窗（首次加载时弹出，用户可跳过）
-  const [showTokenDialog, setShowTokenDialog] = useState(() => {
-    try {
-      const skipped = localStorage.getItem('cesium_tdt_skipped');
-      return !skipped;
-    } catch (_) { return false; }
-  });
-
-  // 用户在弹窗里手动输入的 token（仅本会话内存，不持久化，刷新/关闭即清）
-  const [tdtTokenOverride, setTdtTokenOverride] = useState('');
-  const [cesiumTokenOverride, setCesiumTokenOverride] = useState('');
-
   // 三列宽度 & 折叠状态逻辑已拆到 usePanelLayout 子钩子（见本钩子顶部调用）。
   // Test Suite 已删除
-
-  // 监听 editorCode 变化
-  useEffect(() => {
-    const handler = (e) => {
-      if (typeof e.detail?.code === 'string') setEditorCode(e.detail.code);
-    };
-    window.addEventListener('gis-apply-code', handler);
-    return () => window.removeEventListener('gis-apply-code', handler);
-  }, []);
-
-  function pushToast(text, level = 'info', ttlMs = 3500) {
-    const id = ++toastIdRef.current;
-    setToasts((arr) => [...arr, { id, text, level }]);
-    setTimeout(() => {
-      setToasts((arr) => arr.filter((t) => t.id !== id));
-    }, ttlMs);
-  }
 
   function captureCtx() {
     const v = cesiumRef.current?.getViewer?.();

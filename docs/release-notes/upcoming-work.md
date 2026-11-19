@@ -19,6 +19,16 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 140 已交付（2026-11-19，自动周期 · **useGisPage 拆分 2/4 —— 编辑器/Token/Toast/坐标格式状态簇**）
+
+**关键判定**：`sceneContext`+2s 轮询 effect **不随 ③ 迁移**（绑定 `window.__runSandbox`/`__layers`/`__layerVisible`，引用 ④ 的 `runSandboxCode`/`cesiumRef`/`editorRef`）→ 留 ④。本轮 ③ = coordFormat/toasts+pushToast/editorCode/loadedFiles/showTokenDialog/tdtTokenOverride/cesiumTokenOverride（纯状态，零耦合 ④）。
+
+**实施**：新 `useEditorState.js`（66 行，含 coordFormat 持久化 / toasts+pushToast / `gis-apply-code` 事件）；`useGisPage.js` 789 → **751 行**（删 6 块，顶部调用，Hook 顺序稳定）；`useCallback` 未使用导入清理。
+
+**验收**：语法 OK；残留未定义引用 0；`vite build` 6.33s；线上 HTTP 200 + 主 chunk 含 `editor.coordFormat`/`gis-apply-code`/`cesium_tdt_skipped`/`gis-editor-code`；15 门禁 15/15 PASS。**行为零变化**。
+
+**边界**：簇 ④ 未拆（核心执行，约 400 行，耦合 cesiumRef/editorRef/ctxRef/pushToast/confirmWrite）→ 拆分 3/4 下一轮（`useGisCore` 接收共享 context）。
+
 ## 周期 139 已交付（2026-11-19，自动周期 · **useGisPage 拆分 1/4 —— 布局 + AI 状态簇**）
 
 **改前**：`useGisPage.js` = 936 行单钩子巨石（状态/effect/回调/执行逻辑全内聚）。**识别 4 簇**：① 面板布局（列宽/折叠/拖拽/resize/localStorage）、② AI 会话状态（aiMessages/abort/xhr/writeConfirm/lastError/aiPlatforms/keySettings/aiCurrentPlatform/aiSessionId + 关联 effect）、③ 编辑器/场景状态、④ 核心执行（captureCtx/runSandboxCode/handleAiSend/handleStop）。
