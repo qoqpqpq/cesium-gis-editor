@@ -146,6 +146,7 @@
   /* .success 成功面板 */
   --success-bg: rgba(63, 185, 80, 0.10);
   --success-border: rgba(63, 185, 80, 0.30);
+  --success-active-bg: rgba(63, 185, 80, 0.32);
   /* .info / .accent-cool 蓝色提示面板 */
   --info-bg: rgba(34, 211, 238, 0.12);
   --info-border: rgba(34, 211, 238, 0.30);

@@ -93,7 +93,6 @@
   --radius-3: 3px;    /* 原 3px ×17 */
   --radius-4: 4px;    /* 原 4px ×27 */
   --radius-5: 5px;    /* 原 5px ×2 */
-  --radius-6: 6px;    /* 原 6px ×32 */
   --radius-9: 9px;    /* 原 9px ×2 */
   --radius-10: 10px;  /* 原 10px ×22 */
   --radius-sm: 6px;    /* 周期131 Geo Dark：专业仪表盘密度，8→6px */
@@ -524,7 +523,7 @@ p {
 .usage-table th,
 .usage-table td {
   text-align: left;
-  padding: 6px 10px;
+  padding: var(--space-6px) var(--space-10px);
   border-bottom: 1px solid var(--border);
   color: var(--text);
   font-variant-numeric: tabular-nums;
@@ -542,7 +541,7 @@ p {
 }
 .usage-table--compact th,
 .usage-table--compact td {
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   font-size: 0.78rem;
 }
 .usage-sessions {
@@ -2023,12 +2022,12 @@ textarea.input {
 .nl-result {
   font-size: var(--fs-md);
   border: 1px solid var(--border);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   padding: 6px 8px;
   background: var(--panel, var(--color-white));
 }
 .nl-result-error { border-color: #ff7875; background: rgba(255,77,79,.05); }
-.nl-result-ok { border-color: var(--accent, var(--accent-500)); }
+.nl-result-ok { border-color: var(--accent); }
 .nl-result-summary { font-weight: var(--fw-semibold); margin-bottom: var(--gap-4px); }
 .nl-result-rule { font-family: ui-monospace, monospace; font-size: var(--fs-md); padding: 1px 0; }
 .nl-result-hints { font-size: var(--fs-sm); color: var(--text-soft, var(--color-gray-500)); margin-top: var(--gap-4px); }
@@ -2051,7 +2050,7 @@ textarea.input {
   align-items: flex-start;
   gap: var(--gap-1);
   border: 1px solid var(--border);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   padding: 6px 8px;
   background: var(--panel, var(--color-white));
   cursor: pointer;
@@ -2059,7 +2058,7 @@ textarea.input {
   font-size: var(--fs-md);
   width: 100%;
 }
-.nl-suggestion:hover { border-color: var(--accent, var(--accent-500)); background: var(--panel-soft, rgba(90,209,255,.06)); }
+.nl-suggestion:hover { border-color: var(--accent); background: var(--panel-soft, rgba(90,209,255,.06)); }
 .nl-suggestion-icon { font-size: var(--fs-2xl); flex: 0 0 20px; text-align: center; }
 .nl-suggestion-text { display: flex; flex-direction: column; gap: var(--gap-1px); flex: 1; min-width: 0; }
 .nl-suggestion-label { font-weight: var(--fw-semibold); color: var(--text, #222); }
@@ -2075,14 +2074,14 @@ textarea.input {
   width: 260px;
   background: var(--panel, var(--color-white));
   border: 1px solid var(--border);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   padding: var(--gap-1);
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
 }
 
-.btn-link.active, .btn-link.small.active { color: var(--accent, var(--accent-500)); }
+.btn-link.active, .btn-link.small.active { color: var(--link); }
 
 .ai-welcome {
   text-align: center;
@@ -2157,7 +2156,7 @@ textarea.input {
   gap: var(--gap-4px);
   background: var(--white-08);
   border: 1px solid var(--border);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   padding: 3px 6px;
   font-size: var(--fs-sm);
 }
@@ -2582,7 +2581,7 @@ textarea.input {
   color: var(--on-accent-fg);
   border: none;
   padding: 4px 12px;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
   cursor: pointer;
@@ -2685,7 +2684,7 @@ textarea.input {
   padding: 6px 8px;
   background: var(--indigo-08);
   border: 1px solid var(--indigo-20);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
 }
 .ai-tool-chips-label {
   font-size: var(--fs-sm);
@@ -2853,7 +2852,7 @@ textarea.input {
 .ai-plan {
   background: var(--primary-08);
   border-left: 3px solid var(--primary-500);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   padding: 8px 12px;
   margin: 6px 0;
   font-size: var(--fs-base);
@@ -3069,7 +3068,7 @@ textarea.input {
   background: var(--primary-15);
   color: var(--primary-soft-fg);
   border: 1px solid var(--primary-30);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-sm);
   padding: 2px 6px;
   cursor: pointer;
@@ -3087,7 +3086,7 @@ textarea.input {
   background: rgba(245, 158, 11, 0.06);
   border-left: 3px solid rgba(245, 158, 11, 0.5);
   padding: 8px 10px;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   color: var(--text-soft);
   margin: 4px 0;
@@ -3165,7 +3164,7 @@ textarea.input {
   background: linear-gradient(180deg, var(--color-green-flat) 0%, #27ae60 100%);
   color: var(--on-accent-fg);
   border: 1px solid #229954;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-base);
   font-weight: var(--fw-semibold);
   cursor: pointer;
@@ -3217,7 +3216,7 @@ textarea.input {
   background: var(--surface-dark-6);
   color: var(--text);
   border: 1px solid var(--surface-dark-8);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   cursor: pointer;
   outline: none;
@@ -3238,7 +3237,7 @@ textarea.input {
   background: transparent;
   color: var(--text-soft);
   border: 1px solid transparent;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   cursor: pointer;
   transition: all 0.15s;
@@ -3422,7 +3421,7 @@ textarea.input {
   padding: 6px 10px;
   background: transparent;
   border: none;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   color: #d6dceb;
   cursor: pointer;
   text-align: left;
@@ -3731,7 +3730,7 @@ textarea.input {
   gap: var(--gap-6px);
   align-items: center;
   padding: 4px 6px;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   background: var(--white-04);
   font-size: var(--fs-sm);
 }
@@ -4034,7 +4033,7 @@ textarea.input {
   padding: var(--space-6px) var(--space-10px);
   background: var(--warn-bg);
   border: 1px solid var(--warn-border);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   color: var(--warn);
   text-align: center;
@@ -4098,7 +4097,7 @@ textarea.input {
   margin-top: var(--gap-1);
   padding: var(--space-6px) var(--space-2);
   background: var(--info-bg);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-sm);
   color: var(--accent);
 }
@@ -4107,7 +4106,7 @@ textarea.input {
   padding: var(--space-2) var(--space-10px);
   background: var(--warn-bg);
   border: 1px solid var(--warn-border);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
   gap: var(--gap-4px);
@@ -4367,7 +4366,7 @@ textarea.input {
   width: 24px;
   height: 24px;
   border: 1px dashed var(--white-20);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-soft);
   cursor: pointer;
@@ -4394,7 +4393,7 @@ textarea.input {
 .editor-layer-row {
   background: var(--white-04);
   border: 1px solid var(--white-06);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 .editor-layer-row.active {
@@ -4520,7 +4519,7 @@ textarea.input {
   padding: var(--gap-6px);
   background: transparent;
   border: 1px dashed var(--white-12);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   color: var(--text-soft);
   font-size: var(--fs-sm);
   cursor: pointer;
@@ -4550,7 +4549,7 @@ textarea.input {
   background: none;
   border: 1px solid var(--white-10);
   padding: var(--space-1) var(--space-10px);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   color: var(--text-soft);
   font-family: inherit;
   font-size: var(--fs-md);
@@ -4658,7 +4657,7 @@ textarea.input {
   align-items: center;
   gap: var(--gap-6px);
   padding: var(--space-1) var(--space-6px);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-sm);
   color: var(--text-soft);
 }
@@ -4750,7 +4749,7 @@ textarea.input {
   color: var(--on-accent-fg);
 }
 .editor-coord-fmt-btn.active {
-  background: var(--accent, var(--accent-500));
+  background: var(--accent);
   color: var(--surface-dark-0);
 }
 .editor-coord-display {
@@ -4929,7 +4928,7 @@ textarea.input {
   background: var(--primary-16);
   color: var(--primary-tint-fg);
   border: 1px solid var(--primary-30);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-10px);
   font-size: var(--fs-sm);
   cursor: pointer;
@@ -4949,7 +4948,7 @@ textarea.input {
   border-color: var(--success-border);
 }
 .attr-table-btn.primary:hover {
-  background: rgba(34, 197, 94, 0.35);
+  background: var(--success-active-bg);
 }
 .attr-table-btn.danger {
   background: var(--danger-strong-bg);
@@ -5160,7 +5159,7 @@ textarea.input {
 .attr-add-field-bar input,
 .attr-add-field-bar select {
   background: var(--ink-35);
-  color: #e2e8f0;
+  color: var(--text);
   border: 1px solid var(--primary-30);
   border-radius: var(--radius-4);
   padding: var(--space-3px) var(--space-2);
@@ -5188,7 +5187,7 @@ textarea.input {
 .attr-table thead th {
   position: sticky;
   top: 0;
-  background: rgba(15, 18, 25, 0.96);
+  background: var(--overlay-95);
   text-align: left;
   padding: var(--space-6px) var(--space-2);
   font-weight: var(--fw-semibold);
@@ -5255,7 +5254,7 @@ textarea.input {
 .btn-link.active {
   background: var(--warn-bg);
   border-radius: var(--radius-4);
-  padding: 2px 6px;
+  padding: var(--space-2px) var(--space-6px);
 }
 
 /* ============ 空间分析面板 ============ */
@@ -5351,7 +5350,7 @@ textarea.input {
   z-index: 9999;
   background: #0d1320 !important;
   border: 1px solid var(--primary-500) !important;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   padding: var(--space-1) 0;
   max-height: 280px;
   overflow-y: auto;
@@ -5467,7 +5466,7 @@ textarea.input {
   margin-top: var(--gap-1);
   padding: var(--space-2) var(--space-10px);
   background: var(--primary-12);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-sm);
   color: var(--primary-tint-fg);
   border: 1px solid var(--primary-25);
@@ -5623,7 +5622,7 @@ textarea.input {
   background: var(--surface-1, var(--surface-dark-1));
   color: var(--text, #e6edf3);
   padding: 8px 12px;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   text-align: left;
   overflow: auto;
@@ -5636,11 +5635,11 @@ textarea.input {
   justify-content: center;
 }
 .error-boundary-retry {
-  background: var(--accent, var(--accent-500));
+  background: var(--accent);
   color: var(--surface-0, var(--surface-dark-1));
   border: none;
   padding: 8px 16px;
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-weight: var(--fw-semibold);
   cursor: pointer;
 }
@@ -5674,7 +5673,7 @@ textarea.input {
   line-height: var(--lh-snug);
 }
 .editor-error-reset {
-  background: var(--accent, var(--accent-500));
+  background: var(--accent);
   color: var(--surface-0, var(--surface-dark-1));
   border: none;
   padding: var(--space-1) var(--space-10px);
@@ -5790,7 +5789,7 @@ textarea.input {
 
 .three-check-summary {
   padding: var(--space-2) var(--space-10px);
-  border-radius: var(--radius-6);
+  border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
   margin-bottom: var(--gap-1);
