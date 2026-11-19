@@ -126,9 +126,10 @@ const SERVER_SRC = fs.readFileSync(
       },
     }));
     app.get('/test', (req, res) => res.send('ok'));
+    let srv;
     const port = await new Promise((resolve, reject) => {
-      const s = app.listen(0, '127.0.0.1', () => resolve(s.address().port));
-      s.on('error', reject);
+      srv = app.listen(0, '127.0.0.1', () => resolve(srv.address().port));
+      srv.on('error', reject);
     });
     try {
       const result = await new Promise((resolve, reject) => {
@@ -151,7 +152,7 @@ const SERVER_SRC = fs.readFileSync(
       assert.strictEqual(ppHeader, undefined,
         '本项目 helmet ^8.3.0 不输出 Permissions-Policy header（与 cycle-07 评估结论一致）');
     } finally {
-      try { app._server.close(); } catch (_) {}
+      try { srv.close(); } catch (_) {}
     }
   });
 

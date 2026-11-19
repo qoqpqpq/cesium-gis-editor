@@ -19,6 +19,16 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 143 已交付（2026-11-19，自动周期 · **Slice8 收尾 + 全量回归转绿**）
+
+**根因**：`helmet-8-permissionspolicy-recheck.cjs` 测试 3 的 `app.listen` server 句柄 `s` 未关闭（`finally` 关未定义的 `app._server`）→ 事件循环保活 → 进程永不退出 → timeout 杀 rc=124（断言 4/4 全过）。**修复**：`let srv;` 持有句柄 + `finally { srv.close() }` → RC=0 立即退出。
+
+**全量回归**：逐 spec 跑 172 个 → **172 PASS / 0 FAIL**（含补跑 `sandbox-perf-benchmark` RC=0 pass=11；原 170 PASS + 1 超时假失败 + 1 flaky）。runner 误判（`execFileSync(...).length` 当退出码）已修正为 `e.status` 语义。
+
+**验收**：`#1f242d` 残留 0；15 门禁 15/15；线上 HTTP 200；**零业务代码改动**（仅测试 spec 一行级修复 + 文档/状态）。**Slice8 勾选 → UR-4 全部结案**。
+
+**下一步**：进度池无 P0/P1/P2 可自动执行候选（人工冒烟需用户浏览器执行）→ 后续预计 skipped 并复核 IN_SYNC/预览健康；`useAiOrchestration` 462 行再拆为 P3 技术债。
+
 ## 周期 142 已交付（2026-11-19，自动周期 · **useGisPage 拆分 4/4 —— AI 编排胶水 · 收尾结案**）
 
 **实施**：新 `useAiOrchestration.js`（462 行）：433 行 **verbatim 脚本抽取**（场景摘要 2s 轮询 + `window.__*` e2e 钩子 + 分享代码自动运行 + `gis-share-code`/`gis-share-view`（含 AI 说明生成）+ `gis-run-code` + `gis-screenshot` + `nl-request-capture` + `handleAiSend` + `handleStop`），依赖经对象注入（17 项）；`aiApi/PRESETS/runAgentLoop/toolDocsForPrompt/buildShareUrl/sessionKeys` 导入随之迁走。`useGisPage.js`：**751 → 183 行（−428）**，清理 7 行未使用导入。
@@ -150,7 +160,7 @@
 - [x] **Slice5 全局 chrome + 二级控件 + 全站过渡统一（周期 135 已交付）**：`.nav-item` / `.tabs+.tab` / `.toast` / `.sandcastle-*` / `.output-send-ai` / `.ai-auto-toggle` / `.ai-chip` / `.file-loader-btn` / `.file-drop-zone` / `.editor-toolbar-btn` / `.editor-tool-btn` / `.editor-action-row .btn-link` / `.model-chip` / `.key-item`（16 选择器）—— **全站 29 处硬编码过渡**收敛 `var(--duration) var(--ease)`；裸 px→token（12 处，新增 `--space-7px: 7px`）；`.toast` bg `rgba(20,24,32,0.92)`→`--overlay-92`；5 处 azure→cyan 渐变统一 `var(--grad-brand)`（含 `.tab.active`/`.nav-item.active`/`.hero-cta a:hover`/`.opacity-slider` 滑块）；新增 `chrome-secondary-audit` 门禁 7 项
 - [x] **Slice6 面板头部与节 + 面板/会话/键位族 token 化（周期 136 已交付）**：`.panel-header`/`.panel-content`/`.session-item`/`.key-badge`/`.key-switcher h4`/`.usage-panel-*`/`.usage-session-summary`/`.ai-panel-header h3`/`.ai-key-btn`/`.col-collapse-bar` —— 10 处裸 px→token（零视觉变化）+ `.col-collapse-bar` 边框 `#1f242d`→`var(--border)`；改前按行重扫证实编辑层面板头部（`.editor-style-panel*`/`.editor-section-*`/`.editor-layer-header`）已在 Slice1-5 token 化；新增 `panel-family-audit` 门禁 5 项
 - [x] **Slice7 亮主题配套（周期 137 已交付）**：精算「暗定义·亮未覆盖·被使用」主题相关 token → 31 候选 → 筛自动适配别名/原始色板/主题无关/同值 no-op → **16 项真实覆写**（亮≠暗）补齐亮块（危险软/强 7 项、`--success-active-bg`、`--overlay-85/92/95/96`、`--surface-elevated`、`--primary-tint-fg`、`--text-meta`、`--grad-brand` 等）；深色 `:root` 零改动，双主题不破；新增 `light-theme-coverage-audit` 门禁 6 项 + tables-tree-audit S7 校准
-- [ ] Slice8 打磨 + 全量回归（Cesium infobox/toolbar/credits 控件层适配、`#1f242d` 3 处、AI/聊天/sandcastle/col-picker 约 90 处裸 px、值命名档终审、全量 160 回归）
+- [x] **Slice8 打磨 + 全量回归（周期 138 主体交付 + 周期 143 收尾）**：Cesium infobox/toolbar/credits 控件层适配（周期 138，token 引用）＋ `#1f242d` 清零（残留 0）＋ 约 90 处裸 px→token（123 处）＋ 值命名档终审；**全量回归 172/172 转绿**（周期 143 修复 `helmet-8-permissionspolicy-recheck` server 句柄泄漏假失败，原 170 PASS + 1 超时假失败 + 1 flaky → 172/172）。**UR-4 全部结案**
 - [x] **`useGisPage` 拆分（用户拍板：UI 全部完成后再做）—— 周期 139→142 四轮交付，结案**：`useGisPage.js` **936 → 183 行（−80.4%）**，现为纯组合根；5 子钩子 = `usePanelLayout` 109 + `useAiState` 96 + `useEditorState` 66 + `useGisCore` 174 + `useAiOrchestration` 462
 
 ## 周期 117 / 118 / 119 / 120 / 121 / 122 / 123 / 124 / 125 / 126 / 127 / 128 / 129 / 130（2026-11-18~19，自动周期）：**skipped（无可执行自动任务，未造需求）**
