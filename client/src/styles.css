@@ -132,6 +132,7 @@
   --space-3px: 3px;
   --space-5px: 5px;
   --space-6px: 6px;
+  --space-7px: 7px;
   --space-10px: 10px;
   --space-14px: 14px;
   --space-18px: 18px;
@@ -297,11 +298,11 @@ p {
   display: inline-flex;
   align-items: center;
   gap: var(--gap-6px);
-  padding: 8px 14px;
+  padding: var(--space-2) var(--space-14px);
   border-radius: var(--radius-pill);
   color: var(--text-soft);
   border: 1px solid transparent;
-  transition: all 0.2s ease;
+  transition: all var(--duration) var(--ease);
 }
 .nav-item:hover {
   background: var(--card);
@@ -310,7 +311,7 @@ p {
 }
 .nav-item.active {
   color: var(--nav-active-color);  /* phase-0 polish 引入专门 token,主题反差更清晰 */
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--grad-brand);
   border-color: transparent;
 }
 .nav-icon {
@@ -907,7 +908,7 @@ textarea.input {
   transition: all var(--duration) var(--ease);
 }
 .hero-cta a:hover {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--grad-brand);
   border-color: transparent;
   transform: translateY(-1px);
   box-shadow: 0 4px 16px var(--primary-30);
@@ -988,16 +989,16 @@ textarea.input {
   background: transparent;
   border: none;
   color: var(--text-soft);
-  padding: 7px 18px;
+  padding: var(--space-7px) var(--space-18px);
   border-radius: var(--radius-9);
   cursor: pointer;
   font-size: var(--fs-lg);
   font-weight: var(--fw-medium);
-  transition: all 0.2s ease;
+  transition: all var(--duration) var(--ease);
 }
 .tab:hover { color: var(--text); background: var(--white-04); }
 .tab.active {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--grad-brand);
   color: var(--on-primary);
   box-shadow: 0 2px 12px var(--primary-35);
 }
@@ -1483,12 +1484,12 @@ textarea.input {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 6px 10px;
+  padding: var(--space-6px) var(--space-10px);
   background: var(--white-06);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--duration) var(--ease);
   min-width: 100px;
   text-align: left;
 }
@@ -1540,11 +1541,11 @@ textarea.input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-10px);
   background: var(--white-04);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  transition: all 0.2s;
+  transition: all var(--duration) var(--ease);
 }
 .key-item:hover {
   background: var(--white-06);
@@ -1591,7 +1592,7 @@ textarea.input {
   padding: 10px 14px;
   cursor: pointer;
   user-select: none;
-  transition: background 0.2s;
+  transition: background var(--duration) var(--ease);
 }
 .panel-header:hover {
   background: var(--white-06);
@@ -1603,7 +1604,7 @@ textarea.input {
 .panel-toggle {
   font-size: var(--fs-xs);
   color: var(--muted);
-  transition: transform 0.2s;
+  transition: transform var(--duration) var(--ease);
 }
 .panel-content {
   padding: 12px 14px;
@@ -1801,7 +1802,7 @@ textarea.input {
   background: #1f242d;
   cursor: col-resize;
   position: relative;
-  transition: background 0.15s;
+  transition: background var(--duration) var(--ease);
   z-index: 5;
   touch-action: none;
 }
@@ -1815,7 +1816,7 @@ textarea.input {
   height: 32px;
   background: var(--color-gray-600);
   border-radius: var(--radius-1);
-  transition: background 0.15s;
+  transition: background var(--duration) var(--ease);
 }
 .gis-hsplitter:hover {
   background: #2a3140;
@@ -1854,7 +1855,7 @@ textarea.input {
   justify-content: center;
   gap: var(--gap-1);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--duration) var(--ease);
 }
 .col-collapse-bar:hover {
   background: var(--surface-dark-6);
@@ -2266,7 +2267,7 @@ textarea.input {
   appearance: none;
   width: 14px;
   height: 14px;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--grad-brand);
   border-radius: var(--radius-full);
   cursor: pointer;
   border: 2px solid var(--white-90);
@@ -2275,7 +2276,7 @@ textarea.input {
 .opacity-slider::-moz-range-thumb {
   width: 14px;
   height: 14px;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--grad-brand);
   border-radius: var(--radius-full);
   cursor: pointer;
   border: 2px solid var(--white-90);
@@ -2300,7 +2301,7 @@ textarea.input {
   z-index: 70;
   pointer-events: none;
   max-width: 360px;
-  transition: margin 0.2s;
+  transition: margin var(--duration) var(--ease);
 }
 
 /* 阶段 2D: AI 助手状态条 (挂在 AiSidePanel 顶部) */
@@ -2389,11 +2390,11 @@ textarea.input {
   transform: translateY(1px);
 }
 .toast {
-  padding: 8px 14px;
+  padding: var(--space-2) var(--space-14px);
   border-radius: var(--radius-10);
   font-size: var(--fs-base);
   color: var(--text);
-  background: rgba(20, 24, 32, 0.92);
+  background: var(--overlay-92);
   border: 1px solid var(--border);
   backdrop-filter: blur(8px);
   box-shadow: 0 6px 16px var(--ink-30);
@@ -2580,12 +2581,12 @@ textarea.input {
   background: var(--grad-brand);
   color: var(--on-accent-fg);
   border: none;
-  padding: 4px 12px;
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
   letter-spacing: var(--ls-0-5px);
 }
 .sandcastle-ai-btn:hover {
@@ -2625,11 +2626,11 @@ textarea.input {
   background: var(--indigo-18);
   color: var(--primary-soft-fg);
   border: 1px solid var(--indigo-35);
-  padding: 1px 6px;
+  padding: var(--space-1px) var(--space-6px);
   border-radius: var(--radius-4);
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
   font-family: inherit;
 }
 .output-send-ai:hover {
@@ -2649,9 +2650,9 @@ textarea.input {
   user-select: none;
   background: var(--indigo-08);
   border: 1px solid var(--indigo-20);
-  padding: 3px 8px;
+  padding: var(--space-3px) var(--space-2);
   border-radius: var(--radius-md);
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
 }
 .ai-auto-toggle:hover {
   background: var(--indigo-15);
@@ -3051,11 +3052,11 @@ textarea.input {
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--text-soft);
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-10px);
   border-radius: var(--radius-pill);
   font-size: var(--fs-md);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--duration) var(--ease);
 }
 .ai-chip:hover {
   background: var(--primary);
@@ -3160,7 +3161,7 @@ textarea.input {
   display: inline-flex;
   align-items: center;
   gap: var(--gap-5px);
-  padding: 5px 12px;
+  padding: var(--space-5px) var(--space-3);
   background: linear-gradient(180deg, var(--color-green-flat) 0%, #27ae60 100%);
   color: var(--on-accent-fg);
   border: 1px solid #229954;
@@ -3168,7 +3169,7 @@ textarea.input {
   font-size: var(--fs-base);
   font-weight: var(--fw-semibold);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
   box-shadow: 0 1px 3px rgba(46, 204, 113, 0.3);
   flex-shrink: 0;
 }
@@ -3220,7 +3221,7 @@ textarea.input {
   font-size: var(--fs-md);
   cursor: pointer;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--duration) var(--ease);
   flex-shrink: 1;
   min-width: 0;
 }
@@ -3233,14 +3234,14 @@ textarea.input {
 
 /* 图标按钮 */
 .sandcastle-icon-btn {
-  padding: 5px 8px;
+  padding: var(--space-5px) var(--space-2);
   background: transparent;
   color: var(--text-soft);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   font-size: var(--fs-md);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
   flex-shrink: 0;
 }
 .sandcastle-icon-btn:hover {
@@ -3300,7 +3301,7 @@ textarea.input {
   background: transparent;
   cursor: ns-resize;
   flex-shrink: 0;
-  transition: background 0.15s;
+  transition: background var(--duration) var(--ease);
   position: relative;
   display: flex;
   align-items: center;
@@ -3316,8 +3317,8 @@ textarea.input {
   border-radius: var(--radius-1);
   pointer-events: none;
   transition:
-    background 0.15s,
-    width 0.15s;
+    background var(--duration) var(--ease),
+    width var(--duration) var(--ease);
 }
 .dock-vsplitter:hover {
   background: rgba(94, 234, 212, 0.1);
@@ -3597,7 +3598,7 @@ textarea.input {
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
   color: var(--text);
 }
 .file-loader-btn:hover {
@@ -3671,10 +3672,10 @@ textarea.input {
   background: var(--overlay-85);
   border: 1.5px dashed var(--white-18);
   border-radius: var(--radius-10);
-  padding: 10px 12px;
+  padding: var(--space-10px) var(--space-3);
   color: var(--text);
   backdrop-filter: blur(8px);
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
   cursor: default;
 }
 .file-drop-zone.active {
@@ -3829,7 +3830,7 @@ textarea.input {
   cursor: pointer;
   padding: 4px 6px;
   border-radius: var(--radius-4);
-  transition: background 0.12s;
+  transition: background var(--duration) var(--ease);
 }
 .col-picker-mode label:hover {
   background: var(--white-04);
@@ -3933,7 +3934,7 @@ textarea.input {
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
   color: var(--text);
 }
 .editor-toolbar-btn:hover {
@@ -4069,7 +4070,7 @@ textarea.input {
   color: var(--text);
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
 }
 .editor-tool-btn:hover {
   background: var(--white-08);
@@ -4301,7 +4302,7 @@ textarea.input {
 /* === 拖动 + 缩放句柄 === */
 .editor-resize-handle {
   background: transparent;
-  transition: background 0.15s;
+  transition: background var(--duration) var(--ease);
 }
 
 .editor-resize-handle:hover {
@@ -4554,7 +4555,7 @@ textarea.input {
   font-family: inherit;
   font-size: var(--fs-md);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all var(--duration) var(--ease);
 }
 .editor-action-row .btn-link:hover:not(:disabled) {
   background: var(--white-06);
@@ -4742,7 +4743,7 @@ textarea.input {
   padding: var(--space-2px) var(--space-2); /* 周期116/3f: 7px 收敛到常规档 8px */
   border-radius: var(--radius-3);
   cursor: pointer;
-  transition: background 0.1s, color 0.1s;
+  transition: background var(--duration) var(--ease), color var(--duration) var(--ease);
 }
 .editor-coord-fmt-btn:hover {
   background: var(--white-08);
@@ -5374,7 +5375,7 @@ textarea.input {
   cursor: pointer;
   user-select: none;
   background: transparent !important;
-  transition: background 0.1s;
+  transition: background var(--duration) var(--ease);
 }
 .op-dropdown-option:hover {
   background: var(--primary-25) !important;
@@ -5408,7 +5409,7 @@ textarea.input {
 }
 .platform-picker-caret {
   margin-left: var(--gap-1);
-  transition: transform 0.15s ease;
+  transition: transform var(--duration) var(--ease);
   color: var(--muted, #9aa4b2);
 }
 .platform-picker-caret.open {

