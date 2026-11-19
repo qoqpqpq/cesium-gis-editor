@@ -105,9 +105,6 @@ export function useGisPage() {
     return () => window.removeEventListener('hashchange', handler);
   }, []);
 
-  // AI 场景摘要：每 2s 轮询一次，确保 chip 与系统提示词不会停在旧的 entity 数上
-  // 用户的编辑动作（画图、删除、属性改值）不冒泡到父组件，所以只能主动 poll
-
   const actualLeftW = leftCollapsed ? COLLAPSED_W : leftW;
   const actualRightW = rightCollapsed ? COLLAPSED_W : rightW;
 

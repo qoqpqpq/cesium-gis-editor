@@ -1111,7 +1111,7 @@
   ],
   "rounds_completed": 0,
   "p1_done": 0,
-  "commits": 0,
+  "commits": 1,
   "specs_added": 0,
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
@@ -1144,5 +1144,5 @@
   "skipped_reason": null,
   "decision_ref": "state/auto-cycle-decisions.md#用户-2026-11-19-0925-回复",
   "gate_count": 15,
-  "delivered_sha": "pending"
+  "delivered_sha": "d0bcaf9 (cycle-142 主提交，已推送 attempt4)"
 }
