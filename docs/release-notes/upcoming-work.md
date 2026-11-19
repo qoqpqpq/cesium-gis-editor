@@ -19,6 +19,15 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 133 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice3 基础控件族统一**）
+
+**改前 5 类不一致**：① 双基座按钮规格分裂（`.btn` padding 8/14·fs14·hover 实心 vs `.btn-primary` padding 6/14·fs12·`--radius-6`）；② 死回退 `var(--accent, var(--primary-500))`；③ 裸 px（`.btn` 8/14、`.input` 8/12、`.tag` 2/10、`.badge` 1/8、`.chip` 3/10、`.row` 8、`.divider` 14、`.error` 8/12 等）；④ 半径混用（`--radius-6` vs `--radius-sm`、`.chip` 裸 14px）；⑤ 过渡硬编码（`all .2s ease` / `all .15s`）。
+
+**统一规范**：间距全走 `--space-*`（等值 token 化）；半径统一 `--radius-sm`；过渡统一 `var(--duration) var(--ease)`；`.btn` hover 实心填充 → **azure 微光 + 边框**；`.btn-primary` 归一到 `.btn` 基座并去死回退；`.btn-link` 色 `--accent`→`--link`；`.btn.primary`/`.btn-primary` 补 hover 亮度。
+
+**验收**：新增门禁 `controls-family-audit` 7/7 PASS ＋ 10 道既有设计门禁全 PASS ＋ 括号配平 0 ＋ `vite build` 6.33s/505 modules ＋ 线上核验（微光 hover / azure btn-primary 各 1 处、死回退 0、裸 14px radius 0）。
+范围边界：只统一**共享基础控件词汇**（24 选择器）；二级按钮族（sandcastle / file-loader / editor-toolbar / ai-chip 等）与全局 `.tabs`/`.tab` 主导航列入 Slice5。
+
 ## 周期 132 已交付（2026-11-19，自动周期 · **UR-4 Geo Dark Slice2 editor tab 族统一**）
 
 **改前 4 类不一致**：① active 态 hue 分裂（`.et-tab.active` 用 `--accent` cyan，另两族用 `--primary` azure）；② 死回退 `var(--accent, var(--color-blue-400))` ×3（`--accent` 恒定义，回退不可达）；③ `.style-panel-tab` 无 `:hover`（另两族均有）；④ 裸值 `padding: 5px 0` / `margin: 2px 8px 4px` / `padding: 10px 12px !important` / `border-radius: 0 6px 6px 0` / 裸 `rgba(96,165,250,*)`，半径 `--radius-6` 与 `--radius-sm` 并存。
@@ -46,7 +55,7 @@
 
 **后续 Slice 路线图（UI 全面重设计，按序推进）**：
 - [x] **Slice2 editor tab 族统一（周期 132 已交付）**：3 套 tab 族（`.et-tab*` / `.editor-layer-tab*` / `.style-panel-tab*`）统一到一套 Geo Dark 规范（inactive / hover / active + 底部 azure 指示线），死回退 `var(--accent, var(--color-blue-400))` 清零、裸 px 清零、半径收敛 `--radius-sm`、补齐 `.style-panel-tab:hover`；新增 `editor-tab-family-audit` 门禁 7 项
-- [ ] Slice3 按钮/表单/输入控件族（button·input·tab·tag·badge）
+- [x] **Slice3 基础控件族统一（周期 133 已交付）**：`.btn*` / `.btn-primary` / `.input` / `.tag` / `.badge` / `.chip` / `.row` / `.divider` / `.error`（24 选择器）统一 Geo Dark 规范 —— 间距全走 `--space-*`、半径统一 `--radius-sm`、过渡统一 `var(--duration) var(--ease)`；`.btn` hover 实心填充→azure 微光；`.btn-primary` 归一到 `.btn` 基座并去死回退；`.btn-link` 改 `--link`；新增 `controls-family-audit` 门禁 7 项
 - [ ] Slice4 表格与树（属性表 / QueryBuilder / 图层树 / AnalysisPanel）
 - [ ] Slice5 全局 chrome（Header·导航·右侧面板折叠手柄·主题切换）
 - [ ] Slice6 Cesium 控件层适配 Geo Dark（infobox/toolbar/credits/performance-display）
