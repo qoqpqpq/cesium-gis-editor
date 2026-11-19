@@ -19,6 +19,16 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 142 已交付（2026-11-19，自动周期 · **useGisPage 拆分 4/4 —— AI 编排胶水 · 收尾结案**）
+
+**实施**：新 `useAiOrchestration.js`（462 行）：433 行 **verbatim 脚本抽取**（场景摘要 2s 轮询 + `window.__*` e2e 钩子 + 分享代码自动运行 + `gis-share-code`/`gis-share-view`（含 AI 说明生成）+ `gis-run-code` + `gis-screenshot` + `nl-request-capture` + `handleAiSend` + `handleStop`），依赖经对象注入（17 项）；`aiApi/PRESETS/runAgentLoop/toolDocsForPrompt/buildShareUrl/sessionKeys` 导入随之迁走。`useGisPage.js`：**751 → 183 行（−428）**，清理 7 行未使用导入。
+
+**验收**：语法 OK（2 文件）；`vite build` 6.26s；线上 HTTP 200 + 主 chunk 含 `正在让 AI 生成场景说明`/`nl-request-capture`/`gis-share-view`/`gis-screenshot`/`ai-set-input`/`gis-run-code`/`__layerVisible` 全在 → 子钩子已打包接线；15 门禁 15/15 PASS。**行为零变化**。
+
+**拆分任务结案**：`useGisPage.js` **936 → 183 行（−80.4%）**，现为纯组合根（refs + 5 子钩子调用 + `pendingViewStateRef`/`aiSceneDesc` 视图态 + 事件绑定 + return 对象）。子钩子 = 布局 109 / AI 状态 96 / editor 66 / core 174 / orchestration 462。
+
+**技术债**：`useAiOrchestration` 462 行仍偏大，可再拆（截图联动 / 分享流程）→ P3。
+
 ## 周期 141 已交付（2026-11-19，自动周期 · **useGisPage 拆分 3/4 —— 核心执行/场景快照/重置清空簇**）
 
 **定界**：簇 ④ 内部分两类——① 纯执行（自洽，仅 9 依赖）② AI 编排胶水（L100-407 大 effect + `handleAiSend` + `handleStop`，耦合 AI 状态）→ 本轮抽 ①，留 ②。
@@ -141,7 +151,7 @@
 - [x] **Slice6 面板头部与节 + 面板/会话/键位族 token 化（周期 136 已交付）**：`.panel-header`/`.panel-content`/`.session-item`/`.key-badge`/`.key-switcher h4`/`.usage-panel-*`/`.usage-session-summary`/`.ai-panel-header h3`/`.ai-key-btn`/`.col-collapse-bar` —— 10 处裸 px→token（零视觉变化）+ `.col-collapse-bar` 边框 `#1f242d`→`var(--border)`；改前按行重扫证实编辑层面板头部（`.editor-style-panel*`/`.editor-section-*`/`.editor-layer-header`）已在 Slice1-5 token 化；新增 `panel-family-audit` 门禁 5 项
 - [x] **Slice7 亮主题配套（周期 137 已交付）**：精算「暗定义·亮未覆盖·被使用」主题相关 token → 31 候选 → 筛自动适配别名/原始色板/主题无关/同值 no-op → **16 项真实覆写**（亮≠暗）补齐亮块（危险软/强 7 项、`--success-active-bg`、`--overlay-85/92/95/96`、`--surface-elevated`、`--primary-tint-fg`、`--text-meta`、`--grad-brand` 等）；深色 `:root` 零改动，双主题不破；新增 `light-theme-coverage-audit` 门禁 6 项 + tables-tree-audit S7 校准
 - [ ] Slice8 打磨 + 全量回归（Cesium infobox/toolbar/credits 控件层适配、`#1f242d` 3 处、AI/聊天/sandcastle/col-picker 约 90 处裸 px、值命名档终审、全量 160 回归）
-- [ ] **`useGisPage` 拆分（用户拍板：UI 全部完成后再做）**
+- [x] **`useGisPage` 拆分（用户拍板：UI 全部完成后再做）—— 周期 139→142 四轮交付，结案**：`useGisPage.js` **936 → 183 行（−80.4%）**，现为纯组合根；5 子钩子 = `usePanelLayout` 109 + `useAiState` 96 + `useEditorState` 66 + `useGisCore` 174 + `useAiOrchestration` 462
 
 ## 周期 117 / 118 / 119 / 120 / 121 / 122 / 123 / 124 / 125 / 126 / 127 / 128 / 129 / 130（2026-11-18~19，自动周期）：**skipped（无可执行自动任务，未造需求）**
 
