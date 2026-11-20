@@ -1,7 +1,7 @@
 {
   "current_cycle": 161,
   "previous_cycle": 160,
-  "last_run_status": "failed",
+  "last_run_status": "completed",
   "last_run_at": "2026-11-20T15:35:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
   "cycle_completed_at": "2026-11-20T15:35:00+08:00",
@@ -1111,7 +1111,7 @@
   ],
   "rounds_completed": 0,
   "p1_done": 0,
-  "commits": 1,
+  "commits": 3,
   "specs_added": 0,
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
@@ -1136,14 +1136,14 @@
     "ur3-editor-panel-density"
   ],
   "decision_recorded_at": "2026-11-17T13:20:00+08:00",
-  "current_item": "skipped-pool-empty-18th-push-blocked",
+  "current_item": "skipped-pool-empty-18th-push-unblocked",
   "awaiting": "用户人工冒烟测试 cycle-77 useGisPage 迁移（http://localhost:3001）——通过/无法测试",
-  "note": "周期161：本地 skipped 记录+状态已提交（b05599c），但 push 被 GitHub 拒绝（token 失效，R-5202）。工作区 0 脏、预览 HTTP 200、远端 35facd6（非分叉）。需人工提供有效 token 后方可推送。",
+  "note": "周期161 最终：skipped 记录+风险台账已推送（cac8a49），IN_SYNC=YES，工作区 0 脏，预览 HTTP 200。凭证问题由用户提供新 token 解决（R-5202 关闭）。",
   "public_preview_url": "https://129.204.202.173:5175/",
   "context_compacted": true,
   "skipped_reason": null,
   "decision_ref": "state/auto-cycle-decisions.md#用户-2026-11-19-0925-回复",
   "gate_count": 15,
-  "delivered_sha": "b05599c",
-  "block_reason": "GitHub token 失效（R-5202）：refs.GITHUB_TOKEN 被 GitHub 拒绝（Invalid username or token / 401），push 6 次退避重试全失败。非分叉（远端 35facd6 为本地 b05599c 快进祖先）。本地提交 b05599c 安全未丢、未推。待人工在凭证服务轮换/重填有效带 repo 写权限 PAT。"
+  "delivered_sha": "cac8a49",
+  "block_reason": "周期161 曾因 GitHub token 失效（R-5202）推送受阻；用户 15:58 提供新有效 PAT 后推送恢复，35facd6..cac8a49 已同步，R-5202 resolved。"
 }
