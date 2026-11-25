@@ -1,10 +1,10 @@
 {
-  "current_cycle": 294,
-  "previous_cycle": 293,
+  "current_cycle": 295,
+  "previous_cycle": 294,
   "last_run_status": "skipped",
-  "last_run_at": "2026-11-26T05:20:00+08:00",
+  "last_run_at": "2026-11-26T06:20:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
-  "cycle_completed_at": "2026-11-26T05:20:00+08:00",
+  "cycle_completed_at": "2026-11-26T06:20:00+08:00",
   "current_round": 2,
   "round_status": "completed",
   "round_completed_at": "2026-10-17T23:45:00+08:00",
@@ -1116,14 +1116,14 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 294,
-    "acquired_at": "2026-11-26T05:10:00+08:00",
-    "released_at": "2026-11-26T05:20:00+08:00",
+    "cycle": 295,
+    "acquired_at": "2026-11-26T06:10:00+08:00",
+    "released_at": "2026-11-26T06:20:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "in_progress",
   "await_confirm_reason": null,
-  "skip_reason": "进度池无可执行自动任务（连续第 151 次）；剩余均人工依赖：cycle-77 人工冒烟待用户浏览器执行（地球已确认正常，EditorPanel 展开/折叠待回报）。",
+  "skip_reason": "进度池无可执行自动任务（连续第 152 次）；剩余均人工依赖：cycle-77 人工冒烟待用户浏览器执行（地球已确认正常，EditorPanel 展开/折叠待回报）。",
   "task": "UR-2 接口收尾：裁剪 useGisPage() 解构 68→45",
   "decision_queue": [
     "smoke-test-cycle77",
@@ -1136,19 +1136,19 @@
     "ur3-editor-panel-density"
   ],
   "decision_recorded_at": "2026-11-17T13:20:00+08:00",
-  "current_item": "skipped-pool-empty-151st",
+  "current_item": "skipped-pool-empty-152nd",
   "awaiting": "用户人工冒烟测试 cycle-77 useGisPage 迁移（http://localhost:3001）——通过/无法测试",
-  "note": "周期294：公网入站异常持续（第 9 轮），5175 外部 HTTP 000；内部健康（回环 5175=200、3001=200）；云侧安全组/网络入口路径问题（外部条件），需用户云控制台处理；应用本体未受影响。不改业务代码。refs.GITHUB_TOKEN 已持久化为有效 PAT（ghp_1bt…，API 200），推送直接读凭证存储。",
+  "note": "周期295：公网入站异常持续（第 10 轮），5175 外部 HTTP 000；内部健康（回环 5175=200、3001=200）；云侧安全组/网络入口路径问题（外部条件），需用户云控制台处理；应用本体未受影响。不改业务代码。refs.GITHUB_TOKEN 已持久化为有效 PAT（ghp_1bt…，API 200），推送直接读凭证存储。",
   "public_preview_url": "https://129.204.202.173:5175/",
   "context_compacted": true,
   "skipped_reason": null,
   "decision_ref": "state/auto-cycle-decisions.md#用户-2026-11-19-0925-回复",
   "gate_count": 15,
-  "delivered_sha": "4ce6cfe",
+  "delivered_sha": "53022a4",
   "block_reason": "周期161 曾因 GitHub token 失效（R-5202）推送受阻；用户 15:58 提供新有效 PAT 后推送恢复，35facd6..cac8a49 已同步，R-5202 resolved。",
   "ops_recovery": {
     "preview_internal_ok": true,
-    "public_ingress": "blocked_external_9th_cycle",
+    "public_ingress": "blocked_external_10th_cycle",
     "note": "云侧安全组/网络入口路径问题，需用户云控制台处理"
   }
 }
