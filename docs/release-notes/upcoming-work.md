@@ -19,6 +19,28 @@
 
 约束：不改业务逻辑/协议/接口（纯表现层）；每阶段独立提交在 `feat/auto-cycle`；双主题（light/dark）全程不破。
 
+## 周期 300 交付（2026-11-26 11:21 用户四项拍板落地）
+
+> 用户在 2026-11-26 11:21 拍板四项，本轮把其中可直接执行的两项落地，另两项按用户选择记录等待。
+
+**用户拍板（2026-11-26 11:21）**
+1. **公网入站** → 由**用户在云控制台**放开 5175（及 80）入站。（外部条件，主机侧无 Alibaba Cloud API 凭证可改）
+2. **cycle-77 人工冒烟** → 用户回报「EditorPanel 展开/折叠正常」→ **冒烟结案**（地球此前已确认正常）。
+3. **服务存活保障** → **批准**为 node API + Caddyfile.gis 创建 systemd 服务（属部署脚本变更，按 runbook 第 4 条已获人工审批）。
+4. **周期频率** → **保持每小时自查**（不降频、不转事件驱动）。
+
+**交付 1：预览服务 systemd 化（P1，验收全绿）**
+- 新增 `/etc/systemd/system/gis-node.service`（`User=ubuntu`、`WorkingDirectory=/home/ubuntu/cesium-gis-editor`、`Environment=NODE_ENV=production`、`ExecStart=/home/ubuntu/.local/node/bin/node server/index.js`、`Restart=always`）→ 端口 3001。
+- 新增 `/etc/systemd/system/gis-caddy.service`（`/usr/bin/caddy run --environ --config /etc/caddy/Caddyfile.gis`、`WorkingDirectory=/var/lib/caddy`、`Environment=HOME=/var/lib/caddy`、`Restart=always`）→ 端口 5175。
+- 两单元 `is-enabled=enabled`（开机自启）+ `is-active=active`；输出走 journal（无文件权限陷阱）。
+- **根因闭环**：20:05 预览掉线的根因是 `caddy.service` 只跑 `/etc/caddy/Caddyfile`（80/25504），Caddyfile.gis 靠手工 nohup 拉起 → 服务重启即掉线。**关键回归验证**：`sudo systemctl restart caddy.service` 后 `:5175` 仍由 gis-caddy（独立 pid）持有并返回 `HTTP 200 2231B` → 该故障模式已消除。
+- 健康基线：3001 `HTTP 200`；5175 真实 Host（`--resolve`）环回 `HTTP 200 2231B`；`/cesium/Cesium.js` `HTTP 200 5,974,765B`（静态代理正常）。
+- **探测方法修正**：回环探测必须带真实 Host：`curl -sk --resolve 129.204.202.173:5175:127.0.0.1 https://129.204.202.173:5175/`。直接用 `https://127.0.0.1:5175/` 会得到 `HTTP 200 content-length:0`（Caddy 按 Host 路由，`127.0.0.1` 不匹配 `129.204.202.173:5175` 站点块）——**空 200 是 Host 不匹配假象，不是故障**，勿据此判掉线。
+
+**开放项（待用户）**
+- 公网入站：`https://129.204.202.173:5175/` 外部仍 `HTTP 000`（已观测 15 轮）。用户已在云控制台处理中；**修复后下一整点复测，若恢复即关闭该观测项**。
+- 应用本体未受影响；无代码改动（仅 systemd 单元 + 文档），故不触发 lint/spec 门禁。
+
 - **周期 300（2026-11-26 11:10）**：同 144-299，skipped（进度池无可执行自动任务；剩余均人工依赖）。公网入站异常持续（**第 15 轮**）：`https://129.204.202.173:5175/` 外部 HTTP 000；内部健康（回环 5175=200、3001=200）；仍为云侧安全组/网络入口路径问题（外部条件），需用户云控制台处理。不改业务代码。
 - **周期 299（2026-11-26 10:10）**：同 144-298，skipped（进度池无可执行自动任务；剩余均人工依赖）。公网入站异常持续（**第 14 轮**）：`https://129.204.202.173:5175/` 外部 HTTP 000；内部健康（回环 5175=200、3001=200）；仍为云侧安全组/网络入口路径问题（外部条件），需用户云控制台处理。不改业务代码。
 - **周期 298（2026-11-26 09:10）**：同 144-297，skipped（进度池无可执行自动任务；剩余均人工依赖）。公网入站异常持续（**第 13 轮**）：`https://129.204.202.173:5175/` 外部 HTTP 000；内部健康（回环 5175=200、3001=200）；仍为云侧安全组/网络入口路径问题（外部条件），需用户云控制台处理。不改业务代码。

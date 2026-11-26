@@ -1,10 +1,10 @@
 {
   "current_cycle": 300,
   "previous_cycle": 299,
-  "last_run_status": "skipped",
-  "last_run_at": "2026-11-26T11:20:00+08:00",
+  "last_run_status": "delivered",
+  "last_run_at": "2026-11-26T11:45:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
-  "cycle_completed_at": "2026-11-26T11:20:00+08:00",
+  "cycle_completed_at": "2026-11-26T11:45:00+08:00",
   "current_round": 2,
   "round_status": "completed",
   "round_completed_at": "2026-10-17T23:45:00+08:00",
@@ -1111,19 +1111,19 @@
   ],
   "rounds_completed": 0,
   "p1_done": 0,
-  "commits": 0,
+  "commits": 1,
   "specs_added": 0,
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
     "cycle": 300,
     "acquired_at": "2026-11-26T11:10:00+08:00",
-    "released_at": "2026-11-26T11:20:00+08:00",
+    "released_at": "2026-11-26T11:45:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "in_progress",
   "await_confirm_reason": null,
-  "skip_reason": "进度池无可执行自动任务（连续第 157 次）；剩余均人工依赖：cycle-77 人工冒烟待用户浏览器执行（地球已确认正常，EditorPanel 展开/折叠待回报）。",
+  "skip_reason": null,
   "task": "UR-2 接口收尾：裁剪 useGisPage() 解构 68→45",
   "decision_queue": [
     "smoke-test-cycle77",
@@ -1136,19 +1136,25 @@
     "ur3-editor-panel-density"
   ],
   "decision_recorded_at": "2026-11-17T13:20:00+08:00",
-  "current_item": "skipped-pool-empty-157th",
+  "current_item": "cycle-300-user-decisions-ops-systemd",
   "awaiting": "用户人工冒烟测试 cycle-77 useGisPage 迁移（http://localhost:3001）——通过/无法测试",
-  "note": "周期300：公网入站异常持续（第 15 轮），5175 外部 HTTP 000；内部健康（回环 5175=200、3001=200）；云侧安全组/网络入口路径问题（外部条件），需用户云控制台处理；应用本体未受影响。不改业务代码。refs.GITHUB_TOKEN 已持久化为有效 PAT（ghp_1bt…，API 200），推送直接读凭证存储。",
+  "note": "周期300（用户 11:21 四项拍板落地）：① 新建 gis-node.service + gis-caddy.service 并 enabled+active，闭环 20:05 预览掉线根因（caddy.service 不含 Caddyfile.gis）；回归验证 restart caddy.service 后 5175 仍 200/2231B 且 :5175 由 gis-caddy 独立 pid 持有。② cycle-77 人工冒烟结案（用户回报 EditorPanel 展开/折叠正常，地球此前已确认）。③ 公网入站由用户在云控制台处理（观测 15 轮，外部仍 HTTP 000，恢复后复测关闭 R-3002）。④ 周期频率保持每小时。探测方法修正：回环须用 --resolve 带真实 Host，空 200 为 Host 不匹配假象（R-3003）。仅 systemd 单元 + 文档改动，无业务代码改动，不触发 lint/spec 门禁。",
   "public_preview_url": "https://129.204.202.173:5175/",
   "context_compacted": true,
   "skipped_reason": null,
   "decision_ref": "state/auto-cycle-decisions.md#用户-2026-11-19-0925-回复",
   "gate_count": 15,
-  "delivered_sha": "c61fc75",
+  "delivered_sha": null,
   "block_reason": "周期161 曾因 GitHub token 失效（R-5202）推送受阻；用户 15:58 提供新有效 PAT 后推送恢复，35facd6..cac8a49 已同步，R-5202 resolved。",
   "ops_recovery": {
     "preview_internal_ok": true,
-    "public_ingress": "blocked_external_15th_cycle",
-    "note": "云侧安全组/网络入口路径问题，需用户云控制台处理"
-  }
+    "managed_by_systemd": true,
+    "units": [
+      "gis-node.service",
+      "gis-caddy.service"
+    ],
+    "public_ingress": "blocked_external_user_fixing_in_console_15th_cycle",
+    "probe": "curl -sk --resolve 129.204.202.173:5175:127.0.0.1 https://129.204.202.173:5175/"
+  },
+  "consecutive_skips": "reset_by_delivery_300"
 }
