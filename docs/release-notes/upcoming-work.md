@@ -41,6 +41,7 @@
 - 公网入站：`https://129.204.202.173:5175/` 外部仍 `HTTP 000`（已观测 15 轮）。用户已在云控制台处理中；**修复后下一整点复测，若恢复即关闭该观测项**。
 - 应用本体未受影响；无代码改动（仅 systemd 单元 + 文档），故不触发 lint/spec 门禁。
 
+- **周期 324（2026-11-27 11:10）**：**交付** —— 用户 11:05 拍板「`useAiOrchestration` 纳入，按 4 步拆分」，进度池解锁。`client/src/pages/gis/useAiOrchestration.js` **462 → 52 行**（薄组合根，公共 API 5 key 不变），新增 4 子钩子：`useAiSceneContext` 86（场景上下文 2s 轮询 + `__refreshSceneContext`/`__runSandbox`/`__layers`/`__layerVisible`/`__flyToLayer`）、`useAiShareEvents` 169（`?code=` 自动执行 + `gis-share-code`/`gis-share-view`(AI 说明生成)/`gis-run-code`）、`useAiScreenshot` 105（`gis-screenshot` toBlob→base64→`ai-set-input` + `nl-request-capture`）、`useAiAgentSend` 134（`handleAiSend` Agent 工具循环 + `handleStop`）。**纯搬迁零行为改动**（脚本对账：原文 392 行非注释代码 100% 命中）。`useGisPage.js` **零改动**（调用点原样可用）。门禁：**构建 rc=0**、**15/15 设计门禁 PASS**、**gis 相关 9/9 spec EXIT=0**、全量回归 172/172。公网入站仍阻断（**第 38 轮观测**）：外部 5175 HTTP 000，等用户云控制台放行。
 - **周期 323（2026-11-27 10:10）**：同 144-322，skipped（进度池无可执行自动任务；剩余均人工依赖）。公网入站仍阻断（**第 38 轮观测**）：`https://129.204.202.173:5175/` 外部 HTTP 000，用户云控制台放行尚未生效（R-3002 open）；内部全绿——`gis-node`/`gis-caddy` 均 `enabled`+`active`，3001=200、5175（`--resolve` 真实 Host）=200/2231B。不改业务代码。
 - **周期 322（2026-11-27 09:10）**：同 144-321，skipped（进度池无可执行自动任务；剩余均人工依赖）。公网入站仍阻断（**第 37 轮观测**）：`https://129.204.202.173:5175/` 外部 HTTP 000，用户云控制台放行尚未生效（R-3002 open）；内部全绿——`gis-node`/`gis-caddy` 均 `enabled`+`active`，3001=200、5175（`--resolve` 真实 Host）=200/2231B。不改业务代码。
 - **周期 321（2026-11-27 08:10）**：同 144-320，skipped（进度池无可执行自动任务；剩余均人工依赖）。公网入站仍阻断（**第 36 轮观测**）：`https://129.204.202.173:5175/` 外部 HTTP 000，用户云控制台放行尚未生效（R-3002 open）；内部全绿——`gis-node`/`gis-caddy` 均 `enabled`+`active`，3001=200、5175（`--resolve` 真实 Host）=200/2231B。不改业务代码。
@@ -247,7 +248,7 @@
 
 **拆分任务结案**：`useGisPage.js` **936 → 183 行（−80.4%）**，现为纯组合根（refs + 5 子钩子调用 + `pendingViewStateRef`/`aiSceneDesc` 视图态 + 事件绑定 + return 对象）。子钩子 = 布局 109 / AI 状态 96 / editor 66 / core 174 / orchestration 462。
 
-**技术债**：`useAiOrchestration` 462 行仍偏大，可再拆（截图联动 / 分享流程）→ P3。
+**技术债（周期 324 已结案）**：`useAiOrchestration` 462 行 → **周期 324 已拆为 4 子钩子 + 52 行薄组合根**（useAiSceneContext 86 / useAiShareEvents 169 / useAiScreenshot 105 / useAiAgentSend 134），见 TD-5201。
 
 ## 周期 141 已交付（2026-11-19，自动周期 · **useGisPage 拆分 3/4 —— 核心执行/场景快照/重置清空簇**）
 

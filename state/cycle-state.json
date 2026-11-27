@@ -1,10 +1,10 @@
 {
-  "current_cycle": 323,
-  "previous_cycle": 322,
-  "last_run_status": "skipped",
-  "last_run_at": "2026-11-27T10:20:00+08:00",
+  "current_cycle": 324,
+  "previous_cycle": 323,
+  "last_run_status": "delivered",
+  "last_run_at": "2026-11-27T11:30:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
-  "cycle_completed_at": "2026-11-27T10:20:00+08:00",
+  "cycle_completed_at": "2026-11-27T11:30:00+08:00",
   "current_round": 2,
   "round_status": "completed",
   "round_completed_at": "2026-10-17T23:45:00+08:00",
@@ -1111,14 +1111,14 @@
   ],
   "rounds_completed": 0,
   "p1_done": 0,
-  "commits": 0,
+  "commits": 1,
   "specs_added": 0,
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 323,
-    "acquired_at": "2026-11-27T10:10:00+08:00",
-    "released_at": "2026-11-27T10:20:00+08:00",
+    "cycle": 324,
+    "acquired_at": "2026-11-27T11:05:00+08:00",
+    "released_at": "2026-11-27T11:30:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "in_progress",
@@ -1136,15 +1136,15 @@
     "ur3-editor-panel-density"
   ],
   "decision_recorded_at": "2026-11-17T13:20:00+08:00",
-  "current_item": "skipped-pool-empty-post300-23rd",
+  "current_item": "TD-5201 useAiOrchestration 4步拆分（用户11:05拍板解锁进度池）",
   "awaiting": "用户人工冒烟测试 cycle-77 useGisPage 迁移（http://localhost:3001）——通过/无法测试",
-  "note": "周期323：systemd 化后预览内部持续稳定（gis-node/gis-caddy 均 enabled+active，3001=200、5175 --resolve=200/2231B），无复发掉线。公网入站仍 HTTP 000（第 38 轮），等云控制台放行生效。不改业务代码。",
+  "note": "周期324 交付：useAiOrchestration.js 462→52 行薄组合根 + 4 子钩子（useAiSceneContext 86 / useAiShareEvents 169 / useAiScreenshot 105 / useAiAgentSend 134），useGisPage.js 零改动。纯搬迁零行为改动（脚本对账 392 行 100% 命中）。门禁（Lead 独立复跑）：构建 rc=0、15/15 设计门禁 PASS、gis 相关 9/9 spec EXIT=0、全量回归 172/172 PASS 无超时。TD-5201 结案。",
   "public_preview_url": "https://129.204.202.173:5175/",
   "context_compacted": true,
   "skipped_reason": null,
   "decision_ref": "state/auto-cycle-decisions.md#用户-2026-11-19-0925-回复",
   "gate_count": 15,
-  "delivered_sha": "67da635",
+  "delivered_sha": "",
   "block_reason": "周期161 曾因 GitHub token 失效（R-5202）推送受阻；用户 15:58 提供新有效 PAT 后推送恢复，35facd6..cac8a49 已同步，R-5202 resolved。",
   "ops_recovery": {
     "preview_internal_ok": true,
@@ -1156,5 +1156,33 @@
     "public_ingress": "blocked_external_38th_cycle_user_console_pending",
     "probe": "curl -sk --resolve 129.204.202.173:5175:127.0.0.1 https://129.204.202.173:5175/"
   },
-  "consecutive_skips": "reset_by_delivery_300"
+  "consecutive_skips": "reset_by_delivery_300",
+  "user_decisions": {
+    "recorded_at": "2026-11-27T11:05:00+08:00",
+    "ingress_allow": {
+      "decision": "全网放行 5175+80",
+      "owner": "user",
+      "status": "user_console_pending_38th_observation",
+      "note": "用户选「全网放行 5175+80」，由用户本人在阿里云控制台操作；我侧持续每小时复测外部 5175，返回 200 即关闭 R-3002。"
+    },
+    "useAiOrchestration_resplit": {
+      "decision": "纳入，按 4 步拆分",
+      "status": "delivered_cycle324",
+      "target": "client/src/pages/gis/useAiOrchestration.js（462 行）→ 4 子钩子 + 薄组合根，零行为改动",
+      "delivered_at": "2026-11-27T11:30:00+08:00"
+    },
+    "auto_cycle_cadence": {
+      "decision": "保持每小时",
+      "status": "unchanged"
+    }
+  },
+  "delivered_files": [
+    "client/src/pages/gis/useAiOrchestration.js",
+    "client/src/pages/gis/useAiSceneContext.js",
+    "client/src/pages/gis/useAiShareEvents.js",
+    "client/src/pages/gis/useAiScreenshot.js",
+    "client/src/pages/gis/useAiAgentSend.js"
+  ],
+  "delivered_item": "TD-5201",
+  "delivered_evidence": "docs/cycles/cycle-324-audit.md"
 }
