@@ -5925,3 +5925,33 @@ textarea.input {
   justify-content: center;
   flex: 1 1 100%;
 }
+
+/* UC-3: 消息级控件 hover 化 —— 默认不占视觉，悬停/聚焦消息时才浮现（应用按钮 + 已调用工具 chips） */
+.ai-msg .ai-msg-actions,
+.ai-msg .ai-tool-chips {
+  opacity: 0;
+  transition: opacity var(--duration) var(--ease);
+}
+
+.ai-msg:hover .ai-msg-actions,
+.ai-msg:hover .ai-tool-chips,
+.ai-msg:focus-within .ai-msg-actions,
+.ai-msg:focus-within .ai-tool-chips {
+  opacity: 1;
+}
+
+/* 触屏无 hover：保持常显，避免功能不可达 */
+@media (hover: none) {
+  .ai-msg .ai-msg-actions,
+  .ai-msg .ai-tool-chips {
+    opacity: 1;
+  }
+}
+
+/* UC-3: 冗长工具结果收敛 —— 限高滚动 + 软换行，展开后再细读 */
+.ai-tool-result-body {
+  max-height: 220px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
