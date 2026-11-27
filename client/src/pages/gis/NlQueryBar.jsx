@@ -186,7 +186,20 @@ export default function NlQueryBar({ sceneContext, fields = [] }) {
       {nlResult && (
         <div className={'nl-result ' + (nlResult.error ? 'nl-result-error' : 'nl-result-ok')}>
           {nlResult.error ? (
-            <div>⚠️ {nlResult.error}</div>
+            <div>
+              <div>⚠️ {nlResult.error}</div>
+              {nlResult.input && (
+                <div className="nl-result-hints">
+                  这是自由请求？底部 AI 助手可直接理解并执行。
+                  <button
+                    className="btn-link xsmall"
+                    onClick={() => window.dispatchEvent(new CustomEvent('ai-set-input', { detail: nlResult.input }))}
+                  >
+                    ↳ 发给 AI 助手
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <div className="nl-result-summary">
