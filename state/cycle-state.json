@@ -1,5 +1,5 @@
 {
-  "current_cycle": 331,
+  "current_cycle": 332,
   "previous_cycle": 327,
   "last_run_status": "completed",
   "last_run_at": "2026-11-27T15:20:00+08:00",
@@ -1116,9 +1116,9 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 331,
-    "acquired_at": "2026-11-27T19:10:00+08:00",
-    "released_at": "2026-11-27T19:30:00+08:00",
+    "cycle": 332,
+    "acquired_at": "2026-11-27T20:10:00+08:00",
+    "released_at": "2026-11-27T20:35:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "in_progress",
@@ -1186,8 +1186,8 @@
   ],
   "delivered_item": "TD-5201",
   "delivered_evidence": "docs/cycles/risk-ledger.md OBS-3281",
-  "last_cycle_note": "cycle 331: removed the dead assignment in useAiShareEvents.js. Root cause: pushToast() has no return (useEditorState.js only does const id = ++toastIdRef.current then push), so `const toastId = pushToast(...)` was always undefined and never referenced -> changed to a bare call + explanatory comment. Zero behavior change (same toast text/level/ttl). Gates: toastId occurrences 0, build rc=0, 5/5 related specs PASS, 15/15 design gates PASS. No UI source/CSS touched (user is verifying UC-1..UC-4). New TD-3301 (low): pushToast doesn't return id so the loading toast can't be dismissed, coexisting with result toasts for 15s - fix is a behavior change, deferred to a separate cycle after visual sign-off. UC-5 visual sign-off still await_confirm.",
-  "last_cycle_at": "2026-11-27T19:30:00+08:00",
+  "last_cycle_note": "cycle 332: implemented tests/run-suite.cjs (OBS-3301 fix) - batch regression runner with generous per-spec timeout (default 150s, --timeout in seconds) + automatic one retry on failure; only reports FAIL if the retry also fails. Debug gotcha: first version treated --timeout=30 as 30ms (parseInt used directly as ms) -> child instantly killed, pattern self-test falsely reported FAIL; fixed to interpret seconds (x1000) with a comment. Acceptance: full run TOTAL=172 PASS=172 FAIL=0 (exit 0), node -c passes, pattern self-test PASS; zero product source changes (only tests/ + state). OBS-3301 resolved. UI-CONSOLIDATION UC-5 visual sign-off still await_confirm; TD-3301 (pushToast no return) deferred by rule to a separate cycle after visual sign-off.",
+  "last_cycle_at": "2026-11-27T20:35:00+08:00",
   "downgrade_reason": null,
   "context_compressed": true
 }
