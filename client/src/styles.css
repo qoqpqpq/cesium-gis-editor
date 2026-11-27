@@ -5916,3 +5916,12 @@ textarea.input {
   padding: var(--space-6px) var(--space-10px);
   border-radius: var(--radius-base);
 }
+
+/* UC-2: 示例 chips 收纳 —— 「更多建议」展开后独占一行 */
+.ai-example-chips-more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-6px);
+  justify-content: center;
+  flex: 1 1 100%;
+}

@@ -33,6 +33,7 @@ const QUICK_NL = [
 export default function NlQueryBar({ sceneContext, fields = [] }) {
   const [nlInput, setNlInput] = useState('');
   const [nlResult, setNlResult] = useState(null); // { query, hints, bboxGroups } | { error }
+  const [open, setOpen] = useState(false); // UC-2: 自然语言栏默认收起（用户反馈该栏使用率低，收纳后减少暴露控件）
   const [showSuggest, setShowSuggest] = useState(false);
   const [showReportMenu, setShowReportMenu] = useState(false);
   const [reportAiDesc, setReportAiDesc] = useState('');
@@ -143,10 +144,26 @@ export default function NlQueryBar({ sceneContext, fields = [] }) {
     }
   };
 
+  {/* UC-2: 默认收起 —— 仅露一个入口，展开后才显示过滤输入/建议/报告导出 */}
+  if (!open) {
+    return (
+      <div className="nl-bar nl-bar-collapsed">
+        <button
+          className="btn-link xsmall"
+          onClick={() => setOpen(true)}
+          title="展开自然语言过滤栏（name 含 X / 大于 N / 为空 / bbox 内）"
+        >
+          🔮 筛选 ▸
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="nl-bar">
       <div className="nl-bar-row">
         <span className="nl-bar-label">🔮 自然语言</span>
+        <button className="btn-link xsmall" onClick={() => setOpen(false)} title="收起过滤栏">▾ 收起</button>
         <input
           ref={inputRef}
           className="input nl-bar-input"
