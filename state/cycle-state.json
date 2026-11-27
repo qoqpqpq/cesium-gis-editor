@@ -1,7 +1,7 @@
 {
   "current_cycle": 327,
   "previous_cycle": 326,
-  "last_run_status": "skipped",
+  "last_run_status": "delivered",
   "last_run_at": "2026-11-27T14:20:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
   "cycle_completed_at": "2026-11-27T14:20:00+08:00",
@@ -1111,7 +1111,7 @@
   ],
   "rounds_completed": 0,
   "p1_done": 0,
-  "commits": 0,
+  "commits": 1,
   "specs_added": 0,
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
@@ -1136,15 +1136,15 @@
     "ur3-editor-panel-density"
   ],
   "decision_recorded_at": "2026-11-17T13:20:00+08:00",
-  "current_item": "skipped-pool-empty-post324-3rd",
+  "current_item": "R-3002 结案：用户云控制台放行 5175 入站生效，公网预览恢复",
   "awaiting": "用户人工冒烟测试 cycle-77 useGisPage 迁移（http://localhost:3001）——通过/无法测试",
-  "note": "周期327：TD-5201 已于周期324 结案，本轮无新可执行项。systemd 化后预览内部持续稳定，无复发掉线。公网入站仍 HTTP 000（第 41 轮），等云控制台放行生效。不改业务代码。",
+  "note": "周期327（14:44 用户复测）：**R-3002 结案** —— 用户云控制台放行 5175 入站已生效，https://129.204.202.173:5175/ 外部 3/3 HTTP 200 / 2231B（<title>Cesium GIS Editor</title>，TLS 至 11-29）。端口 80 仍 HTTP 000（用户仅放行 5175）。周期 324 的 TD-5201 拆分保持已交付。",
   "public_preview_url": "https://129.204.202.173:5175/",
   "context_compacted": true,
   "skipped_reason": null,
   "decision_ref": "state/auto-cycle-decisions.md#用户-2026-11-19-0925-回复",
   "gate_count": 15,
-  "delivered_sha": "c45377a",
+  "delivered_sha": "2519af9",
   "block_reason": "周期161 曾因 GitHub token 失效（R-5202）推送受阻；用户 15:58 提供新有效 PAT 后推送恢复，35facd6..cac8a49 已同步，R-5202 resolved。",
   "ops_recovery": {
     "preview_internal_ok": true,
@@ -1153,8 +1153,11 @@
       "gis-node.service",
       "gis-caddy.service"
     ],
-    "public_ingress": "blocked_external_41st_cycle_user_console_pending",
-    "probe": "curl -sk --resolve 129.204.202.173:5175:127.0.0.1 https://129.204.202.173:5175/"
+    "public_ingress": "5175_open_cycle327_user_console_fixed",
+    "probe": "curl -sk --resolve 129.204.202.173:5175:127.0.0.1 https://129.204.202.173:5175/",
+    "public_ingress_80": "still_blocked_user_console_pending",
+    "ingress_resolved_at": "2026-11-27T14:44:00+08:00",
+    "ingress_evidence": "https://129.204.202.173:5175/ -> HTTP 200 2231B (3/3)"
   },
   "consecutive_skips": "reset_by_delivery_300",
   "user_decisions": {
@@ -1162,8 +1165,9 @@
     "ingress_allow": {
       "decision": "全网放行 5175+80",
       "owner": "user",
-      "status": "user_console_pending_38th_observation",
-      "note": "用户选「全网放行 5175+80」，由用户本人在阿里云控制台操作；我侧持续每小时复测外部 5175，返回 200 即关闭 R-3002。"
+      "status": "5175_open_80_pending",
+      "note": "用户选「全网放行 5175+80」，由用户本人在阿里云控制台操作；我侧持续每小时复测外部 5175，返回 200 即关闭 R-3002。",
+      "resolved_at": "2026-11-27T14:44:00+08:00"
     },
     "useAiOrchestration_resplit": {
       "decision": "纳入，按 4 步拆分",
