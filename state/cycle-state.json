@@ -1,5 +1,5 @@
 {
-  "current_cycle": 330,
+  "current_cycle": 331,
   "previous_cycle": 327,
   "last_run_status": "completed",
   "last_run_at": "2026-11-27T15:20:00+08:00",
@@ -1116,9 +1116,9 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 330,
-    "acquired_at": "2026-11-27T18:10:00+08:00",
-    "released_at": "2026-11-27T18:35:00+08:00",
+    "cycle": 331,
+    "acquired_at": "2026-11-27T19:10:00+08:00",
+    "released_at": "2026-11-27T19:30:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "in_progress",
@@ -1186,8 +1186,8 @@
   ],
   "delivered_item": "TD-5201",
   "delivered_evidence": "docs/cycles/risk-ledger.md OBS-3281",
-  "last_cycle_note": "cycle 330: UC-5 automated regression half - ran FULL tests/specs suite (172 specs) = 171 PASS / 1 FAIL; the single css-duplication-audit failure reproduced 3/3 PASS on rerun (0.54s runtime, deterministic inputs styles.css+theme.css only, zero source changes during run) -> judged transient environment jitter, not a product regression (baseline TD-5501 fixed full-suite failures 9->0 at cycle 59, so expectation was 0). 15/15 design gates final-confirmed; services green (both enabled+active, 3001=200, public 5175=200/2231B, 80=308, CORS=400). New OBS-3301 (low): batch regression loop's per-spec timeout 90 can mis-kill slow starts as failures. No UI source touched this cycle (user is verifying UC-1..UC-4 in browser). UC-5 visual sign-off still await_confirm.",
-  "last_cycle_at": "2026-11-27T18:35:00+08:00",
+  "last_cycle_note": "cycle 331: removed the dead assignment in useAiShareEvents.js. Root cause: pushToast() has no return (useEditorState.js only does const id = ++toastIdRef.current then push), so `const toastId = pushToast(...)` was always undefined and never referenced -> changed to a bare call + explanatory comment. Zero behavior change (same toast text/level/ttl). Gates: toastId occurrences 0, build rc=0, 5/5 related specs PASS, 15/15 design gates PASS. No UI source/CSS touched (user is verifying UC-1..UC-4). New TD-3301 (low): pushToast doesn't return id so the loading toast can't be dismissed, coexisting with result toasts for 15s - fix is a behavior change, deferred to a separate cycle after visual sign-off. UC-5 visual sign-off still await_confirm.",
+  "last_cycle_at": "2026-11-27T19:30:00+08:00",
   "downgrade_reason": null,
   "context_compressed": true
 }

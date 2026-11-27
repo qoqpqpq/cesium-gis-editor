@@ -79,7 +79,9 @@ export function useAiShareEvents({
       //   - 独立版：会话 Key 纯 session，需随请求带给后端代理
       const platform = (aiCurrentPlatform || '').trim() || (aiPlatforms[0] && aiPlatforms[0].platform) || '';
       if (platform) {
-        const toastId = pushToast('🤖 正在让 AI 生成场景说明…', 'info', 15000);
+        // cycle 331: pushToast() 未 return id（useEditorState.js 里无 return），
+// 原来「把返回值绑到局部变量」是死赋值（恒为 undefined、后续从未引用）→ 去掉绑定。
+        pushToast('🤖 正在让 AI 生成场景说明…', 'info', 15000);
         try {
           const fileStats = api.getDataSourceStats?.() || [];
           const sceneKey = sessionKeys.get(platform);
