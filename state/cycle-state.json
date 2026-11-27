@@ -1,7 +1,7 @@
 {
-  "current_cycle": 329,
+  "current_cycle": 330,
   "previous_cycle": 327,
-  "last_run_status": "delivered",
+  "last_run_status": "in_progress",
   "last_run_at": "2026-11-27T15:20:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
   "cycle_completed_at": "2026-11-27T15:20:00+08:00",
@@ -1115,10 +1115,10 @@
   "specs_added": 0,
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
-    "held": false,
-    "cycle": 329,
-    "acquired_at": "2026-11-27T16:10:00+08:00",
-    "released_at": "2026-11-27T16:35:00+08:00",
+    "held": true,
+    "cycle": 330,
+    "acquired_at": "2026-11-27T18:10:00+08:00",
+    "released_at": null,
     "owner": "auto-cycle"
   },
   "status": "in_progress",
