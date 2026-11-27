@@ -5877,3 +5877,42 @@ textarea.input {
 .three-check-item.warn { color: var(--warn); }
 .three-check-item.error { color: var(--danger-soft-fg); }
 
+
+/* UC-1: AI 面板头部「更多」收纳菜单 —— 降低头部暴露控件数量（全部使用设计 token） */
+.ai-panel-more {
+  position: relative;
+  display: inline-flex;
+}
+
+.ai-panel-more-backdrop {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 1100;
+}
+
+.ai-panel-more-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 1101;
+  min-width: 148px;
+  padding: var(--space-5px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-2px);
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-elevated);
+}
+
+.ai-panel-more-menu .btn-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  white-space: nowrap;
+  padding: var(--space-6px) var(--space-10px);
+  border-radius: var(--radius-base);
+}
