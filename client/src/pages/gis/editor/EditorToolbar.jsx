@@ -106,6 +106,10 @@ export default function EditorToolbar({
         <div className="editor-popup" ref={popupRef}>
           <div className="editor-popup-header">
             <span>✏️ GIS 编辑器</span>
+            {/* UC-4: 统一状态行 —— 只读指标集中一处，不再散落在各 section 标题里 */}
+            <span className="editor-status-line" title="图层 / 要素 / 当前选中数量">
+              {layers.length} 图层 · {features.length} 要素{selectedCount > 0 ? ` · 选中 ${selectedCount}` : ''}
+            </span>
             <button className="icon-btn" onClick={onToggle} aria-label="关闭 GIS 编辑器">✕</button>
           </div>
 
@@ -163,7 +167,7 @@ export default function EditorToolbar({
                 <div className="editor-section-title">
                   测量工具
                   {(mode === 'measure-distance' || mode === 'measure-area' || mode === 'measure-height') && (
-                    <button className="btn-link" style={{ marginLeft: 8, fontSize: 10 }} onClick={onClearMeasure}>✕ 清空</button>
+                    <button className="btn-link editor-btn-inline" onClick={onClearMeasure}>✕ 清空</button>
                   )}
                 </div>
                 <div className="editor-tool-grid">
@@ -207,13 +211,13 @@ export default function EditorToolbar({
                       onChange={(e) => onSnapChange && onSnapChange({ ...snapSettings, edge: e.target.checked })} />
                     <span>边吸附</span>
                   </label>
-                  <label className="editor-snap-toggle" htmlFor="snap-grid-toggle" style={{ opacity: 0.45 }}>
+                  <label className="editor-snap-toggle editor-snap-toggle--disabled" htmlFor="snap-grid-toggle">
                     <input id="snap-grid-toggle" type="checkbox" disabled />
                     <span>格网（待）</span>
                   </label>
                 </div>
                 <div className="editor-snap-tol-row">
-                  <span style={{ color: 'var(--muted)', fontSize: 11 }}>容差</span>
+                  <span className="editor-label-muted">容差</span>
                   <input type="range" min={4} max={32} step={1}
                     aria-label="顶点吸附容差（像素）"
                     title="容差（像素）：点击/绘制时顶点吸附的最大距离"
@@ -229,10 +233,7 @@ export default function EditorToolbar({
           {tab === 'layer' && (
             <div className="et-tab-content">
               <div className="editor-popup-section">
-                <div className="editor-section-title">
-                  图层 · 要素
-                  <span className="editor-section-meta">{layers.length} 图层 · {features.length} 要素</span>
-                </div>
+                <div className="editor-section-title">图层 · 要素</div>
                 <LayersTree
                   layers={layers}
                   features={features}
@@ -253,7 +254,7 @@ export default function EditorToolbar({
                   onDeleteFeature={onDeleteFeature}
                   onLayerAssign={onLayerAssign}
                 />
-                <button className="btn-link" style={{ marginTop: 6, fontSize: 11 }} onClick={onPromoteDefault}
+                <button className="btn-link editor-btn-below" onClick={onPromoteDefault}
                   title="把默认图层里残留的要素迁到新图层">
                   📤 整理默认图层
                 </button>
@@ -261,7 +262,7 @@ export default function EditorToolbar({
 
               <div className="editor-popup-section">
                 <div className="editor-section-title">视图导航</div>
-                <div className="editor-action-row" style={{ flexWrap: 'wrap', gap: 4 }}>
+                <div className="editor-action-row editor-action-row--wrap">
                   <button className="btn-link" onClick={onFlyToActiveLayer} title="把相机飞到当前选中图层的全部要素范围">🎯 缩放至图层</button>
                   <button className="btn-link" onClick={onToggleFullscreen} title="进入或退出浏览器原生全屏">⛶ 全屏</button>
                   <button className="btn-link" onClick={onShareView} title="复制当前视图 URL 到剪贴板（相机姿态 + 选中图层 + 坐标格式）">🔗 分享视图</button>
@@ -277,8 +278,8 @@ export default function EditorToolbar({
                 </div>
                 {selectedCount > 0 && (
                   <>
-                    <div className="editor-action-row" style={{ marginTop: 6 }}>
-                      <span style={{ color: 'var(--muted)', fontSize: 11 }}>已选 {selectedCount}</span>
+                    <div className="editor-action-row editor-action-row--below">
+                      <span className="editor-label-muted">已选 {selectedCount}</span>
                       <button className="btn-link" onClick={onDuplicate}>⎘ 复制</button>
                       <button className="btn-link" onClick={onSimplify} disabled={!canSimplify}
                         title={canSimplify ? 'Douglas-Peucker 简化' : '仅线/面可简化'}>🧮 简化</button>
@@ -296,13 +297,13 @@ export default function EditorToolbar({
             <div className="et-tab-content">
               <div className="editor-popup-section">
                 <div className="editor-section-title">导入 / 导出</div>
-                <div className="editor-action-row" style={{ flexWrap: 'wrap', gap: 4 }}>
+                <div className="editor-action-row editor-action-row--wrap">
                   <button className="btn-link" onClick={onImport}>📥 导入</button>
                   <button className="btn-link" onClick={onExportGeoJSON}>📤 GeoJSON</button>
                   <button className="btn-link" onClick={onExportKML}>📤 KML</button>
                   <button className="btn-link" onClick={onExportPNG}>📷 截图</button>
                 </div>
-                <div className="editor-action-row" style={{ marginTop: 6 }}>
+                <div className="editor-action-row editor-action-row--below">
                   <button
                     className={'btn-link' + (attrTableOpen ? ' active' : '')}
                     onClick={onToggleAttrTable}
@@ -314,38 +315,38 @@ export default function EditorToolbar({
 
               <div className="editor-popup-section et-highlight-section">
                 <div className="editor-section-title">🔬 空间分析</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>
+                <div className="editor-hint-muted">
                   7 种操作：Buffer · 交集 · 并集 · 差集 · 质心 · 凸包 · 溶解
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>
+                <div className="editor-hint-muted">
                   支持 ☁️ 服务端运行（适合大文件不卡主线程）
                 </div>
-                <button className={'btn-link' + (analysisOpen ? ' active' : '')} onClick={onToggleAnalysis}
+                <button className={'btn-link editor-btn-fill' + (analysisOpen ? ' active' : '')} onClick={onToggleAnalysis}
                   title={analysisOpen ? '关闭空间分析面板' : '打开空间分析面板'}
                   aria-label={analysisOpen ? '关闭空间分析面板' : '打开空间分析面板'}
-                  style={{ width: '100%', justifyContent: 'center', padding: '6px 0' }}>
+                  >
                   🔬 {analysisOpen ? '关闭' : '打开'} 空间分析面板
                 </button>
               </div>
 
               <div className="editor-popup-section et-highlight-section">
-                <div className="editor-section-title">🧪 三项检查 <span style={{ color: 'var(--new-feature)', fontSize: 10 }}>NEW</span></div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>
+                <div className="editor-section-title">🧪 三项检查 <span className="editor-badge-new">NEW</span></div>
+                <div className="editor-hint-muted">
                   分析前先过一遍：位置 / 几何 / 属性三项质控
                 </div>
-                <button className={'btn-link' + (threeCheckOpen ? ' active' : '')} onClick={onToggleThreeCheck}
-                  style={{ width: '100%', justifyContent: 'center', padding: '6px 0' }}>
+                <button className={'btn-link editor-btn-fill' + (threeCheckOpen ? ' active' : '')} onClick={onToggleThreeCheck}
+                  >
                   🧪 {threeCheckOpen ? '关闭' : '打开'} 三项检查
                 </button>
               </div>
 
               <div className="editor-popup-section et-highlight-section">
-                <div className="editor-section-title">🖨 打印 / 导出 <span style={{ color: 'var(--new-feature)', fontSize: 10 }}>NEW</span></div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>
+                <div className="editor-section-title">🖨 打印 / 导出 <span className="editor-badge-new">NEW</span></div>
+                <div className="editor-hint-muted">
                   PNG · PDF · GeoJSON · KML · CSV · Shapefile
                 </div>
-                <button className={'btn-link' + (printExportOpen ? ' active' : '')} onClick={onTogglePrintExport}
-                  style={{ width: '100%', justifyContent: 'center', padding: '6px 0' }}>
+                <button className={'btn-link editor-btn-fill' + (printExportOpen ? ' active' : '')} onClick={onTogglePrintExport}
+                  >
                   🖨 {printExportOpen ? '关闭' : '打开'} 打印 / 导出面板
                 </button>
               </div>

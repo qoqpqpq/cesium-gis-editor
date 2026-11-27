@@ -5955,3 +5955,55 @@ textarea.input {
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* UC-4: GIS 编辑器工具栏 —— 统一状态行 + 内联裸样式收敛为 token 类 */
+.editor-status-line {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  letter-spacing: var(--ls-0-02em);
+}
+
+.editor-label-muted {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+.editor-hint-muted {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  margin-bottom: var(--gap-1);
+}
+
+.editor-action-row--wrap {
+  flex-wrap: wrap;
+  gap: var(--gap-4px);
+}
+
+.editor-action-row--below {
+  margin-top: var(--space-6px);
+}
+
+.editor-btn-inline {
+  margin-left: var(--gap-1);
+  font-size: var(--fs-xs);
+}
+
+.editor-btn-below {
+  margin-top: var(--space-6px);
+  font-size: var(--fs-sm);
+}
+
+.editor-btn-fill {
+  width: 100%;
+  justify-content: center;
+  padding: var(--space-6px) 0;
+}
+
+.editor-snap-toggle--disabled {
+  opacity: 0.45;
+}
+
+.editor-badge-new {
+  color: var(--new-feature);
+  font-size: var(--fs-xs);
+}
