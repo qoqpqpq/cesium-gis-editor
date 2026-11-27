@@ -1144,7 +1144,7 @@
   "skipped_reason": null,
   "decision_ref": "state/auto-cycle-decisions.md#用户-2026-11-19-0925-回复",
   "gate_count": 15,
-  "delivered_sha": "91a7d2e",
+  "delivered_sha": "fc100e1",
   "block_reason": "周期161 曾因 GitHub token 失效（R-5202）推送受阻；用户 15:58 提供新有效 PAT 后推送恢复，35facd6..cac8a49 已同步，R-5202 resolved。",
   "ops_recovery": {
     "preview_internal_ok": true,
@@ -1186,6 +1186,6 @@
   ],
   "delivered_item": "TD-5201",
   "delivered_evidence": "docs/cycles/risk-ledger.md OBS-3281",
-  "last_cycle_note": "cycle 329 delivered UC-1 (AI panel header consolidation 7->3 controls + more menu), UC-2 (NlQueryBar collapsed by default + chips 8 -> Top3 + more suggestions), UC-3 (per-message controls hover-only + tool-result body capped at 220px scroll). Gates all green each stage: build rc=0, 15/15 design gates PASS, gis 9/9 specs PASS. Push flakiness noted (TLS -110 on attempts 1-2, RC=0 on attempt 3). Design doc docs/design/ui-consolidation-plan.md; UC-4/UC-5 pending.",
+  "last_cycle_note": "cycle 329 delivered UC-1..UC-4 of UI-CONSOLIDATION (design doc docs/design/ui-consolidation-plan.md): UC-1 header consolidation 7->3 controls + more menu; UC-2 NlQueryBar collapsed by default + chips 8->Top3 + more suggestions; UC-3 per-message controls hover-only + tool-result body capped/scroll; UC-4 editor toolbar unified status line + 18 inline raw styles tokenized. Every stage: build rc=0, 15/15 design gates PASS, gis 9/9 specs PASS, dist markers verified. UC-5 (full regression + user visual sign-off) pending.",
   "last_cycle_at": "2026-11-27T16:35:00+08:00"
 }
