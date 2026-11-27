@@ -1,5 +1,5 @@
 {
-  "current_cycle": 328,
+  "current_cycle": 329,
   "previous_cycle": 327,
   "last_run_status": "delivered",
   "last_run_at": "2026-11-27T15:20:00+08:00",
@@ -1116,9 +1116,9 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 328,
-    "acquired_at": "2026-11-27T15:10:00+08:00",
-    "released_at": "2026-11-27T15:20:00+08:00",
+    "cycle": 329,
+    "acquired_at": "2026-11-27T16:10:00+08:00",
+    "released_at": "2026-11-27T16:35:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "in_progress",
@@ -1144,7 +1144,7 @@
   "skipped_reason": null,
   "decision_ref": "state/auto-cycle-decisions.md#用户-2026-11-19-0925-回复",
   "gate_count": 15,
-  "delivered_sha": "a665231",
+  "delivered_sha": "a6ed0da",
   "block_reason": "周期161 曾因 GitHub token 失效（R-5202）推送受阻；用户 15:58 提供新有效 PAT 后推送恢复，35facd6..cac8a49 已同步，R-5202 resolved。",
   "ops_recovery": {
     "preview_internal_ok": true,
@@ -1185,5 +1185,7 @@
     "/etc/systemd/system/gis-node.service (host, ALLOWED_ORIGINS)"
   ],
   "delivered_item": "TD-5201",
-  "delivered_evidence": "docs/cycles/risk-ledger.md OBS-3281"
+  "delivered_evidence": "docs/cycles/risk-ledger.md OBS-3281",
+  "last_cycle_note": "cycle 329 (2026-11-27 16:10) delivered UC-1: AI panel header consolidation (7 exposed controls -> 3 primary + 'more' menu), per user 15:57 feedback OBS-3283 ('complete refactor design + rearrange + remove unnecessary controls', approved). Design doc docs/design/ui-consolidation-plan.md (UC-1..UC-5). Gates: build rc=0, 15/15 design gates PASS, gis 9/9 specs PASS. Incident: styles.css got duplicated during append (5879->11799 lines) -> restored from HEAD; lesson: always verify wc -l + class occurrence count after appending CSS.",
+  "last_cycle_at": "2026-11-27T16:35:00+08:00"
 }
