@@ -1,7 +1,7 @@
 {
   "current_cycle": 330,
   "previous_cycle": 327,
-  "last_run_status": "in_progress",
+  "last_run_status": "completed",
   "last_run_at": "2026-11-27T15:20:00+08:00",
   "cycle_started_at": "2026-11-17T08:32:00+08:00",
   "cycle_completed_at": "2026-11-27T15:20:00+08:00",
@@ -1115,10 +1115,10 @@
   "specs_added": 0,
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
-    "held": true,
+    "held": false,
     "cycle": 330,
     "acquired_at": "2026-11-27T18:10:00+08:00",
-    "released_at": null,
+    "released_at": "2026-11-27T18:35:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "in_progress",
@@ -1186,6 +1186,8 @@
   ],
   "delivered_item": "TD-5201",
   "delivered_evidence": "docs/cycles/risk-ledger.md OBS-3281",
-  "last_cycle_note": "cycle 329 delivered UC-1..UC-4 of UI-CONSOLIDATION (design doc docs/design/ui-consolidation-plan.md): UC-1 header consolidation 7->3 controls + more menu; UC-2 NlQueryBar collapsed by default + chips 8->Top3 + more suggestions; UC-3 per-message controls hover-only + tool-result body capped/scroll; UC-4 editor toolbar unified status line + 18 inline raw styles tokenized. Every stage: build rc=0, 15/15 design gates PASS, gis 9/9 specs PASS, dist markers verified. UC-5 (full regression + user visual sign-off) pending.",
-  "last_cycle_at": "2026-11-27T16:35:00+08:00"
+  "last_cycle_note": "cycle 330: UC-5 automated regression half - ran FULL tests/specs suite (172 specs) = 171 PASS / 1 FAIL; the single css-duplication-audit failure reproduced 3/3 PASS on rerun (0.54s runtime, deterministic inputs styles.css+theme.css only, zero source changes during run) -> judged transient environment jitter, not a product regression (baseline TD-5501 fixed full-suite failures 9->0 at cycle 59, so expectation was 0). 15/15 design gates final-confirmed; services green (both enabled+active, 3001=200, public 5175=200/2231B, 80=308, CORS=400). New OBS-3301 (low): batch regression loop's per-spec timeout 90 can mis-kill slow starts as failures. No UI source touched this cycle (user is verifying UC-1..UC-4 in browser). UC-5 visual sign-off still await_confirm.",
+  "last_cycle_at": "2026-11-27T18:35:00+08:00",
+  "downgrade_reason": null,
+  "context_compressed": true
 }
