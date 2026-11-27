@@ -1138,7 +1138,7 @@
   "decision_recorded_at": "2026-11-17T13:20:00+08:00",
   "current_item": "OBS-3281 自然语言栏未识别→发给AI助手兜底按钮（用户15:07拍板）",
   "awaiting": "用户人工冒烟测试 cycle-77 useGisPage 迁移（http://localhost:3001）——通过/无法测试",
-  "note": "周期328 交付：OBS-3281 UX 缺口修复。NlQueryBar.jsx 错误块加「这是自由请求？底部 AI 助手可直接理解并执行」+「↳ 发给 AI 助手」按钮（ai-set-input 通道，填入+聚焦）。门禁全绿，线上公网主 chunk 已含修复标记。OBS-3281 结案。R-3002 保持结案：公网 5175 HTTP 200/2231B（3/3 稳定）。",
+  "note": "周期328（15:27 追加）：OBS-3282 修复 —— 公网 AI 助手 500 根因=服务端 CORS 白名单缺公网 origin。gis-node.service 加 ALLOWED_ORIGINS=https://129.204.202.173:5175,... 并重启，agent 请求 500→400（正常守卫「未提供 AI Key」）。下一步：用户配置 deepseek 会话 Key。OBS-3281 已结案；R-3002 保持结案。",
   "public_preview_url": "https://129.204.202.173:5175/",
   "context_compacted": true,
   "skipped_reason": null,
@@ -1181,7 +1181,8 @@
     }
   },
   "delivered_files": [
-    "client/src/pages/gis/NlQueryBar.jsx"
+    "client/src/pages/gis/NlQueryBar.jsx",
+    "/etc/systemd/system/gis-node.service (host, ALLOWED_ORIGINS)"
   ],
   "delivered_item": "TD-5201",
   "delivered_evidence": "docs/cycles/risk-ledger.md OBS-3281"
