@@ -1,5 +1,5 @@
 {
-  "current_cycle": 354,
+  "current_cycle": 355,
   "previous_cycle": 327,
   "last_run_status": "skipped",
   "last_run_at": "2026-11-27T15:20:00+08:00",
@@ -1116,9 +1116,9 @@
   "merge_note": "merged feat/auto-cycle 远端(58 commit,cycle 22-28主线) + 本地(31 commit,cycle 15-21本会话); history 双方合并按 cycle 去重; 合并策略=merge 远端到本地(用户 2026-11-14 决策)",
   "lock": {
     "held": false,
-    "cycle": 354,
-    "acquired_at": "2026-11-28T20:10:00+08:00",
-    "released_at": "2026-11-28T20:20:00+08:00",
+    "cycle": 355,
+    "acquired_at": "2026-11-28T21:10:00+08:00",
+    "released_at": "2026-11-28T21:20:00+08:00",
     "owner": "auto-cycle"
   },
   "status": "in_progress",
@@ -1186,8 +1186,8 @@
   ],
   "delivered_item": "TD-5201",
   "delivered_evidence": "docs/cycles/risk-ledger.md OBS-3281",
-  "last_cycle_note": "cycle 354: SKIPPED (22nd same-cause). No P0/P1, no non-UI candidate; UC-5 sign-off still await_confirm. TD-3301 / R5 / R6 not started. Guards: services active, public 5175=200/2231B. No source changes.",
-  "last_cycle_at": "2026-11-28T20:20:00+08:00",
+  "last_cycle_note": "cycle 355: SKIPPED (23rd same-cause). No P0/P1, no non-UI candidate; UC-5 sign-off still await_confirm. TD-3301 / R5 / R6 not started. Guards: services active, public 5175=200/2231B. No source changes.",
+  "last_cycle_at": "2026-11-28T21:20:00+08:00",
   "downgrade_reason": null,
   "context_compressed": true
 }
